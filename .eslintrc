@@ -5,6 +5,7 @@
     "prefer-rest-params": "off",
     "prefer-spread": "off",
     "strict": "off",
-    "no-underscore-dangle": ["error", { "allowAfterThis": true }]
+    "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+    "max-len": 0
   }
 }
