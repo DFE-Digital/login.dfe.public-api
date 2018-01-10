@@ -25,7 +25,9 @@
     "ejs": "^2.5.7",
     "express": "^4.15.4",
     "express-ejs-layouts": "^2.3.1",
+    "helmet": "^3.9.0",
     "lodash": "^4.17.4",
+    "login.dfe.sanitization": "git+https://github.com/DFE-Digital/login.dfe.sanitization.git#v1.0",
     "morgan": "^1.9.0",
     "winston": "^2.4.0",
     "winston-redis": "^1.0.0"
