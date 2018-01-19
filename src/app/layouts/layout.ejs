@@ -6,7 +6,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title><%=locals.title || (locals.app ? locals.app.title : null) || 'Login.DfE'%></title>
+    <title><%=locals.title || (locals.app ? locals.app.title : null) || 'DfE Sign-in'%></title>
 
     <link rel="stylesheet" href="https://rawgit.com/DFE-Digital/dfe.ui.toolkit/master/dist/css/govuk/fonts.css">
     <link rel="stylesheet" href="https://rawgit.com/DFE-Digital/dfe.ui.toolkit/master/dist/css/govuk/govuk-template.css">
@@ -33,15 +33,21 @@
 </div>
 
 <div id="global-cookie-message">
-    <p>GOV.UK uses cookies to make the site simpler. <a href="https://www.gov.uk/help/cookies">Find out more about
-            cookies</a></p>
+    <p>GOV.UK uses cookies to make the site simpler. <a href="https://www.gov.uk/help/cookies">Find out more about cookies</a></p>
 </div>
 
 <div class="wrapper">
 
-    <header id="global-header" class="with-proposition">
+    <header id="global-header">
         <div class="header-wrapper">
-            <div class="identity">Department for Education</div>
+            <div class="header-global">
+                <div class="header-logo">
+                    <a href="https://www.gov.uk" title="Go to the GOV.UK homepage" id="logo" class="content">
+                        <img src="https://rawgit.com/DFE-Digital/dfe.ui.toolkit/master/dist/images/gov.uk_logotype_crown_invert_trans.png" width="36" height="32" alt=""> GOV.UK
+                    </a>
+                </div>
+                <h1 class="header-title">DfE Sign-in</h1>
+            </div>
         </div>
     </header>
 
@@ -80,11 +86,7 @@
     <div class="footer-wrapper">
         <nav>
             <ul>
-                <li><a href="/help">Help</a></li>
-                <li><a href="cookies.html">Cookies</a></li>
-                <li><a href="privacy.html">Privacy policy</a></li>
-                <li><a href="/terms">Terms and conditions</a></li>
-                <li><a href="/help">Need help using this service?</a></li>
+                <li></li>
             </ul>
         </nav>
     </div>
