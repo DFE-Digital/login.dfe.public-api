@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/login.dfe.migration.admin.iml" filepath="$PROJECT_DIR$/.idea/login.dfe.migration.admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/login.dfe.public-api.iml" filepath="$PROJECT_DIR$/.idea/login.dfe.public-api.iml" />
     </modules>
   </component>
 </project>
