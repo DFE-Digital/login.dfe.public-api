@@ -16,5 +16,9 @@
       "timeout":60000,
       "keepAliveTimeout":30000
     }
+  },
+  "auth":{
+    "type" :"secret",
+    "secret": "fretful-cordite-bobbin-culprit"
   }
 }

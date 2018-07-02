@@ -24,6 +24,7 @@
     "applicationinsights": "^1.0.3",
     "express": "^4.16.3",
     "lodash": "^4.17.10",
+    "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v1.0.0",
     "login.dfe.audit.winston-sequelize-transport": "git+https://github.com/DFE-Digital/login.dfe.audit.winston-sequelize-transport.git#v1.0",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v1.3",
