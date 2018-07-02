@@ -1,12 +1,5 @@
-# DfE Express Boilerplate application
-
-This is a starting point for node applications, it included the basics needed to setup a Web application or API. 
-
-### Default setting for:
-
-- ESLint
-- Testing (Jest)
-- Project structure
-- Express Layout
-- Express Middleware
+# DfE Login Public Api
+[![Build Status](https://travis-ci.org/DFE-Digital/login.dfe.public-api.svg?branch=master)](https://travis-ci.org/DFE-Digital/login.dfe.public-api)
+[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest) [![jest](https://jestjs.io/img/jest-badge.svg)](https://github.com/facebook/jest)
+API for external consumers to interact with DfE login
 
