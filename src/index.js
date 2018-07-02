@@ -2,12 +2,15 @@ const express = require('express');
 const logger = require('./infrastructure/logger');
 const https = require('https');
 const config = require('./infrastructure/config');
+const apiAuth = require('login.dfe.api.auth');
 const mountRoutes = require('./routes');
 
 const app = express();
 if (config.hostingEnvironment.env !== 'dev') {
   app.set('trust proxy', 1);
 }
+
+app.use(apiAuth(app, config));
 
 mountRoutes(app);
 
