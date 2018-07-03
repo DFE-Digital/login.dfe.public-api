@@ -4,7 +4,7 @@ const https = require('https');
 const config = require('./infrastructure/config');
 const apiAuth = require('login.dfe.api.auth');
 const bodyParser = require('body-parser');
-const { requestCorrelation } = require('./utils');
+const { requestCorrelation } = require('./app/utils');
 const mountRoutes = require('./routes');
 
 const app = express();
