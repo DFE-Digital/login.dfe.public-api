@@ -1,4 +1,4 @@
-const { validate: validateEmail } = require("email-validator");
+const { validate: validateEmail } = require('email-validator');
 const { isHttpUri, isHttpsUri } = require('valid-url');
 const uuid = require('uuid/v4');
 const KeepAliveAgent = require('agentkeepalive');
@@ -31,7 +31,6 @@ const parseAndValidateRequest = async (req) => {
 
   if (req.params.sid.toLowerCase() !== 'da03ea7a-6c5b-4864-be53-2eaccf63bec4') {
     result.status = 404;
-    result.errors.push(`Unrecognised service id ${req.params.sid}`);
     return result;
   }
 
