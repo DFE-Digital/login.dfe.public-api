@@ -4,6 +4,7 @@ const https = require('https');
 const config = require('./infrastructure/config');
 const apiAuth = require('login.dfe.api.auth');
 const bodyParser = require('body-parser');
+const { requestCorrelation } = require('./utils');
 const mountRoutes = require('./routes');
 
 const app = express();
@@ -11,6 +12,7 @@ if (config.hostingEnvironment.env !== 'dev') {
   app.set('trust proxy', 1);
 }
 
+app.use(requestCorrelation());
 app.use(apiAuth(app, config));
 app.use(bodyParser.json());
 
