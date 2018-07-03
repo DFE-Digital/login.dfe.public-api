@@ -34,6 +34,7 @@ The variable data items are:
 | email        | Body     | Y        | The email address of the user. This is also a unique identifier of a user in DfE Sign-in |
 | organisation | Body     |          | The DfE Sign-in identifier that the user should be associated to |
 | callback     | Body     | Y        | The URL that the back channel response should be sent to. See details of back channel response below |
+| userRedirect | Body     |          | The URL that a user, if going through the onboarding, should be returned to upon completion. If omitted, the default redirect for your client will be used |
 
 Possible response codes are:
 
