@@ -36,6 +36,7 @@
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v1.1",
     "request-promise": "^4.2.2",
     "uuid": "^3.3.2",
+    "valid-url": "^1.0.9",
     "winston": "^2.4.3",
     "winston-redis": "^1.0.0"
   },

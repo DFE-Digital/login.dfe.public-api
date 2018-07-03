@@ -1,4 +1,5 @@
 const { validate: validateEmail } = require("email-validator");
+const { isHttpUri, isHttpsUri } = require('valid-url');
 const uuid = require('uuid/v4');
 const KeepAliveAgent = require('agentkeepalive');
 const config = require('./../../infrastructure/config');
@@ -24,7 +25,7 @@ const parseAndValidateRequest = async (req) => {
       email: req.body.email || undefined,
       organisationId: req.body.organisation || undefined,
       callbackUrl: req.body.callback || undefined,
-      userRedirectUrl: req.body.userRedirectUrl || undefined,
+      userRedirect: req.body.userRedirect || undefined,
     },
   };
 
@@ -60,6 +61,14 @@ const parseAndValidateRequest = async (req) => {
   if (!result.details.callbackUrl) {
     result.status = 400;
     result.errors.push('Missing callback');
+  } else if (!isHttpUri(result.details.callbackUrl) && !isHttpsUri(result.details.callbackUrl)) {
+    result.status = 400;
+    result.errors.push('callback must be a valid, fully qualified, http(s) URI');
+  }
+
+  if (result.details.userRedirect && !isHttpUri(result.details.userRedirect) && !isHttpsUri(result.details.userRedirect)) {
+    result.status = 400;
+    result.errors.push('userRedirect must be a valid, fully qualified, http(s) URI');
   }
 
   return result;
