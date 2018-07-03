@@ -24,6 +24,7 @@ const parseAndValidateRequest = async (req) => {
       email: req.body.email || undefined,
       organisationId: req.body.organisation || undefined,
       callbackUrl: req.body.callback || undefined,
+      userRedirectUrl: req.body.userRedirectUrl || undefined,
     },
   };
 
@@ -97,7 +98,6 @@ const sendResponseThroughBackChannel = async (callbackUrl, uid, sourceId) => {
 };
 
 const inviteUser = async (req, res) => {
-  throw new Error('sdfsd');
   const request = await parseAndValidateRequest(req);
   if (request.status === 400 || request.status === 404) {
     return res.status(request.status).send({ errors: request.errors });
