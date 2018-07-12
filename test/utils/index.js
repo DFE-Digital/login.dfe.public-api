@@ -33,6 +33,12 @@ const mockConfig = (customConfig) => {
       type: 'secret',
       secret: 'unit-tests',
     },
+    queue: {
+      connectionString: 'redis-connection-string',
+    },
+    hotConfig: {
+      type: 'static',
+    },
   };
   return customConfig ? Object.assign(defaultConfig, customConfig) : defaultConfig;
 };
