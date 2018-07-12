@@ -20,5 +20,11 @@
   "auth":{
     "type" :"secret",
     "secret": "fretful-cordite-bobbin-culprit"
+  },
+  "queue": {
+    "connectionString": "redis://localhost:6379"
+  },
+  "hotConfig": {
+    "type": "static"
   }
 }
