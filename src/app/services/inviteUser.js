@@ -64,6 +64,8 @@ const parseAndValidateRequest = async (req) => {
   if (result.details.userRedirect && !isHttpUri(result.details.userRedirect) && !isHttpsUri(result.details.userRedirect)) {
     result.status = 400;
     result.errors.push('userRedirect must be a valid, fully qualified, http(s) URI');
+  } else if (!result.details.userRedirect){
+    result.details.userRedirect = relyingParty.redirect_uris[0];
   }
 
   return result;

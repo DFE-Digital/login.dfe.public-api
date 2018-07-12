@@ -204,4 +204,11 @@ describe('When inviting a user', () => {
     expect(sendInvitationRequest).toHaveBeenCalledWith(req.body.given_name, req.body.family_name, req.body.email, req.body.organisation,
       req.body.sourceId, req.body.callback, req.body.userRedirect, 'test');
   });
+
+  it('then it should use default redirect of client if userRedirect is omitted', async () => {
+    req.body.userRedirect = undefined;
+
+    await inviteUser(req, res);
+    expect(sendInvitationRequest.mock.calls[0][6]).toBe('https://localhost:41011/auth/cb');
+  });
 });
