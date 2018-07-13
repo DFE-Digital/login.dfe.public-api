@@ -1,9 +1,17 @@
 jest.mock('uuid/v4');
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
-jest.mock('jsonwebtoken');
+jest.mock('./../../../src/infrastructure/hotConfig');
+jest.mock('login.dfe.public-api.jobs.client');
 
 const { mockRequest, mockResponse } = require('./../../utils');
+const { getClientByServiceId } = require('./../../../src/infrastructure/hotConfig');
+const sendInvitationRequest = jest.fn();
+require('login.dfe.public-api.jobs.client').mockImplementation(() => {
+  return {
+    sendInvitationRequest,
+  };
+});
 const inviteUser = require('./../../../src/app/services/inviteUser');
 
 const res = mockResponse();
@@ -12,6 +20,23 @@ describe('When inviting a user', () => {
   let req;
 
   beforeEach(() => {
+    getClientByServiceId.mockReset().mockReturnValue({
+      friendlyName: 'DfE Sign-in',
+      client_id: 'test',
+      client_secret: 'test',
+      redirect_uris: [
+        'https://localhost:41011/auth/cb'
+      ],
+      post_logout_redirect_uris: [
+        'https://localhost:41011/signout/complete',
+      ],
+      params: {
+        serviceId: 'da03ea7a-6c5b-4864-be53-2eaccf63bec4'
+      }
+    });
+
+    sendInvitationRequest.mockReset();
+
     req = mockRequest({
       params: {
         sid: 'da03ea7a-6c5b-4864-be53-2eaccf63bec4',
@@ -38,7 +63,7 @@ describe('When inviting a user', () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it('then it should return 202 status code organisation is omitted', async () => {
+  it('then it should return 202 status code even if organisation is omitted', async () => {
     req.body.organisation = undefined;
 
     await inviteUser(req, res);
@@ -48,7 +73,7 @@ describe('When inviting a user', () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it('then it should return 202 status code userRedirect is omitted', async () => {
+  it('then it should return 202 status code even if userRedirect is omitted', async () => {
     req.body.userRedirect = undefined;
 
     await inviteUser(req, res);
@@ -59,7 +84,7 @@ describe('When inviting a user', () => {
   });
 
   it('then it should return 404 result if service not found', async () => {
-    req.params.sid = 'wrong-id';
+    getClientByServiceId.mockReturnValue(undefined);
 
     await inviteUser(req, res);
 
@@ -170,5 +195,20 @@ describe('When inviting a user', () => {
     expect(res.send.mock.calls[0][0]).toEqual({
       errors: ['userRedirect must be a valid, fully qualified, http(s) URI']
     });
+  });
+
+  it('then it should queue an invitation request with invitation details', async () => {
+    await inviteUser(req, res);
+
+    expect(sendInvitationRequest).toHaveBeenCalledTimes(1);
+    expect(sendInvitationRequest).toHaveBeenCalledWith(req.body.given_name, req.body.family_name, req.body.email, req.body.organisation,
+      req.body.sourceId, req.body.callback, req.body.userRedirect, 'test');
+  });
+
+  it('then it should use default redirect of client if userRedirect is omitted', async () => {
+    req.body.userRedirect = undefined;
+
+    await inviteUser(req, res);
+    expect(sendInvitationRequest.mock.calls[0][6]).toBe('https://localhost:41011/auth/cb');
   });
 });
