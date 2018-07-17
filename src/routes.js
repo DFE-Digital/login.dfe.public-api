@@ -1,10 +1,13 @@
 const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
+const apiAuth = require('login.dfe.api.auth');
 const healthCheck = require('login.dfe.healthcheck');
 const services = require('./app/services');
 
 const mountRoutes = (app) => {
   app.use('/healthcheck', healthCheck({ config }));
+
+  app.use(apiAuth(app, config));
 
   app.use('/services', services());
 
