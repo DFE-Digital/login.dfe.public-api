@@ -28,7 +28,28 @@ const getClientByServiceId = async (serviceId) => {
   return all.find(x => x.params && x.params.serviceId && x.params.serviceId.toLowerCase() === serviceId.toLowerCase());
 };
 
+const getClientById = async (clientId) => {
+  const token = await jwtStrategy(config.hotConfig.service).getBearerToken();
+
+  try {
+    return await rp({
+      method: 'GET',
+      uri: `${config.hotConfig.service.url}/oidcclients/${clientId}`,
+      headers: {
+        authorization: `bearer ${token}`,
+      },
+      json: true,
+    });
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
   list,
   getClientByServiceId,
+  getClientById,
 };
