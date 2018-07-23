@@ -145,7 +145,7 @@ describe('When inviting a user', () => {
     });
   });
 
-  it('then it should return 200 result if callback omitted', async () => {
+  it('then it should return 202 result if callback omitted', async () => {
     req.body.callback = undefined;
 
     await inviteUser(req, res);
