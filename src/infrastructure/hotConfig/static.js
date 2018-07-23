@@ -22,7 +22,13 @@ const getClientByServiceId = async (serviceId) => {
   return all.find(x => x.params && x.params.serviceId && x.params.serviceId.toLowerCase() === serviceId.toLowerCase());
 };
 
+const getClientById = async (clientId) => {
+  const all = await list();
+  return all.find(x => x.client_id.toLowerCase() === clientId.toLowerCase());
+};
+
 module.exports = {
   list,
   getClientByServiceId,
+  getClientById,
 };
