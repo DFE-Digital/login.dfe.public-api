@@ -20,6 +20,8 @@ const parseAndValidateRequest = async (req) => {
       callbackUrl: req.body.callback || undefined,
       userRedirect: req.body.userRedirect || undefined,
       clientId: undefined,
+      inviteSubjectOverride: req.body.inviteSubjectOverride || undefined,
+      inviteBodyOverride: req.body.inviteBodyOverride || undefined,
     },
   };
 
@@ -54,8 +56,6 @@ const parseAndValidateRequest = async (req) => {
   }
 
   if (!result.details.callbackUrl) {
-    result.status = 400;
-    result.errors.push('Missing callback');
   } else if (!isHttpUri(result.details.callbackUrl) && !isHttpsUri(result.details.callbackUrl)) {
     result.status = 400;
     result.errors.push('callback must be a valid, fully qualified, http(s) URI');
@@ -72,7 +72,7 @@ const parseAndValidateRequest = async (req) => {
 };
 const queueInvitationRequest = async (details) => {
   await jobsClient.sendInvitationRequest(details.givenName, details.familyName, details.email, details.organisationId,
-    details.sourceId, details.callbackUrl, details.userRedirect, details.clientId);
+    details.sourceId, details.callbackUrl, details.userRedirect, details.clientId, details.inviteSubjectOverride, details.inviteBodyOverride);
   logger.info(`Queued invitation for ${details.email}, source id = ${details.sourceId}, callback = ${details.callbackUrl}`);
 };
 

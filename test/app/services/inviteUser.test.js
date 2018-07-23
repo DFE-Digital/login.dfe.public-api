@@ -145,17 +145,15 @@ describe('When inviting a user', () => {
     });
   });
 
-  it('then it should return 400 result if callback omitted', async () => {
+  it('then it should return 200 result if callback omitted', async () => {
     req.body.callback = undefined;
 
     await inviteUser(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
-    expect(res.status.mock.calls[0][0]).toBe(400);
+    expect(res.status.mock.calls[0][0]).toBe(202);
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send.mock.calls[0][0]).toEqual({
-      errors: ['Missing callback']
-    });
+
   });
 
   it('then it should return 400 result if email not a valid email address', async () => {
@@ -202,7 +200,17 @@ describe('When inviting a user', () => {
 
     expect(sendInvitationRequest).toHaveBeenCalledTimes(1);
     expect(sendInvitationRequest).toHaveBeenCalledWith(req.body.given_name, req.body.family_name, req.body.email, req.body.organisation,
-      req.body.sourceId, req.body.callback, req.body.userRedirect, 'test');
+      req.body.sourceId, req.body.callback, req.body.userRedirect, 'test', undefined, undefined);
+  });
+
+  it('then it should queue an invitation request with invitation details and invite overrides', async () => {
+    req.body.inviteSubjectOverride = 'SUBJECT';
+    req.body.inviteBodyOverride = 'BODY';
+    await inviteUser(req, res);
+
+    expect(sendInvitationRequest).toHaveBeenCalledTimes(1);
+    expect(sendInvitationRequest).toHaveBeenCalledWith(req.body.given_name, req.body.family_name, req.body.email, req.body.organisation,
+      req.body.sourceId, req.body.callback, req.body.userRedirect, 'test', 'SUBJECT', 'BODY');
   });
 
   it('then it should use default redirect of client if userRedirect is omitted', async () => {
