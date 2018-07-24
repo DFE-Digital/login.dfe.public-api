@@ -24,18 +24,19 @@ Authorization: bearer {jwt-token}
 
 The variable data items are:
 
-| Name         | Location | Required | Description |
-| ------------ | -------- | -------- | ----------- |
-| service-id   | URL      | Y        | The DfE Sign-in identifier for the service you are inviting user to |
-| jwt-token    | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
-| sourceId     | Body     | Y        | The identifier of the user in your system. Will be included in back channel response |
-| given_name   | Body     | Y        | The users given name |
-| family_name  | Body     | Y        | The user family name |
-| email        | Body     | Y        | The email address of the user. This is also a unique identifier of a user in DfE Sign-in |
-| organisation | Body     |          | The DfE Sign-in identifier that the user should be associated to |
-| callback     | Body     | Y        | The URL that the back channel response should be sent to. See details of back channel response below |
-| userRedirect | Body     |          | The URL that a user, if going through the onboarding, should be returned to upon completion. If omitted, the default redirect for your client will be used |
-
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| service-id            | URL      | Y        | The DfE Sign-in identifier for the service you are inviting user to |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+| sourceId              | Body     | Y        | The identifier of the user in your system. Will be included in back channel response |
+| given_name            | Body     | Y        | The users given name |
+| family_name           | Body     | Y        | The user family name |
+| email                 | Body     | Y        | The email address of the user. This is also a unique identifier of a user in DfE Sign-in |
+| organisation          | Body     |          | The DfE Sign-in identifier that the user should be associated to |
+| callback              | Body     |          | The URL that the back channel response should be sent to. See details of back channel response below |
+| userRedirect          | Body     |          | The URL that a user, if going through the onboarding, should be returned to upon completion. If omitted, the default redirect for your client will be used |
+| inviteSubjectOverride | Body     |          | Overrides the subject of the invitation email |
+| inviteBodyOverride    | Body     |          | Overrides the content of the invitation email |
 Possible response codes are:
 
 | HTTP Status Code | Reason |
