@@ -37,6 +37,7 @@ The variable data items are:
 | userRedirect          | Body     |          | The URL that a user, if going through the onboarding, should be returned to upon completion. If omitted, the default redirect for your client will be used |
 | inviteSubjectOverride | Body     |          | Overrides the subject of the invitation email |
 | inviteBodyOverride    | Body     |          | Overrides the content of the invitation email |
+
 Possible response codes are:
 
 | HTTP Status Code | Reason |
