@@ -30,7 +30,7 @@ const parseAndValidateRequest = async (req) => {
       result.status = 404;
       return result;
   }
-  result.details.clientId = client.client_id;
+  result.details.clientId = client.relyingParty.client_id;
 
   if (!result.details.sourceId) {
     result.status = 400;
