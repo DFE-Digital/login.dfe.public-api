@@ -39,6 +39,9 @@ const mockConfig = (customConfig) => {
     hotConfig: {
       type: 'static',
     },
+    applications: {
+      type: 'static',
+    },
   };
   return customConfig ? Object.assign(defaultConfig, customConfig) : defaultConfig;
 };
