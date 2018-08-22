@@ -2,6 +2,7 @@ const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
 const { auth } = require('./app/utils');
 const { getClientById } = require('./infrastructure/hotConfig');
+const { getClientByServiceId } = require('./infrastructure/applications');
 const healthCheck = require('login.dfe.healthcheck');
 const services = require('./app/services');
 
@@ -11,7 +12,7 @@ const mountRoutes = (app) => {
   app.use(auth({
     audience: 'signin.education.gov.uk',
     clockTolerance: 30,
-    clientLookup: getClientById,
+    clientLookup: getClientByServiceId,
   }));
 
   app.use('/services', services());

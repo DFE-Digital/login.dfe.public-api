@@ -1,4 +1,6 @@
 jest.mock('uuid/v4');
+jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
+jest.mock('./../../../src/infrastructure/applications');
 
 const uuid = require('uuid/v4');
 const { requestCorrelation } = require('./../../../src/app/utils');
