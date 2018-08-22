@@ -2,10 +2,11 @@ jest.mock('uuid/v4');
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
 jest.mock('./../../../src/infrastructure/hotConfig');
+jest.mock('./../../../src/infrastructure/applications');
 jest.mock('login.dfe.public-api.jobs.client');
 
 const { mockRequest, mockResponse } = require('./../../utils');
-const { getClientByServiceId } = require('./../../../src/infrastructure/hotConfig');
+const { getClientByServiceId } = require('./../../../src/infrastructure/applications');
 const sendInvitationRequest = jest.fn();
 require('login.dfe.public-api.jobs.client').mockImplementation(() => {
   return {
@@ -74,7 +75,7 @@ describe('When inviting a user', () => {
   });
 
   it('then it should return 202 status code even if userRedirect is omitted', async () => {
-    req.body.userRedirect = undefined;
+    req.body.userRedirect.redirect_uris = undefined;
 
     await inviteUser(req, res);
 
@@ -214,9 +215,9 @@ describe('When inviting a user', () => {
   });
 
   it('then it should use default redirect of client if userRedirect is omitted', async () => {
-    req.body.userRedirect = undefined;
+    req.body.userRedirect.redirect_uris = undefined;
 
     await inviteUser(req, res);
-    expect(sendInvitationRequest.mock.calls[0][6]).toBe('https://localhost:41011/auth/cb');
+    expect(sendInvitationRequest.mock.calls[0][6]).toBe('https://another.url/signup/complete');
   });
 });

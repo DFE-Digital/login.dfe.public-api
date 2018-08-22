@@ -2,7 +2,7 @@ const { validate: validateEmail } = require('email-validator');
 const { isHttpUri, isHttpsUri } = require('valid-url');
 const config = require('./../../infrastructure/config');
 const logger = require('./../../infrastructure/logger');
-const { getClientByServiceId } = require('./../../infrastructure/hotConfig');
+const { getClientByServiceId } = require('./../../infrastructure/applications');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 
 const jobsClient = new PublicApiClient(config.queue);
@@ -25,12 +25,12 @@ const parseAndValidateRequest = async (req) => {
     },
   };
 
-  const relyingParty = await getClientByServiceId(req.params.sid);
-  if (!relyingParty) {
+  const client = await getClientByServiceId(req.params.sid);
+  if (!client) {
       result.status = 404;
       return result;
   }
-  result.details.clientId = relyingParty.client_id;
+  result.details.clientId = client.client_id;
 
   if (!result.details.sourceId) {
     result.status = 400;
@@ -65,7 +65,7 @@ const parseAndValidateRequest = async (req) => {
     result.status = 400;
     result.errors.push('userRedirect must be a valid, fully qualified, http(s) URI');
   } else if (!result.details.userRedirect){
-    result.details.userRedirect = relyingParty.redirect_uris[0];
+    result.details.userRedirect = client.relyingParty.redirect_uris[0];
   }
 
   return result;
