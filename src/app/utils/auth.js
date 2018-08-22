@@ -32,7 +32,7 @@ const getClient = async (decoded, clientLookup) => {
 };
 
 const verifyToken = (token, client, audience, clockTolerance) => {
-  const secret = client.api_secret;
+  const secret = client.relyingParty.api_secret;
   if (!secret) {
     return 'Your client is not authorized to use this api';
   }
