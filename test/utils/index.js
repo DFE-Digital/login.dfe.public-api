@@ -11,10 +11,12 @@ const mockResponse = () => {
     send: jest.fn(),
     status: jest.fn(),
     contentType: jest.fn(),
+    json: jest.fn(),
     mockResetAll: function () {
       this.send.mockReset().mockReturnValue(this);
       this.status.mockReset().mockReturnValue(this);
       this.contentType.mockReset().mockReturnValue(this);
+      this.json.mockReset().mockReturnValue(this);
     },
   };
 };
@@ -40,6 +42,9 @@ const mockConfig = (customConfig) => {
       type: 'static',
     },
     applications: {
+      type: 'static',
+    },
+    access: {
       type: 'static',
     },
   };
