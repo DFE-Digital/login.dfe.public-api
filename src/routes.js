@@ -9,11 +9,11 @@ const services = require('./app/services');
 const mountRoutes = (app) => {
   app.use('/healthcheck', healthCheck({ config }));
 
-  app.use(auth({
-    audience: 'signin.education.gov.uk',
-    clockTolerance: 30,
-    clientLookup: getClientByServiceId,
-  }));
+  // app.use(auth({
+  //   audience: 'signin.education.gov.uk',
+  //   clockTolerance: 30,
+  //   clientLookup: getClientByServiceId,
+  // }));
 
   app.use('/services', services());
 
