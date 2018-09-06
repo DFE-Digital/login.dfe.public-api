@@ -5,6 +5,7 @@ const { getClientById } = require('./infrastructure/hotConfig');
 const { getClientByServiceId } = require('./infrastructure/applications');
 const healthCheck = require('login.dfe.healthcheck');
 const services = require('./app/services');
+const organisations = require('./app/organisations');
 
 const mountRoutes = (app) => {
   app.use('/healthcheck', healthCheck({ config }));
@@ -16,6 +17,7 @@ const mountRoutes = (app) => {
   // }));
 
   app.use('/services', services());
+  app.use('/organisations', organisations());
 
   app.use((err, req, res, next) => {
     logger.error(`Unhandled error processing ${req.url} - ${err.message} [server id: ${req.correlationId}, client id: ${req.clientCorrelationId}]`, {
