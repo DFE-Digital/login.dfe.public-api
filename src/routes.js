@@ -10,11 +10,11 @@ const organisations = require('./app/organisations');
 const mountRoutes = (app) => {
   app.use('/healthcheck', healthCheck({ config }));
 
-  // app.use(auth({
-  //   audience: 'signin.education.gov.uk',
-  //   clockTolerance: 30,
-  //   clientLookup: getClientByServiceId,
-  // }));
+  app.use(auth({
+    audience: 'signin.education.gov.uk',
+    clockTolerance: 30,
+    clientLookup: getClientByServiceId,
+  }));
 
   app.use('/services', services());
   app.use('/organisations', organisations());
