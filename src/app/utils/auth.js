@@ -87,4 +87,5 @@ const auth = ({ audience, clockTolerance, clientLookup }) => {
   };
 };
 
+
 module.exports = auth;
