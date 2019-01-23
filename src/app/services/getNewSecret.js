@@ -9,8 +9,11 @@ const getNewSecret = async (req, res) => {
       correlationId,
       clientCorrelationId
     });
-    const secret = niceware.generatePassphrase(8);
-    return res.json(secret);
+    const secretArray = niceware.generatePassphrase(8);
+    const secret = secretArray.join('-');
+    return res.json({
+      secret
+    });
 
     } catch(e) {
     logger.error(`Error generating new secret (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
