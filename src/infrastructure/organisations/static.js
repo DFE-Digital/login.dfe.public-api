@@ -38,7 +38,12 @@ const getOrganisationByTypeAndIdentifier = async (type, identifier) => {
   });
 };
 
+const upsertOrganisationAnnouncement = async (organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId) => {
+  return Promise.resolve();
+};
+
 
 module.exports = {
-  getOrganisationByTypeAndIdentifier
+  getOrganisationByTypeAndIdentifier,
+  upsertOrganisationAnnouncement,
 };
