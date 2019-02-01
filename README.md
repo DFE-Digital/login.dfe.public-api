@@ -94,6 +94,8 @@ Authorization: bearer {jwt-token}
 }
 ```
 
+The structure of an announcement is as follows:
+
 | Attribute   | Required   | Description                                             |
 | ----------- | ---------- | ------------------------------------------------------- |
 | messageId   | Y          | Identifier for message in origin system. Must be unique |
