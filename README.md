@@ -118,6 +118,7 @@ possible response codes are:
 | 500              | Something has gone wrong on server. If the problem continues contact the team |
 
 The valid types of announcement are:
+
 | code | meaning                            |
 | ---- | ---------------------------------- |
 | 1    | Warning about establishment record |
