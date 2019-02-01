@@ -47,6 +47,9 @@ const mockConfig = (customConfig) => {
     access: {
       type: 'static',
     },
+    organisations: {
+      type: 'static',
+    },
   };
   return customConfig ? Object.assign(defaultConfig, customConfig) : defaultConfig;
 };
