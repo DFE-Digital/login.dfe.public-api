@@ -2,6 +2,7 @@ const logger = require('./../../infrastructure/logger');
 const { getOrganisationByTypeAndIdentifier, upsertOrganisationAnnouncement } = require('./../../infrastructure/organisations');
 
 const getAndValidateModel = (req) => {
+  const validTypes = [1, 2, 4, 5];
   const model = {
     announcement: {
       messageId: req.body.messageId,
@@ -21,6 +22,8 @@ const getAndValidateModel = (req) => {
   }
   if (!model.announcement.type) {
     model.errors.push('type must be specified');
+  } else if (!validTypes.find(vt => vt === model.announcement.type)) {
+    model.errors.push(`type must be one of 1, 2, 4, 5. Received ${model.announcement.type}`);
   }
   if (!model.announcement.title) {
     model.errors.push('title must be specified');
