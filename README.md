@@ -72,3 +72,73 @@ The data items in the request are:
 | jwt-token | Header   | A jwt token, signed with same secret as request |
 | sub       | Body     | DfE Sign-in identifier for user. This will not change and will be included in OIDC response as sub claim |
 | sourceId  | Body     | The sourceId used in original request |
+
+
+## Manage announcements
+Announcements can be published and unpublished for an organisation.
+
+Announcements can be published by:
+```
+POST https://environment-url/organisations/announcements
+Authorization: bearer {jwt-token}
+
+{
+    "messageId": "your-unique-idenitifer",
+	"urn": "12345",
+	"type": 1,
+	"title": "Title of announcement",
+	"summary": "summary of announcement",
+	"body": "body of announcement",
+	"publishedAt": "2019-01-31T20:30:40Z",
+	"expiresAt": "2020-01-31T20:30:40Z"
+}
+```
+
+The structure of an announcement is as follows:
+
+| Attribute   | Required   | Description                                             |
+| ----------- | ---------- | ------------------------------------------------------- |
+| messageId   | Y          | Identifier for message in origin system. Must be unique |
+| urn         | Y (Or uid) | Establishment URN                                       |
+| uid         | Y (Or urn) | Group UID                                               |
+| type        | Y          | The numeric type code of the message (see below)        |
+| title       | Y          | Title of the announcement                               |
+| summary     | Y          | Summary of the announcement                             |
+| body        | Y          | Body of the announcement                                |
+| publishedAt | Y          | Date/time announcement published at                     |
+| expiresAt   |            | Date/time announcement should expire at                 |
+
+possible response codes are:
+
+| HTTP Status Code | Reason |
+| ---------------- | ------ |
+| 202              | Your request has been accepted |
+| 400              | Your request is not valid. Details will be included in the body |
+| 401              | Your JWT is missing or not valid. |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
+
+The valid types of announcement are:
+
+| code | meaning                            |
+| ---- | ---------------------------------- |
+| 1    | Warning about establishment record |
+| 2    | Issue with establishment record    |
+| 4    | Warning about governance record    |
+| 5    | Issue with governance record       |
+
+Announcements can subsequently be unpublished by:
+```
+DELETE https://environment-url/organisations/announcements/your-unique-idenitifer
+Authorization: bearer {jwt-token}
+```
+
+Where `your-unique-idenitifer` is the messageId that was sent when publishing the message.
+
+Possible response codes are:
+
+| HTTP Status Code | Reason |
+| ---------------- | ------ |
+| 204              | Announcement has been unpublished |
+| 401              | Your JWT is missing or not valid. |
+| 404              | The message id in the uri does not exist |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
