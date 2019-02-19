@@ -34,6 +34,52 @@ const getClientByServiceId = async (id) => {
   }
 };
 
+const createService = async (service, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const client = await rp({
+      method: 'POST',
+      uri: `${config.applications.service.url}/services`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      body: service,
+      json: true,
+    });
+    return client;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
+const updateService = async (id, patchedProperties, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const client = await rp({
+      method: 'PATCH',
+      uri: `${config.applications.service.url}/services/${id}`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      body: patchedProperties,
+      json: true,
+    });
+    return client;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
   getClientByServiceId,
+  createService,
+  updateService,
 };
