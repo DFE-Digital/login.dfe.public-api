@@ -80,6 +80,7 @@ const auth = ({ audience, clockTolerance, clientLookup }) => {
         return res.status(403).json({ success: false, message: verificationError });
       }
 
+      req.client = client.details;
       return next();
     } catch (e) {
       next(e);
