@@ -22,7 +22,12 @@ const createService = async (service) => {
   Promise.resolve(Object.assign({}, service, { id: uuid() }));
 };
 
+const updateService = async (id, patchedProperties) => {
+  return Promise.resolve();
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
+  updateService,
 };
