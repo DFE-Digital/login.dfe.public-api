@@ -60,7 +60,7 @@ describe('when creating a sub-application', () => {
       isExternalService: false,
       parentId: 'parent-1',
       relyingParty: {
-        client_id: 'c-new-uuid',
+        client_id: 'cnewuuid',
         client_secret: 'some-random-diceware-phrase',
         redirect_uris: ['https://localhost:1234/auth/cb'],
         grant_types: ['authorization_code', 'refresh_token'],
