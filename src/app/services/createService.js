@@ -38,7 +38,7 @@ const createService = async (req, res) => {
     isExternalService: false,
     parentId: req.client.id,
     relyingParty: {
-      client_id: `c-${uuid()}`,
+      client_id: `c${uuid().replace(/\-/g, '')}`,
       client_secret: generatePassphrase(8).join('-'),
       redirect_uris: model.service.redirectUris,
       grant_types: ['authorization_code', 'refresh_token'],
