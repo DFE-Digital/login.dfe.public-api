@@ -19,6 +19,11 @@ describe('when creating a sub-application', () => {
     req = mockRequest({
       client: {
         id: 'parent-1',
+        relyingParty: {
+          params: {
+            canCreateChildApplications: 'true',
+          },
+        },
       },
       body: {
         name: 'service one',
@@ -120,5 +125,15 @@ describe('when creating a sub-application', () => {
     expect(res.json).toHaveBeenCalledWith({
       reasons:['Must provide at least 1 redirectUris'],
     });
+  });
+
+  it('then it should return not authorized if client not configured to allow child applications', async () => {
+    req.client.relyingParty.params.canCreateChildApplications = 'false';
+
+    await createService(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
   });
 });
