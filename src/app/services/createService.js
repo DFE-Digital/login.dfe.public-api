@@ -23,6 +23,10 @@ const parseAndValidateModel = (req) => {
   return model;
 };
 const createService = async (req, res) => {
+  if (!req.client.relyingParty.params || req.client.relyingParty.params.canCreateChildApplications !== 'true') {
+    return res.status(403).send();
+  }
+
   const model = parseAndValidateModel(req);
   if (model.validationErrors.length > 0) {
     return res.status(400).json({ reasons: model.validationErrors });
