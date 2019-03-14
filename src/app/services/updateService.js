@@ -1,3 +1,5 @@
+const { getClientByServiceId, updateService: updateServiceDetails } = require('./../../infrastructure/applications');
+
 const patchableProperties = ['name', 'description', 'redirectUris'];
 
 const validate = (req) => {
@@ -38,7 +40,7 @@ const updateService = async (req, res) => {
     description: req.body.description,
     redirect_uris: req.body.redirectUris,
   };
-  await updateService(service.id, patch, req.correlationId);
+  await updateServiceDetails(service.id, patch, req.correlationId);
   return res.status(202).send();
 };
 module.exports = updateService;
