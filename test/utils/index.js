@@ -2,6 +2,8 @@ const mockRequest = (customRequestData) => {
   const defaultRequest = {
     correlationId: 'server-correlation-id',
     clientCorrelationId: 'client-correlation-id',
+    query: {},
+    params: {},
   };
   return customRequestData ? Object.assign(defaultRequest, customRequestData) : defaultRequest;
 };

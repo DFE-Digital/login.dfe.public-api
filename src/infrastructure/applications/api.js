@@ -78,8 +78,30 @@ const updateService = async (id, patchedProperties, correlationId) => {
   }
 };
 
+const listServices = async (parentId, page, pageSize, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const pageOfServices = await rp({
+      method: 'GET',
+      uri: `${config.applications.service.url}/services?page=${page}&pageSize=${pageSize}&parent=${parentId}`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      json: true,
+    });
+    return pageOfServices;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
   updateService,
+  listServices,
 };
