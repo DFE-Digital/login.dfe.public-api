@@ -3,6 +3,7 @@ const { asyncWrapper } = require('login.dfe.express-error-handling');
 
 const listServices = require('./listServices');
 const getService = require('./getService');
+const updateService = require('./updateService');
 const createService = require('./createService');
 const regenerateSecret = require('./regenerateSecret');
 const inviteUser = require('./inviteUser');
@@ -13,6 +14,7 @@ const area = () => {
 
   router.get('/', asyncWrapper(listServices));
   router.get('/:clientid', asyncWrapper(getService));
+  router.patch('/:clientid', asyncWrapper(updateService));
   router.post('/', asyncWrapper(createService));
   router.post('/:clientid/regenerate-secret', asyncWrapper(regenerateSecret));
 
