@@ -26,8 +26,18 @@ const updateService = async (id, patchedProperties) => {
   return Promise.resolve();
 };
 
+const listServices = async (parentId, page, pageSize, correlationId) => {
+  return Promise.resolve({
+    services: [],
+    numberOfRecords: 0,
+    page,
+    numberOfPages: 0,
+  });
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
   updateService,
+  listServices,
 };
