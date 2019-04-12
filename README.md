@@ -216,3 +216,91 @@ Upon successful regeneration of the secret, you will receive a response like:
     "clientSecret": "regenerated-client-secret"
 }
 ```
+
+## Get user access to service
+You can use this API to get a user's access to a service for an organisation.
+The request looks like
+```
+GET https://environment-url/services/{service-id}/organisations/{organisation-id}/users/{user-id}
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| service-id            | URL      | Y        | The DfE Sign-in identifier for the service |
+| organisation-id       | URL      | Y        | The DfE Sign-in identifier for the organisation |
+| user-id               | URL      | Y        | The DfE Sign-in identifier for the user |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+
+This will return a response in the following format
+```
+{
+    "userId": "user-id",
+    "serviceId": "service-id",
+    "organisationId": "organisation-id",
+    "roles": [
+        {
+            "id": "role-id",
+            "name": "The name of the role",
+            "code": "The code of the role",
+            "numericId": "9999",
+            "status": {
+                "id": 1
+            }
+        }
+    ],
+    "identifiers": [
+        {
+            "key": "identifier-key",
+            "value": "identifier-value"
+        }
+    ]
+}
+```
+
+## Get organisations for user
+You can use this API to get the organisations associated with a user
+The request looks like
+```
+GET https://environment-url/users/{user-id}/organisations
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| user-id               | URL      | Y        | The DfE Sign-in identifier for the user |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+This will return a response in the following format
+```
+[
+    {
+        "id": "org-id",
+        "name": "Organisation name",
+        "category": {
+            "id": "004",
+            "name": "Early Year Setting"
+        },
+        "urn": "org-urn",
+        "uid": null,
+        "ukprn": null,
+        "establishmentNumber": null,
+        "status": {
+            "id": 1,
+            "name": "Open"
+        },
+        "closedOn": null,
+        "address": null,
+        "telephone": null,
+        "statutoryLowAge": null,
+        "statutoryHighAge": null,
+        "legacyId": "legacy-id",
+        "companyRegistrationNumber": null
+    },
+]
+```
