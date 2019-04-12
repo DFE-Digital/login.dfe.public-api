@@ -71,8 +71,13 @@ const upsertOrganisationAnnouncement = async (organisationId, messageId, type, t
   return await callOrganisationsApi(`organisations/${organisationId}/announcements`, 'POST', requestBody, correlationId);
 };
 
+const getOrganisationsAssociatedWithUser = async (userId, correlationId) => {
+  return await callOrganisationsApi(`organisations/v2/associated-with-user/${userId}`, 'GET', undefined, correlationId);
+};
+
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
+  getOrganisationsAssociatedWithUser,
 };
