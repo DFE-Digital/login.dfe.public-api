@@ -4,6 +4,22 @@
 
 API for external consumers to interact with DfE login
 
+## You need to authenticate with these APIs!
+
+To use any of the APIs below you will need to provide a Bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
+
+You should create a JWT at the point of use in your calling application using the standard JWT library that comes with your chosen technology.
+
+The token body will require and issuer (your service client id) and an audience as follows:
+```$json
+{
+  "iss": "REPLACE_WITH_YOUR_CLIENT_ID",
+  "aud": "signin.education.gov.uk"
+}
+```
+
+The token must be signed using the HS256 algorythm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are seervice/env specific.)  
+
 
 ## Invite User
 As a service on-boarded to DfE Sign-in, you can use the API to invite users to the service.
