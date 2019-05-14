@@ -1,5 +1,5 @@
 const { getClientByServiceId, updateService } = require('./../../infrastructure/applications');
-const { generatePassphrase } = require('niceware');
+const uuid = require('uuid/v4');
 
 const regenerateSecret = async (req, res) => {
   const service = await getClientByServiceId(req.params.clientid);
@@ -10,7 +10,7 @@ const regenerateSecret = async (req, res) => {
     return res.status(403).send();
   }
 
-  const clientSecret = generatePassphrase(8).join('-');
+  const clientSecret = uuid();
   await updateService(service.id, { clientSecret }, req.correlationId);
   return res.json({ clientSecret });
 };

@@ -1,5 +1,4 @@
 const uuid = require('uuid/v4');
-const { generatePassphrase } = require('niceware');
 const { createService: createServiceInApi } = require('./../../infrastructure/applications');
 
 const parseAndValidateModel = (req) => {
@@ -39,7 +38,7 @@ const createService = async (req, res) => {
     parentId: req.client.id,
     relyingParty: {
       client_id: `c${uuid().replace(/\-/g, '')}`,
-      client_secret: generatePassphrase(8).join('-'),
+      client_secret: uuid(),
       redirect_uris: model.service.redirectUris,
       grant_types: ['authorization_code', 'refresh_token'],
       params: {

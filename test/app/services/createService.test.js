@@ -6,7 +6,6 @@ jest.mock('./../../../src/infrastructure/applications', () => ({
 
 const { mockResponse, mockRequest } = require('./../../utils');
 const uuid = require('uuid/v4');
-const { generatePassphrase } = require('niceware');
 const { createService: createServiceInApi } = require('./../../../src/infrastructure/applications');
 const createService = require('./../../../src/app/services/createService');
 
@@ -36,8 +35,6 @@ describe('when creating a sub-application', () => {
 
     uuid.mockReset().mockReturnValue('new-uuid');
 
-    generatePassphrase.mockReset().mockReturnValue(['some', 'random', 'diceware', 'phrase']);
-
     createServiceInApi.mockReset().mockReturnValue({
       id: 'service-1',
       name: 'service one',
@@ -61,7 +58,7 @@ describe('when creating a sub-application', () => {
       parentId: 'parent-1',
       relyingParty: {
         client_id: 'cnewuuid',
-        client_secret: 'some-random-diceware-phrase',
+        client_secret: 'new-uuid',
         redirect_uris: ['https://localhost:1234/auth/cb'],
         grant_types: ['authorization_code', 'refresh_token'],
         params: {
