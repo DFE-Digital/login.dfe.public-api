@@ -4,8 +4,11 @@ jest.mock('./../../../src/infrastructure/applications', () => ({
   updateService: jest.fn(),
 }));
 
+jest.mock('uuid/v4')
+
+
 const { mockResponse, mockRequest } = require('./../../utils');
-const { generatePassphrase } = require('niceware');
+const uuid = require('uuid/v4');
 const { getClientByServiceId, updateService } = require('./../../../src/infrastructure/applications');
 const regenerateSecret = require('./../../../src/app/services/regenerateSecret');
 
@@ -26,7 +29,7 @@ describe('when creating a sub-application', () => {
 
     res.mockResetAll();
 
-    generatePassphrase.mockReset().mockReturnValue(['some', 'random', 'diceware', 'phrase']);
+    uuid.mockReset().mockReturnValue('428fd7d3-b6d5-4cc0-8645-57cc22164fca');
 
     getClientByServiceId.mockReset().mockReturnValue({
       id: 'service-1',
@@ -53,14 +56,14 @@ describe('when creating a sub-application', () => {
     await regenerateSecret(req, res);
 
     expect(updateService).toHaveBeenCalledTimes(1);
-    expect(updateService).toHaveBeenCalledWith('service-1', { clientSecret: 'some-random-diceware-phrase' }, req.correlationId);
+    expect(updateService).toHaveBeenCalledWith('service-1', { clientSecret: '428fd7d3-b6d5-4cc0-8645-57cc22164fca' }, req.correlationId);
   });
 
   it('then it should return new client secret', async () => {
     await regenerateSecret(req, res);
 
     expect(res.json).toHaveBeenCalledTimes(1);
-    expect(res.json).toHaveBeenCalledWith({ clientSecret: 'some-random-diceware-phrase' });
+    expect(res.json).toHaveBeenCalledWith({ clientSecret: '428fd7d3-b6d5-4cc0-8645-57cc22164fca' });
   });
 
   it('then it should return not found if not client with specified client id', async () => {
