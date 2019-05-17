@@ -78,7 +78,7 @@ const updateService = async (id, patchedProperties, correlationId) => {
   }
 };
 
-const deleteService = async(id, correlationId) => {
+const destroyService = async(id, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const client = await rp({
@@ -125,5 +125,5 @@ module.exports = {
   createService,
   updateService,
   listServices,
-  deleteService,
+  destroyService,
 };
