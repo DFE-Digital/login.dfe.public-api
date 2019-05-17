@@ -9,7 +9,7 @@ const deleteService = async (req, res) => {
     return res.status(403).send();
   }
 
-  await deleteService(service.id, req.correlationId);
+  await destroyService(service.id, req.correlationId);
   return res.status(202).send();
 };
 module.exports = deleteService;
