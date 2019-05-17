@@ -78,6 +78,27 @@ const updateService = async (id, patchedProperties, correlationId) => {
   }
 };
 
+const deleteService = async(id, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const client = await rp({
+      method: 'DELETE',
+      uri: `${config.applications.service.url}/services/${id}`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      json: true,
+    });
+    return client;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 const listServices = async (parentId, page, pageSize, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
@@ -104,4 +125,5 @@ module.exports = {
   createService,
   updateService,
   listServices,
+  deleteService,
 };
