@@ -8,6 +8,7 @@ const createService = require('./createService');
 const regenerateSecret = require('./regenerateSecret');
 const inviteUser = require('./inviteUser');
 const getUsersAccess = require('./getUsersAccess');
+const deleteService = require('./deleteService');
 
 const area = () => {
   const router = express.Router();
@@ -15,6 +16,7 @@ const area = () => {
   router.get('/', asyncWrapper(listServices));
   router.get('/:clientid', asyncWrapper(getService));
   router.patch('/:clientid', asyncWrapper(updateService));
+  router.delete('/:clientid', asyncWrapper(deleteService));
   router.post('/', asyncWrapper(createService));
   router.post('/:clientid/regenerate-secret', asyncWrapper(regenerateSecret));
 
