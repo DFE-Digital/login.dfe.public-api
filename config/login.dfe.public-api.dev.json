@@ -24,7 +24,13 @@
   "queue": {
     "connectionString": "redis://localhost:6379"
   },
-  "hotConfig": {
+  "applications": {
+    "type": "static"
+  },
+  "access": {
+    "type": "static"
+  },
+  "organisations": {
     "type": "static"
   }
 }
