@@ -1,7 +1,6 @@
 jest.mock('uuid/v4');
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
-jest.mock('./../../../src/infrastructure/hotConfig');
 jest.mock('./../../../src/infrastructure/applications');
 jest.mock('login.dfe.public-api.jobs.client');
 
