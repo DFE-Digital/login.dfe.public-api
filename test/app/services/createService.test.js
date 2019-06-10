@@ -55,6 +55,7 @@ describe('when creating a sub-application', () => {
       name: 'service one',
       description: 'first child service',
       isExternalService: false,
+      isChildService: true,
       parentId: 'parent-1',
       relyingParty: {
         client_id: 'cnewuuid',
