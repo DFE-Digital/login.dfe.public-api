@@ -36,6 +36,7 @@ const createService = async (req, res) => {
     description: model.service.description,
     isExternalService: false,
     parentId: req.client.id,
+    isChildService: true,
     relyingParty: {
       client_id: `c${uuid().replace(/\-/g, '')}`,
       client_secret: uuid(),
