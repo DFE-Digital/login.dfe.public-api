@@ -1,5 +1,6 @@
 const logger = require('./../../infrastructure/logger');
 const { getUsersAccessToServiceAtOrganisation } = require('./../../infrastructure/access');
+const { getClientByServiceId } = require('./../../infrastructure/applications');
 
 const getUsersAccess = async (req, res) => {
   const { uid, sid, oid } = req.params;
@@ -11,7 +12,9 @@ const getUsersAccess = async (req, res) => {
       clientCorrelationId
     });
 
-    const access = await getUsersAccessToServiceAtOrganisation(uid, sid, oid, correlationId);
+    const service = await getClientByServiceId(sid);
+
+    const access = await getUsersAccessToServiceAtOrganisation(uid, service.id, oid, correlationId);
     if (!access) {
       return res.status(404).send();
     }

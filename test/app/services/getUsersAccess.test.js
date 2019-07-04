@@ -1,10 +1,12 @@
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
 jest.mock('./../../../src/infrastructure/access');
+jest.mock('./../../../src/infrastructure/applications');
 
 const { mockRequest, mockResponse } = require('./../../utils');
 const { getUsersAccessToServiceAtOrganisation } = require('./../../../src/infrastructure/access');
 const getUsersAccess = require('./../../../src/app/services/getUsersAccess');
+const { getClientByServiceId } = require('./../../../src/infrastructure/applications');
 
 const uid = 'user-1';
 const sid = 'service-1';
@@ -24,6 +26,18 @@ describe('when getting users access to service', () => {
     });
 
     res.mockResetAll();
+
+    getClientByServiceId.mockReset().mockReturnValue({
+      id: 'service-1',
+      name: 'Service One',
+      description: 'First service',
+      parentId: 'parent-1',
+      relyingParty: {
+        client_id: 'csvc1',
+        client_secret: 'some-super-secure-secret',
+        redirect_uris: ['https://localhost:1234/auth/cb'],
+      },
+    });
 
     getUsersAccessToServiceAtOrganisation.mockReset().mockReturnValue({
       userId: uid,
