@@ -40,9 +40,6 @@ const mockConfig = (customConfig) => {
     queue: {
       connectionString: 'redis-connection-string',
     },
-    hotConfig: {
-      type: 'static',
-    },
     applications: {
       type: 'static',
     },
