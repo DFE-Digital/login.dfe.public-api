@@ -27,7 +27,7 @@
     "email-validator": "^2.0.4",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.3.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v1.0.0",
     "login.dfe.audit.winston-sequelize-transport": "git+https://github.com/DFE-Digital/login.dfe.audit.winston-sequelize-transport.git#v2.6",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
