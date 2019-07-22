@@ -1,6 +1,6 @@
 const { getClientByServiceId, updateService: updateServiceDetails } = require('./../../infrastructure/applications');
 
-const patchableProperties = ['name', 'description', 'redirectUris'];
+const patchableProperties = ['name', 'description', 'redirectUris', 'consentTitle', 'consentBody'];
 
 const validate = (req) => {
   const keys = Object.keys(req.body);
@@ -39,6 +39,8 @@ const updateService = async (req, res) => {
     name: req.body.name,
     description: req.body.description,
     redirect_uris: req.body.redirectUris,
+    consentTitle: req.body.consentTitle,
+    consentBody: req.body.consentBody,
   };
   await updateServiceDetails(service.id, patch, req.correlationId);
   return res.status(202).send();

@@ -91,7 +91,7 @@ describe('when updating child service', () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith('clientSecret is not a patchable property. Patchable properties name,description,redirectUris');
+    expect(res.send).toHaveBeenCalledWith('clientSecret is not a patchable property. Patchable properties name,description,redirectUris,consentTitle,consentBody');
     expect(updateServiceDetails).toHaveBeenCalledTimes(0);
   });
 
@@ -103,7 +103,7 @@ describe('when updating child service', () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith('Must specify at least one property. Patchable properties name,description,redirectUris');
+    expect(res.send).toHaveBeenCalledWith('Must specify at least one property. Patchable properties name,description,redirectUris,consentTitle,consentBody');
     expect(updateServiceDetails).toHaveBeenCalledTimes(0);
   });
 
