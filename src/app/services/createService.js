@@ -46,6 +46,8 @@ const createService = async (req, res) => {
         hideApprover: 'true',
         hideSupport: 'true',
         explicitConsent: 'true',
+        consentTitle: req.body.consentTitle || undefined,
+        consentBody: req.body.consentBody || undefined,
       },
     },
   };
