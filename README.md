@@ -171,12 +171,17 @@ Authorization: bearer {jwt-token}
 {
 	"name": "The display name of the application",
 	"description": "A description of what the application does",
+	"consentTitle": "Override for the content at the top of the Consent Screen",
+	"consentBody": "Override for the content of the Consent Screen",
 	"redirectUris": [
 	    "https://endpoint.one/auth/cb",
 	    "https://endpoint.two/login/callback"
 	]
 }
 ```
+*Note on Consent Template Overrides*  
+Two params allow for overriding of the content displayed to users in the Consent Screen, the title and the body (everything else is static as per the current form design).  The override value is a string that has two (optional) dynamic values.
+e.g. `consentTitle="Do you want to allow {{applicationName}} to send data to us for {{roleScope}}"`
 
 The structure of an application is as follows:
 
