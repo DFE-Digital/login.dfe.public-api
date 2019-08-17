@@ -120,10 +120,54 @@ const listServices = async (parentId, page, pageSize, correlationId) => {
   }
 };
 
+const listServiceGrants = async (serviceId, page, pageSize, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const pageOfGrants = await rp({
+      method: 'GET',
+      uri: `${config.applications.service.url}/services/${serviceId}/grants?page=${page}&pageSize=${pageSize}`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      json: true,
+    });
+    return pageOfGrants;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
+const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correlationId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const pageOfTokens = await rp({
+      method: 'GET',
+      uri: `${config.applications.service.url}/services/${serviceId}/grants/${grantId}/tokens?page=${page}&pageSize=${pageSize}`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      json: true,
+    });
+    return pageOfTokens;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
   updateService,
   listServices,
   destroyService,
+  listServiceGrants,
+  listServiceGrantTokens,
 };
