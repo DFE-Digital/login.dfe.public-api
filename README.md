@@ -240,7 +240,7 @@ Upon successful regeneration of the secret, you will receive a response like:
 
 ## Child application Grants and Tokens
 
-Child applications follow and explicit consent flow that ultimatly yields and Authorization code (a Grant) which cannbe exchanged for a short lived Access Token and a longer lived Refresh Token, in order to allow child application owners to manage the lifecycle of issues tokens we provide a convienient api to list grants and tokend issues for a goven child application.
+Child applications follow and explicit consent flow that ultimatly yields and Authorization code (a Grant) which can be exchanged for a short lived Access Token and a longer lived Refresh Token, in order to allow child application owners to manage the lifecycle of issued tokens we provide a convienient api to list grants and tokend issues for a goven child application.
 
 These tokens can then be inspected and revoked using the standard open id connect endpoints (intropection and revocaton).
 
