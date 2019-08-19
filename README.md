@@ -238,6 +238,23 @@ Upon successful regeneration of the secret, you will receive a response like:
 }
 ```
 
+## Child application Grants and Tokens
+
+Child applications follow and explicit consent flow that ultimatly yields and Authorization code (a Grant) which can be exchanged for a short lived Access Token and a longer lived Refresh Token, in order to allow child application owners to manage the lifecycle of issued tokens we provide a convienient api to list grants and tokend issues for a goven child application.
+
+These tokens can then be inspected and revoked using the standard open id connect endpoints (intropection and revocaton).
+
+To get a list of grants for a given child service:
+```
+GET https://environment-url/services/{service-id}/grants
+```
+
+To get a list of tokens issued for a given child service grant:
+```
+GET https://environment-url/services/{service-id}/grants/{grant-id}/tokens
+```
+
+
 ## Get user access to service
 You can use this API to get a user's access to a service for an organisation.
 The request looks like
