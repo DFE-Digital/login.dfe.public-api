@@ -13,6 +13,7 @@ const getService = async (req, res) => {
     description: service.description,
     clientId: service.relyingParty.client_id,
     redirectUris: service.relyingParty.redirect_uris,
+    clientSecret: service.relyingParty.client_secret,
   });
 };
 module.exports = getService;
