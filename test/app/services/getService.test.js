@@ -45,6 +45,7 @@ describe('when getting specific child service', () => {
       description: 'First service',
       clientId: 'csvc1',
       redirectUris: ['https://localhost:1234/auth/cb'],
+      clientSecret: 'some-super-secure-secret',
     });
   });
 
