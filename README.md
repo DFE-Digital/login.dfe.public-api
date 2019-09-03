@@ -401,7 +401,7 @@ The response body contains the following attributes (example response below):
             "givenName": "Roger"
         }
     ],
-    "numberOfRecords": 4,
+    "numberOfRecords": 1,
     "page": 1,
     "numberOfPages": 1
 }
