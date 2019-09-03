@@ -342,3 +342,68 @@ This will return a response in the following format
     },
 ]
 ```
+
+### Service Users
+
+You can get a list of users for a given service as defined in the authorisation token (iss attribute)  
+The request looks like:    
+```
+GET https://environment-url/users?page=1&pageSize=25
+Authorization: bearer {jwt-token}
+```
+
+The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
+
+The response body contains the following attributes (example response below):  
+
+| Name                  | Description |
+| --------------------- | -------- |
+| users              | An array of user details (including a child organisation object)      |
+| numberOfRecords             | Total number of records reported   |
+| page             | Current page number  | 
+| numberOfPages             | Total number of pages  |
+
+*Response Example*
+```json
+
+{
+    "users": [
+        {
+            "approvedAt": "2019-06-19T15:09:58.683Z",
+            "updatedAt": "2019-06-19T15:09:58.683Z",
+            "organisation": {
+                "id": "13F20E54-79EA-4146-8E39-18197576F023",
+                "name": "Department for Education",
+                "Category": "002",
+                "Type": null,
+                "URN": null,
+                "UID": null,
+                "UKPRN": null,
+                "EstablishmentNumber": "001",
+                "Status": 1,
+                "ClosedOn": null,
+                "Address": null,
+                "phaseOfEducation": null,
+                "statutoryLowAge": null,
+                "statutoryHighAge": null,
+                "telephone": null,
+                "regionCode": null,
+                "legacyId": "1031237",
+                "companyRegistrationNumber": "1234567",
+                "createdAt": "2019-02-20T14:27:59.020Z",
+                "updatedAt": "2019-02-20T14:28:38.223Z"
+            },
+            "roleName": "Approver",
+            "roleId": 10000,
+            "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
+            "email": "foo@example.com",
+            "familyName": "Johnson",
+            "givenName": "Roger"
+        }
+    ],
+    "numberOfRecords": 4,
+    "page": 1,
+    "numberOfPages": 1
+}
+
+```
