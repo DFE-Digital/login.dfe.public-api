@@ -7,7 +7,7 @@ const listServices = require('./../../../src/app/services/listServices');
 
 const res = mockResponse();
 
-describe('when listing child services', async () => {
+describe('when listing child services', () => {
   let req;
 
   beforeEach(() => {
