@@ -63,10 +63,15 @@ const getOrganisationsAssociatedWithUser = async (userId) => {
   }]);
 };
 
+const listOrganisationUsersV2 = async (page, pageSize, roleId, filterTypes, filterStates, correlationId) => {
+  return Promise.resolve();
+};
+
 
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
+  listOrganisationUsersV2,
 };
