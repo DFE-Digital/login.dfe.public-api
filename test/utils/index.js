@@ -49,6 +49,9 @@ const mockConfig = (customConfig) => {
     organisations: {
       type: 'static',
     },
+    directories: {
+      type: 'static',
+    },
   };
   return customConfig ? Object.assign(defaultConfig, customConfig) : defaultConfig;
 };
