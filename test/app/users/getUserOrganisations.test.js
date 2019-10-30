@@ -8,7 +8,7 @@ const getUserOrganisations = require('./../../../src/app/users/getUsersOrganisat
 
 const res = mockResponse();
 
-describe('when getting users organisations', async () => {
+describe('when getting users organisations', () => {
   let req;
 
   beforeEach(() => {
