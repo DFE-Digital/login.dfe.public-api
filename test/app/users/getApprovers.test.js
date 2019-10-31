@@ -20,6 +20,11 @@ describe('when getting approver organisations', () => {
     req = mockRequest({
       client: {
         id: 'serviceId',
+        relyingParty: {
+          params: {
+            canViewApproverReport: 'true'
+          }
+        }
       }
     });
     res.mockResetAll();
