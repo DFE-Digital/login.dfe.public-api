@@ -4,7 +4,7 @@ const { usersByIds } = require('../../infrastructure/directories');
 const { getPoliciesOfService } = require('../../infrastructure/access');
 
 const listApprovers = async (req, res) => {
-  if (!req.client.relyingParty.params || req.client.relyingParty.params.canViewApproverReport !== 'true') {
+  if (!req.client.relyingParty || !req.client.relyingParty.params || req.client.relyingParty.params.canViewApproverReport !== 'true') {
     return res.status(403).send();
   }
 
