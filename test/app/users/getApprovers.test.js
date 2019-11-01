@@ -20,8 +20,14 @@ describe('when getting approver organisations', () => {
     req = mockRequest({
       client: {
         id: 'serviceId',
+        relyingParty: {
+          params: {
+            canViewApproverReport: 'true'
+          }
+        }
       }
     });
+
     res.mockResetAll();
 
     listOrganisationUsersV2.mockReset().mockReturnValue({
@@ -94,6 +100,57 @@ describe('when getting approver organisations', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith('ten is not a valid value for pageSize. Expected a number');
+  });
+
+  it('then it should return bad request if the request-message relying party is not provided', async () => {
+    req.client.relyingParty = undefined;
+
+    await getApprovers(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('then it should return bad request if the request-message relying party param is not provided', async () => {
+    req.client.relyingParty.params = undefined;
+
+    await getApprovers(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('then it should return bad request if the request-message relying party param is set to an empty string', async () => {
+    req.client.relyingParty.params = "";
+
+    await getApprovers(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('then it should return bad request if the request-message relying party param is named canTViewApproverReport', async () => {
+    req.client.relyingParty.params = {};
+    req.client.relyingParty.params.canTViewApproverReport = 'true';
+
+    await getApprovers(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
+  it('then it should return bad request if the request-message relying party param canViewApproverReport is false', async () => {
+    req.client.relyingParty.params.canViewApproverReport = 'false';
+
+    await getApprovers(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledTimes(1);
   });
 
   it('then it should call access to get policies for serviceId', async () => {
