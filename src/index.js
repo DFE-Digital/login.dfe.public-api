@@ -32,6 +32,6 @@ if (config.hostingEnvironment.env === 'dev') {
   });
 } else {
   app.listen(process.env.PORT, () => {
-    logger.info(`Server listening on http://localhost:${process.env.PORT}`);
+    logger.info(`Server listening on http://${config.hostingEnvironment.host}:${process.env.PORT}`);
   });
 }
