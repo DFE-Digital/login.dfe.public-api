@@ -5,7 +5,7 @@ const { usersByIds } = require('../../infrastructure/directories');
 
 const getUsersByRoles = async (req, res) => {
     const { correlationId, clientCorrelationId } = req;
-    const roles = req.query.roles?JSON.parse(req.query.roles):null;
+    const roles = req.query.roles?req.query.roles.split(','):null;
 
     try {
         logger.info(`Getting users for UKPRN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
