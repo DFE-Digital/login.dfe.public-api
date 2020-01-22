@@ -483,3 +483,44 @@ possible response codes are:
     "numberOfPages": 1
 }
 ```
+## Get organisation users by roles
+You can use this API to get the organisations users filtering by roles
+The request looks like
+```
+GET https://environment-url/organisations/{UKPRN}/users?roles=role1,role2
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| UKPRN                 | URL      | Y        | The DfE Sign-in identifier for the organisation |
+| roles                 | URL      | N        | User roles to filter organisation users list |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+This will return a response in the following format
+```
+{
+    "ukprn": "organisation-ukprn-id",
+    "users": [
+        {
+            "email": "user1@test.com",
+            "firstName": "user1",
+            "lastName": "test",
+            "roles": [
+                "role1"
+            ]
+        },
+        {
+            "email": "user21@test.com",
+            "firstName": "user2",
+            "lastName": "test",
+            "roles": [
+                "role1",
+                "role2"
+            ]
+        }
+    ]
+}
+```

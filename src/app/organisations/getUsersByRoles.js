@@ -1,6 +1,6 @@
 const logger = require('./../../infrastructure/logger');
-const {getOrganisationByTypeAndIdentifier} = require("../../infrastructure/organisations");
-const { getServiceUsers } = require("../../infrastructure/access");
+const {getOrganisationByTypeAndIdentifier} = require('../../infrastructure/organisations');
+const { getServiceUsers } = require('../../infrastructure/access');
 const { usersByIds } = require('../../infrastructure/directories');
 
 const getUsersByRoles = async (req, res) => {
@@ -12,7 +12,7 @@ const getUsersByRoles = async (req, res) => {
             correlationId,
             clientCorrelationId
         });
-    if (!req.client.id || !req.params.id || !roles) {
+    if (!req.client.id || !req.params.id) {
         return res.status(400).send();
     }
     // Get organisation_id by UKPRN
@@ -24,8 +24,15 @@ const getUsersByRoles = async (req, res) => {
     const serviceUsers = await getServiceUsers(req.client.id,organisation.id,correlationId);
     let userIdNRoles, usersDetails;
     if(serviceUsers && serviceUsers.services){
-        userIdNRoles = serviceUsers.services.filter(f=>f.roles.find(role => roles.includes(role.code))).
-        map((user)=> {return {id: user.userId,roles: user.roles.map(role=>role.code)}});
+        if(roles) {
+            userIdNRoles = serviceUsers.services.filter(f => f.roles.find(role => roles.includes(role.code))).map((user) => {
+                return {id: user.userId, roles: user.roles.map(role => role.code)}
+            });
+        }else{
+            userIdNRoles = serviceUsers.services.map((user) => {
+                return {id: user.userId, roles: user.roles.map(role => role.code)}
+            });
+        }
         // Get user details by user ids
         if(userIdNRoles && userIdNRoles.length) {
             const userIds = userIdNRoles.map(ids=>ids.id);
