@@ -12,8 +12,11 @@ const getUsersAccessToServiceAtOrganisation = async (uid, sid, oid, correlationI
 const getPoliciesOfService = async (sid, correlationId) => {
   return Promise.resolve();
 };
-
+const getServiceUsers = async (sid, oid, correlationId) => {
+  return Promise.resolve();
+}
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
+  getServiceUsers,
 };
