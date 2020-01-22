@@ -495,8 +495,8 @@ The variable data items are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UKPRN                 | URL      | Y        | The DfE Sign-in identifier for the organisation |
-| roles                 | URL      | N        | User roles to filter organisation users list |
+| UKPRN                 | URL      | Y        | UKPRN for the organisation |
+| roles                 | URL      | N        | User role codes to filter organisation user's list |
 | jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
 
 This will return a response in the following format
