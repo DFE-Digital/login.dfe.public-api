@@ -50,8 +50,22 @@ const getServiceUsers = async (sid, oid, correlationId) => {
   return await callApi(`/services/${sid}/organisations/${oid}/users`, correlationId);
 }
 
+const getRoles = async (sid,correlationId) => {
+  return  await  callApi(`/services/${sid}/roles`, correlationId)
+}
+
+const getServiceUsersV2 = async (sid, oid, roleIds, page, pageSize, correlationId) => {
+  if(roleIds) {
+    return await callApi(`/services/v2/${sid}/organisations/${oid}/users?page=${page}&pageSize=${pageSize}&roleIds=${roleIds.join(',')}`, correlationId);
+  }else{
+    return await callApi(`/services/v2/${sid}/organisations/${oid}/users?page=${page}&pageSize=${pageSize}`, correlationId);
+  }
+}
+
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
   getServiceUsers,
+  getRoles,
+  getServiceUsersV2,
 };
