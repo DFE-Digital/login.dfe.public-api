@@ -5,67 +5,110 @@ jest.mock('./../../../src/infrastructure/access');
 jest.mock('./../../../src/infrastructure/directories');
 
 const { mockResponse, mockRequest } = require('./../../utils');
-const { listOrganisationUsersV2 } = require('./../../../src/infrastructure/organisations');
-const { getPoliciesOfService } = require('./../../../src/infrastructure/access');
+const { getOrganisationByTypeAndIdentifier } = require('./../../../src/infrastructure/organisations');
+const { getServiceUsers, getRoles, getServiceUsersV2 } = require('./../../../src/infrastructure/access');
 const { usersByIds } = require('./../../../src/infrastructure/directories');
 
 const getUserOverview = require('./../../../src/app/organisations/getUserOverview');
 
 const res = mockResponse();
-
-describe('when getting organisations users with roles and ukprn', () => {
+const id = '10029085';
+describe('when getting organisations users with roles by ukprn', () => {
     let req;
 
     beforeEach(() => {
         req = mockRequest({
             client: {
                 id: 'serviceId',
-                relyingParty: {
-                    params: {
-                        canViewApproverReport: 'true'
-                    }
-                }
+            },
+            params: {
+                id,
+            },
+            query:{
+                roles:'USER',
+                page:1,
+                pageSize: 5
             }
         });
 
         res.mockResetAll();
 
-        listOrganisationUsersV2.mockReset().mockReturnValue({
-            users: [
-                {
-                    userId: 'userId',
-                    organisation: {
-                        id: 'orgId',
-                        name: 'organisation name',
-                        category: {
-                            id: '051',
-                            name: 'Further Education',
-                        },
-                        urn: null,
-                        uid: null,
-                        ukprn: '12345',
-                        status: {
-                            id: 1,
-                            name: 'Open',
-                        },
-                        address: null,
-                        legacyId: '1234',
-                        companyRegistrationNumber: null,
-                    },
-                    role: {
-                        id: 10000,
-                        name: 'Approver',
-                    },
-                    status: 1,
-                    numericIdentifier: '84',
-                    textIdentifier: '77fffdd',
-                },
-            ],
-            page: 1,
-            totalNumberOfPages: 2,
-            totalNumberOfRecords: 20,
+        getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue({
+            "id": "966B98F1-80F7-4BEB-B886-C9742F7A087F",
+            "name": "16-19 ABINGDON",
+            "category": {
+                "id": "051",
+                "name": "Further Education"
+            },
+            "urn": null,
+            "uid": null,
+            "ukprn": "10029085",
+            "establishmentNumber": null,
+            "status": {
+                "id": 1,
+                "name": "Open"
+            },
+            "closedOn": null,
+            "address": null,
+            "telephone": null,
+            "statutoryLowAge": null,
+            "statutoryHighAge": null,
+            "legacyId": "155",
+            "companyRegistrationNumber": null
         });
-        getPoliciesOfService.mockReset().mockReturnValue([]);
+        getServiceUsers.mockReset().mockReturnValue([]);
+        getRoles.mockReset().mockReturnValue([
+            {
+                "id": "E53644D0-4B4A-43BD-92A9-F019EC63F978",
+                "name": "Dev User",
+                "code": "USER",
+                "numericId": "3",
+                "status": {
+                    "id": 1
+                }
+            }
+        ]);
+        getServiceUsersV2.mockReset().mockReturnValue({
+            "services": [
+                {
+                    "userId": "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
+                    "serviceId": "057429C0-0700-4FCC-BDA5-32B5B7CE223F",
+                    "organisationId": "966B98F1-80F7-4BEB-B886-C9742F7A087F",
+                    "roles": {
+                        "id": "E53644D0-4B4A-43BD-92A9-F019EC63F978",
+                        "name": "Dev User",
+                        "code": "USER",
+                        "applicationId": "057429C0-0700-4FCC-BDA5-32B5B7CE223F",
+                        "status": 1,
+                        "numericId": "3",
+                        "parentId": null,
+                        "createdAt": "2018-12-04T08:08:26.266Z",
+                        "updatedAt": "2018-12-04T08:08:26.266Z"
+                    },
+                    "accessGrantedOn": "2020-01-15T14:01:05.138Z"
+                },
+                {
+                    "userId": "E15CCDE2-FFDC-4593-8475-3759C0F86FFD",
+                    "serviceId": "057429C0-0700-4FCC-BDA5-32B5B7CE223F",
+                    "organisationId": "966B98F1-80F7-4BEB-B886-C9742F7A087F",
+                    "roles": {
+                        "id": "E53644D0-4B4A-43BD-92A9-F019EC63F978",
+                        "name": "Dev User",
+                        "code": "USER",
+                        "applicationId": "057429C0-0700-4FCC-BDA5-32B5B7CE223F",
+                        "status": 1,
+                        "numericId": "3",
+                        "parentId": null,
+                        "createdAt": "2018-12-04T08:08:26.266Z",
+                        "updatedAt": "2018-12-04T08:08:26.266Z"
+                    },
+                    "accessGrantedOn": "2020-01-15T15:55:37.313Z"
+                }
+            ],
+            "page": 1,
+            "totalNumberOfPages": 1,
+            "totalNumberOfRecords": 2
+        });
         usersByIds.mockReset().mockReturnValue([
             {
                 sub: 'userId',
@@ -76,87 +119,82 @@ describe('when getting organisations users with roles and ukprn', () => {
         ]);
     });
 
+    it('then it should call org By type api with client params', async () => {
+        await getUserOverview(req, res);
+        expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
+        expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith('UKPRN', id, req.correlationId);
+    });
+
+    it('then it should call roles api with client params', async () => {
+        await getUserOverview(req, res);
+        expect(getRoles).toHaveBeenCalledTimes(1);
+        expect(getRoles).toHaveBeenCalledWith(req.client.id, req.correlationId);
+    });
+
+    it('then it should call service users with roles api with client params', async () => {
+        await getUserOverview(req, res);
+        expect(getServiceUsersV2).toHaveBeenCalledTimes(1);
+        expect(getServiceUsersV2).toHaveBeenCalledWith(req.client.id, "966B98F1-80F7-4BEB-B886-C9742F7A087F", ["E53644D0-4B4A-43BD-92A9-F019EC63F978"], req.query.page, req.query.pageSize, req.correlationId);
+    });
+
+    it('then it should return users', async () => {
+        await getUserOverview(req, res);
+        expect(res.json).toHaveBeenCalledTimes(1);
+        expect(res.json.mock.calls[0][0]).toMatchObject({"page": 1,
+               "result": [
+                 {
+                   "Title":  [
+                         "",
+                           ],
+                       "emails":  [
+                         "user.one@unit.tests",
+                           ],
+                       "name.familyname":  [
+                         "One",
+                           ],
+                       "name.givenname":  [
+                         "User",
+                ],
+                     },
+           ],
+           "totalPages": 1,
+               "totalRecords": 2,
+    }
+    );
+    });
+
     it('then it should return bad request if page specified but not a number', async () => {
         req.query = {
-            page: 'one',
+            roles: 'one',
         };
 
         await getUserOverview(req, res);
 
         expect(res.status).toHaveBeenCalledTimes(1);
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(404);
         expect(res.send).toHaveBeenCalledTimes(1);
-        expect(res.send).toHaveBeenCalledWith('one is not a valid value for page. Expected a number');
     });
 
-    it('then it should return bad request if pageSize specified but not a number', async () => {
-        req.query = {
-            pagesize: 'ten',
-        };
+
+    it('then it should return bad request if the request-message client id is not provided', async () => {
+        req.client.id = undefined;
 
         await getUserOverview(req, res);
 
         expect(res.status).toHaveBeenCalledTimes(1);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledTimes(1);
-        expect(res.send).toHaveBeenCalledWith('ten is not a valid value for pageSize. Expected a number');
-    });
-
-    it('then it should return bad request if the request-message relying party is not provided', async () => {
-        req.client.relyingParty = undefined;
-
-        await getUserOverview(req, res);
-
-        expect(res.status).toHaveBeenCalledTimes(1);
-        expect(res.status).toHaveBeenCalledWith(403);
         expect(res.send).toHaveBeenCalledTimes(1);
     });
 
     it('then it should return bad request if the request-message relying party param is not provided', async () => {
-        req.client.relyingParty.params = undefined;
+        req.params.id = undefined;
 
         await getUserOverview(req, res);
 
         expect(res.status).toHaveBeenCalledTimes(1);
-        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledTimes(1);
     });
 
-
-    it('then it should return mapped approvers', async () => {
-        await getApprovers(req, res);
-
-        expect(res.send).toHaveBeenCalledTimes(1);
-        expect(res.send.mock.calls[0][0]).toMatchObject({
-            users: [
-                {
-                    userId: 'userId',
-                    roleId: 10000,
-                    roleName: 'Approver',
-                    email: 'user.one@unit.tests',
-                    familyName: 'One',
-                    givenName: 'User',
-                    organisation: {
-                        id: 'orgId',
-                        name: 'organisation name',
-                        category: {
-                            id: '051',
-                            name: 'Further Education',
-                        },
-                        urn: null,
-                        uid: null,
-                        ukprn: '12345',
-                        status: {
-                            id: 1,
-                            name: 'Open',
-                        },
-                        address: null,
-                        legacyId: '1234',
-                        companyRegistrationNumber: null,
-                    },
-                },
-            ]
-        });
-    });
 
 });
