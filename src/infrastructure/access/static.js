@@ -15,8 +15,13 @@ const getPoliciesOfService = async (sid, correlationId) => {
 const getServiceUsers = async (sid, oid, correlationId) => {
   return Promise.resolve();
 }
+
+const getServiceUsersV2 = async (sid, oid, roleIds, page, pageSize, correlationId) => {
+  return Promise.resolve();
+}
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
   getServiceUsers,
+  getServiceUsersV2
 };

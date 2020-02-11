@@ -24,8 +24,13 @@ const getUserOverview = async (req, res) => {
     let serviceUsers = null;
     if(roles) {
         const allRoles = await getRoles(req.client.id, correlationId);
-        const serviceRoleIds = allRoles.filter(role=> roles.includes(role.code)).map(m=>m.id);
-        serviceUsers = await getServiceUsersV2(req.client.id,organisation.id, serviceRoleIds, page, pageSize, correlationId);
+        const serviceRoleIds = allRoles.filter((role)=> {
+           const r = roles.split(',').filter(r=> r.toLocaleLowerCase()===role.code.toLocaleLowerCase());
+           if(r && r.length > 0) {return true;}else{return false;}
+        }).map(m=>m.id);
+        if(serviceRoleIds && serviceRoleIds.length > 0) {
+            serviceUsers = await getServiceUsersV2(req.client.id, organisation.id, serviceRoleIds, page, pageSize, correlationId);
+        }
     }else{
         serviceUsers = await getServiceUsers(req.client.id,organisation.id,correlationId);
     }
