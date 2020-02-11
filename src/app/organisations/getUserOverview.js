@@ -25,7 +25,7 @@ const getUserOverview = async (req, res) => {
     if(roles) {
         const allRoles = await getRoles(req.client.id, correlationId);
         const serviceRoleIds = allRoles.filter((role)=> {
-           const r = roles.split(',').filter(r=> r.toLocaleLowerCase()===role.code.toLocaleLowerCase());
+           const r = roles.split(',').filter(r=> r.toLowerCase()===role.code.toLowerCase());
            if(r && r.length > 0) {return true;}else{return false;}
         }).map(m=>m.id);
         if(serviceRoleIds && serviceRoleIds.length > 0) {
