@@ -3,10 +3,47 @@ const {getOrganisationByTypeAndIdentifier} = require('../../infrastructure/organ
 const { getServiceUsers, getRoles, getServiceUsersV2 } = require('../../infrastructure/access');
 const { usersByIds } = require('../../infrastructure/directories');
 
+const getPageNumber = (req) => {
+    const pageValue = req.query.page;
+    if (!pageValue) {
+        return 1;
+    }
+    const page = parseInt(pageValue);
+    if (isNaN(page)) {
+        throw new Error('Page must be a number');
+    } else if (page < 1) {
+        throw new Error('Page must be at least 1');
+    }
+    return page;
+};
+const getPageSize = (req) => {
+    const pageSizeValue = req.query.pageSize;
+    if (!pageSizeValue) {
+        return 25;
+    }
+    const page = parseInt(pageSizeValue);
+    if (isNaN(page)) {
+        throw new Error('Page size must be a number');
+    } else if (page < 1) {
+        throw new Error('Page size must be at least 1');
+    }
+    return page;
+};
+
 const getUserOverview = async (req, res) => {
     const { correlationId, clientCorrelationId } = req;
-    const { roles, page, pageSize } = req.query;
+    const { roles } = req.query;
     const ukprn = req.params.id;
+    let  page, pageSize;
+    try {
+        page = getPageNumber(req);
+        pageSize = getPageSize(req);
+    } catch (e) {
+        return res.status(400).json({
+            reasons: [e.message],
+        });
+    }
+
     try {
         logger.info(`Getting users for UKPRN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
             correlationId,
