@@ -94,9 +94,18 @@ const getUserOverview = async (req, res) => {
 const getUserDetails = async (req,userIds) =>
 {
     const usersDetails = await usersByIds(userIds, req.correlationId);
-    return  usersDetails.map((user)=>{
-        return {emails:[user.email],'name.givenname': [user.given_name], 'name.familyname': [user.family_name], Title:[''] };
-    });
+    if(usersDetails && usersDetails.length > 0) {
+        return usersDetails.map((user) => {
+            return {
+                emails: [user.email],
+                'name.givenname': [user.given_name],
+                'name.familyname': [user.family_name],
+                Title: ['']
+            };
+        });
+    }else{
+        return null;
+    }
 };
 
 module.exports=getUserOverview;
