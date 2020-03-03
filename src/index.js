@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const { requestCorrelation } = require('./app/utils');
 const mountRoutes = require('./routes');
 
+https.globalAgent.maxSockets = http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
+
 const app = express();
 if (config.hostingEnvironment.env !== 'dev') {
   app.set('trust proxy', 1);
