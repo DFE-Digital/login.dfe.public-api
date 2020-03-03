@@ -1,14 +1,6 @@
 const config = require('./../config');
-const KeepAliveAgent = require('agentkeepalive').HttpsAgent;
 
-const rp = require('login.dfe.request-promise-retry').defaults({
-  agent: new KeepAliveAgent({
-    maxSockets: config.hostingEnvironment.agentKeepAlive.maxSockets,
-    maxFreeSockets: config.hostingEnvironment.agentKeepAlive.maxFreeSockets,
-    timeout: config.hostingEnvironment.agentKeepAlive.timeout,
-    keepAliveTimeout: config.hostingEnvironment.agentKeepAlive.keepAliveTimeout,
-  }),
-});
+const rp = require('login.dfe.request-promise-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
 
 const callApi = async (route, correlationId, method = 'GET', body = undefined) => {
@@ -50,12 +42,12 @@ const getServiceUsers = async (sid, oid, correlationId) => {
   return await callApi(`/services/${sid}/organisations/${oid}/users`, correlationId);
 }
 
-const getRoles = async (sid,correlationId) => {
-  return  await  callApi(`/services/${sid}/roles`, correlationId)
+const getRoles = async (sid, correlationId) => {
+  return await callApi(`/services/${sid}/roles`, correlationId)
 }
 
 const getServiceUsersV2 = async (sid, oid, roleIds, page, pageSize, correlationId) => {
-    return await callApi(`/services/${sid}/organisations/${oid}/users?version=v2&page=${page}&pageSize=${pageSize}&roleIds=${roleIds.join(',')}`, correlationId);
+  return await callApi(`/services/${sid}/organisations/${oid}/users?version=v2&page=${page}&pageSize=${pageSize}&roleIds=${roleIds.join(',')}`, correlationId);
 }
 
 module.exports = {
