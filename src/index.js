@@ -1,6 +1,5 @@
 const express = require('express');
 const logger = require('./infrastructure/logger');
-const https = require('https');
 const config = require('./infrastructure/config');
 const bodyParser = require('body-parser');
 const { requestCorrelation } = require('./app/utils');
