@@ -11,7 +11,13 @@
         "appServicePlanName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the App Service Plan"
+                "description": "The sku of the App Service"
+            }
+        },
+        "appServicePlanSku": {
+            "type": "object",
+            "metadata": {
+                "description": "The sku of the App Service Plan"
             }
         },
         "appServicePlanRG": {
@@ -22,7 +28,7 @@
         },
         "nodeVersion": {
             "type": "string",
-            "defaultValue": "8.9.4",
+            "defaultValue": "10.16.0",
             "metadata": {
                 "description": "The default NodeJS version that the App Service will run"
             }
@@ -51,15 +57,77 @@
             "type": "string",
             "defaultValue": ""
         },
-        "certificateResourceGroup": {
-            "type": "string"
-        },
         "certificateName": {
             "type": "string"
+        },
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Key Vault that stores application certificates"
+            }
+        },
+        "keyVaultResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Resource Group that contains the Key Vault"
+            }
         }
     },
-    "variables": {},
+    "variables": {
+    },
     "resources": [
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[parameters('appServicePlanName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/DFE-Digital/login.dfe.infrastructure/master/Shared/app-service-plan.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    },
+                    "appServicePlanSku": {
+                        "value": "[parameters('appServicePlanSku')]"
+                    },
+                    "appServicePlanOS": {
+                        "value": "Linux"
+                    },
+                    "appServicePlanIsLinux": {
+                        "value": true
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[concat(parameters('appServiceName'), '-certificate')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/DFE-Digital/login.dfe.infrastructure/master/Shared/app-service-certificate.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyVaultCertificateName": {
+                        "value": "[parameters('certificateName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    },
+                    "serverFarmId": {
+                        "value": "[reference(parameters('appServicePlanName')).outputs.appServicePlanId.Value]"
+                    }
+                }
+            }
+        },
         {
             "apiVersion": "2017-05-10",
             "name": "[parameters('appServiceName')]",
@@ -96,10 +164,13 @@
                         "value": "[parameters('customHostName')]"
                     },
                     "certificateThumbprint": {
-                        "value": "[reference(resourceId(parameters('certificateResourceGroup'), 'Microsoft.Web/certificates', parameters('certificateName')), '2016-03-01').Thumbprint]"
+                        "value": "[reference(concat(parameters('appServiceName'), '-certificate')).outputs.certificateThumbprint.value]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[parameters('appServicePlanName')]"
+            ]
         }
     ]
 }
