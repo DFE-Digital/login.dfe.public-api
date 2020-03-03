@@ -26,12 +26,6 @@ const mockResponse = () => {
 const mockConfig = (customConfig) => {
   const defaultConfig = {
     hostingEnvironment: {
-      agentKeepAlive: {
-        maxSockets: 160,
-        maxFreeSockets: 10,
-        timeout: 60000,
-        keepAliveTimeout: 30000,
-      },
     },
     auth: {
       type: 'secret',
@@ -61,7 +55,7 @@ const mockLogger = () => {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
-    mockResetAll: function() {
+    mockResetAll: function () {
       this.info.mockReset();
       this.warn.mockReset();
       this.error.mockReset();
