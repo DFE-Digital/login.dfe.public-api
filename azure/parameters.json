@@ -8,6 +8,9 @@
         "appServiceName": {
             "value": ""
         },
+        "appServicePlanSku": {
+            "value": ""
+        },
         "appServicePlanRG": {
             "value": ""
         },
@@ -17,10 +20,13 @@
         "customHostName": {
             "value": ""
         },
-        "certificateResourceGroup": {
+        "certificateName": {
             "value": ""
         },
-        "certificateName": {
+        "keyVaultName": {
+            "value": ""
+        },
+        "keyVaultResourceGroup": {
             "value": ""
         },
         "numberOfWorkers": {
