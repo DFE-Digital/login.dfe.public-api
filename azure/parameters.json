@@ -9,7 +9,7 @@
             "value": ""
         },
         "appServicePlanSku": {
-            "value": ""
+            "value": {}
         },
         "appServicePlanRG": {
             "value": ""
