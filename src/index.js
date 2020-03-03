@@ -5,6 +5,8 @@ const config = require('./infrastructure/config');
 const bodyParser = require('body-parser');
 const { requestCorrelation } = require('./app/utils');
 const mountRoutes = require('./routes');
+const http = require('http');
+const https = require('https');
 
 https.globalAgent.maxSockets = http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
