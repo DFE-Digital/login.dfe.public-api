@@ -19,6 +19,7 @@ const listApprovers = async (req, res) => {
 
   let filterTypes = [];
   let filterStates = [];
+  let filterCategories = [];
   const policiesForService = await getPoliciesOfService(req.client.id, req.correlationId);
   if (policiesForService && policiesForService.length > 0) {
     for (let i = 0; i < policiesForService.length; i++) {
@@ -32,11 +33,14 @@ const listApprovers = async (req, res) => {
           if (condition.field === 'organisation.status.id') {
             filterStates.push(...condition.value);
           }
+          if (condition.field === 'organisation.category.id') {
+            filterCategories.push(...condition.value);
+          }
         }
       }
     }
   }
-  const pageOfApprovers = await listOrganisationUsersV2(page, pageSize, 10000, filterTypes, filterStates, req.correlationId);
+  const pageOfApprovers = await listOrganisationUsersV2(page, pageSize, 10000, filterTypes, filterStates, filterCategories, req.correlationId);
   const userIds = pageOfApprovers.users.map((user) => user.userId);
   const releventUsers = await usersByIds(userIds.join(','), req.correlationId);
   const mappedRecords = pageOfApprovers.users.map((userOrg) => {
