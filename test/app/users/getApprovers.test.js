@@ -164,7 +164,7 @@ describe('when getting approver organisations', () => {
     await getApprovers(req, res);
 
     expect(listOrganisationUsersV2).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], [], req.correlationId);
+    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], [], [], req.correlationId);
   });
 
   it('then it should call organisations to get page of org approvers with policy conditions as filter', async () => {
@@ -183,7 +183,7 @@ describe('when getting approver organisations', () => {
     await getApprovers(req, res);
 
     expect(listOrganisationUsersV2).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], ["4", "3", "1"], req.correlationId);
+    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], ["4", "3", "1"], [], req.correlationId);
   });
 
   it('then it should call directories with the userIds', async () => {
