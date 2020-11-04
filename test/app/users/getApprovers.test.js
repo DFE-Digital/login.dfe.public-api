@@ -5,7 +5,7 @@ jest.mock('./../../../src/infrastructure/access');
 jest.mock('./../../../src/infrastructure/directories');
 
 const { mockResponse, mockRequest } = require('./../../utils');
-const { listOrganisationUsersV2 } = require('./../../../src/infrastructure/organisations');
+const { listOrganisationUsersV3 } = require('./../../../src/infrastructure/organisations');
 const { getPoliciesOfService } = require('./../../../src/infrastructure/access');
 const { usersByIds } = require('./../../../src/infrastructure/directories');
 
@@ -30,7 +30,7 @@ describe('when getting approver organisations', () => {
 
     res.mockResetAll();
 
-    listOrganisationUsersV2.mockReset().mockReturnValue({
+    listOrganisationUsersV3.mockReset().mockReturnValue({
       users: [
         {
           userId: 'userId',
@@ -163,12 +163,12 @@ describe('when getting approver organisations', () => {
   it('then it should call organisations to get page of org approvers with defaults', async () => {
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV2).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], [], [], req.correlationId);
+    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
+    expect(listOrganisationUsersV3).toHaveBeenCalledWith(1, 25, 10000, [], req.correlationId);
   });
 
   it('then it should call organisations to get page of org approvers with policy conditions as filter', async () => {
-    getPoliciesOfService.mockReset().mockReturnValue([{
+    let mockPolicies = [{
       id: 'policy1',
       name: 'policy name',
       conditions: [{
@@ -179,11 +179,12 @@ describe('when getting approver organisations', () => {
           '1'
         ]
       }]
-    }]);
+    }];
+    getPoliciesOfService.mockReset().mockReturnValue(mockPolicies);
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV2).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV2).toHaveBeenCalledWith(1, 25, 10000, [], ["4", "3", "1"], [], req.correlationId);
+    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
+    expect(listOrganisationUsersV3).toHaveBeenCalledWith(1, 25, 10000, mockPolicies, req.correlationId);
   });
 
   it('then it should call directories with the userIds', async () => {
