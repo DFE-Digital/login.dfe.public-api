@@ -63,7 +63,7 @@ const getOrganisationsAssociatedWithUser = async (userId) => {
   }]);
 };
 
-const listOrganisationUsersV2 = async (page, pageSize, roleId, filterTypes, filterStates, correlationId) => {
+const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correlationId) => {
   return Promise.resolve();
 };
 
@@ -73,5 +73,5 @@ module.exports = {
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
-  listOrganisationUsersV2,
+  listOrganisationUsersV3,
 };
