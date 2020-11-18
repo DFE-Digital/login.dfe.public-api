@@ -533,7 +533,7 @@ This will return a response in the following format
 
 | id  | Description |
 | --- | ----------- |
-| 001 | Establishment (see [Establishment Types](/#establishment-types) below) |
+| 001 | Establishment (see [Establishment Types](#establishment-types) below) |
 | 002 | Local Authority|
 | 003 | Other Legacy Organisations|
 | 004 | Early Year Setting|
