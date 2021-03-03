@@ -67,3 +67,5 @@ access.log
 \.idea/markdown-navigator\.xml
 
 \.idea/markdown-navigator/
+
+.vscode
