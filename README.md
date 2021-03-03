@@ -407,6 +407,8 @@ The response body contains the following attributes (example response below):
 }
 ```
 
+To interpret the category id, see [here](#how-do-ids-map-to-categories-and-types).
+
 ### Approvers for organisations
 
 You can get a list of approvers for organisations that are within your services scope (based on role policy conditions)
@@ -524,3 +526,68 @@ This will return a response in the following format
     ]
 }
 ```
+
+## How do ids map to categories and types?
+
+#### Organisation Categories
+
+| id  | Description |
+| --- | ----------- |
+| 001 | Establishment (see [Establishment Types](#establishment-types) below) |
+| 002 | Local Authority|
+| 003 | Other Legacy Organisations|
+| 004 | Early Year Setting|
+| 008 | Other Stakeholders|
+| 009 | Training Providers|
+| 010 | Multi-Academy Trust|
+| 011 | Government|
+| 012 | Other GIAS Stakeholder|
+| 013 | Single-Academy Trust|
+| 050 | Software Suppliers|
+| 051 | Further Education|
+
+
+#### Establishment Types
+
+| id  | Description |
+| --- | ----------- |
+| 001 | Community School|
+| 002 | Voluntary Aided School|
+| 003 | Voluntary Controlled School|
+| 005 | Foundation School|
+| 006 | City Technology College|
+| 007 | Community Special School|
+| 008 | Non-Maintained Special School|
+| 010 | Other Independent Special School|
+| 011 | Other INdependent School|
+| 012 | Fondation Special School|
+| 014 | Pupil Referral Unit|
+| 015 | LA Nursery School|
+| 018 | Further Education|
+| 024 | Secure Units|
+| 025 | Offshore Schools|
+| 026 | Service Childrens Education|
+| 027 | Miscellanenous|
+| 028 | Academy Sponsor Led|
+| 029 | Higher Education Institution|
+| 030 | Welsh Establishment|
+| 031 | Sixth Form Centres|
+| 032 | Special Post 16 Institution|
+| 033 | Academy Special Sponsor Led|
+| 034 | Academy Converter|
+| 035 | Free Schools|
+| 036 | Free Schools Special|
+| 037 | British Overseas Schools|
+| 038 | Free Schools - Alternative Provision|
+| 039 | Free Schools - 16-19|
+| 040 | University Teachnical College|
+| 041 | Studio Schools|
+| 042 | Academy Alternative Provision Converter|
+| 043 | Academy Alternative Provision Sponsor Led|
+| 044 | Academy Special Converter|
+| 045 | Academy 16-19 Converter|
+| 046 | Academy 16-19 Sponsor Led|
+| 047 | Children's Centre|
+| 048 | Children's Centre Linked Site|
+| 056 | Institution funded by other government department|
+

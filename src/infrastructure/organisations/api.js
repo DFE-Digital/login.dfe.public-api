@@ -76,19 +76,15 @@ const getOrganisationsAssociatedWithUser = async (userId, correlationId) => {
   return await callOrganisationsApi(`organisations/v2/associated-with-user/${userId}`, 'GET', undefined, correlationId);
 };
 
-const listOrganisationUsersV2 = async (page, pageSize, roleId, filterTypes, filterStates, correlationId) => {
-  let uri = `organisations/v2/users?page=${page}&pageSize=${pageSize}&role=${roleId}`;
-  if (filterTypes) {
-    filterTypes.forEach((type) => {
-      uri += `&filtertype=${type}`;
-    });
+const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correlationId) => {
+  let uri = `organisations/v3/users`;
+  const payload = {
+    page: page,
+    pageSize: pageSize,
+    role: roleId,
+    policies: policies
   }
-  if (filterStates) {
-    filterStates.forEach((status) => {
-      uri += `&filterstatus=${status}`;
-    });
-  }
-  return await callOrganisationsApi(uri, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(uri, 'POST', payload, correlationId);
 };
 
 module.exports = {
@@ -97,5 +93,5 @@ module.exports = {
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
   listServiceUsers,
-  listOrganisationUsersV2,
+  listOrganisationUsersV3,
 };

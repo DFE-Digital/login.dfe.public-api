@@ -1,5 +1,5 @@
 const { extractPageParam, extractPageSizeParam } = require('../utils');
-const { listOrganisationUsersV2 } = require('../../infrastructure/organisations');
+const { listOrganisationUsersV3 } = require('../../infrastructure/organisations');
 const { usersByIds } = require('../../infrastructure/directories');
 const { getPoliciesOfService } = require('../../infrastructure/access');
 
@@ -17,26 +17,8 @@ const listApprovers = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  let filterTypes = [];
-  let filterStates = [];
   const policiesForService = await getPoliciesOfService(req.client.id, req.correlationId);
-  if (policiesForService && policiesForService.length > 0) {
-    for (let i = 0; i < policiesForService.length; i++) {
-      const policy = policiesForService[i];
-      if (policy.conditions && policy.conditions.length > 0) {
-        for (let c = 0; c < policy.conditions.length; c++) {
-          const condition = policy.conditions[c];
-          if (condition.field === 'organisation.type.id') {
-            filterTypes.push(...condition.value);
-          }
-          if (condition.field === 'organisation.status.id') {
-            filterStates.push(...condition.value);
-          }
-        }
-      }
-    }
-  }
-  const pageOfApprovers = await listOrganisationUsersV2(page, pageSize, 10000, filterTypes, filterStates, req.correlationId);
+  const pageOfApprovers = await listOrganisationUsersV3(page, pageSize, 10000, policiesForService, req.correlationId);
   const userIds = pageOfApprovers.users.map((user) => user.userId);
   const releventUsers = await usersByIds(userIds.join(','), req.correlationId);
   const mappedRecords = pageOfApprovers.users.map((userOrg) => {
