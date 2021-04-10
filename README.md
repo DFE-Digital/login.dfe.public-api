@@ -10,7 +10,7 @@ To use any of the APIs below you will need to provide a Bearer token in the head
 
 You should create a JWT at the point of use in your calling application using the standard JWT library that comes with your chosen technology.
 
-The token body will require and issuer (your service client id) and an audience as follows:
+The token body will require an issuer (your service client id) and an audience as follows:
 ```$json
 {
   "iss": "REPLACE_WITH_YOUR_CLIENT_ID",
@@ -18,7 +18,7 @@ The token body will require and issuer (your service client id) and an audience 
 }
 ```
 
-The token must be signed using the HS256 algorythm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are seervice/env specific.)  
+The token must be signed using the HS256 algorithm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to be mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are service/env specific.)  
 
 
 ## Invite User
@@ -240,9 +240,9 @@ Upon successful regeneration of the secret, you will receive a response like:
 
 ## Child application Grants and Tokens
 
-Child applications follow and explicit consent flow that ultimatly yields and Authorization code (a Grant) which can be exchanged for a short lived Access Token and a longer lived Refresh Token, in order to allow child application owners to manage the lifecycle of issued tokens we provide a convienient api to list grants and tokend issues for a goven child application.
+Child applications follow an explicit consent flow that ultimately yields an Authorization code (a Grant) which can be exchanged for a short lived Access Token and a longer lived Refresh Token, in order to allow child application owners to manage the lifecycle of issued tokens we provide a convienient API to list grants and token issues for a given child application.
 
-These tokens can then be inspected and revoked using the standard open id connect endpoints (intropection and revocaton).
+These tokens can then be inspected and revoked using the standard open id connect endpoints (intropection and revocation).
 
 To get a list of grants for a given child service:
 ```
