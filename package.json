@@ -25,6 +25,7 @@
     "body-parser": "^1.18.3",
     "email-validator": "^2.0.4",
     "express": "^4.16.3",
+    "helmet": "^4.6.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.15",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v2.0.2",
