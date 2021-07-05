@@ -6,10 +6,32 @@ const { requestCorrelation } = require('./app/utils');
 const mountRoutes = require('./routes');
 const http = require('http');
 const https = require('https');
+const helmet = require('helmet');
 
 https.globalAgent.maxSockets = http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
 const app = express();
+
+if (config.hostingEnvironment.hstsMaxAge) {
+  app.use(helmet({
+    noCache: true,
+    frameguard: {
+      action: 'deny',
+    },
+    hsts: {
+      maxAge: config.hostingEnvironment.hstsMaxAge,
+      preload: true,
+    }
+  }));
+} else {
+  app.use(helmet({
+    noCache: true,
+    frameguard: {
+      action: 'deny',
+    }
+  }));
+}
+
 if (config.hostingEnvironment.env !== 'dev') {
   app.set('trust proxy', 1);
 }
