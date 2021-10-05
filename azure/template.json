@@ -92,7 +92,7 @@
         },
         "subnetPrefix": {
             "type": "string",
-            "defaultValue": "dir-sn",
+            "defaultValue": "papi-sn",
             "metadata": {
                 "description": "Prefix of the subnet to integrate the app service with"
             }
