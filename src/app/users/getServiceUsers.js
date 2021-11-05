@@ -34,13 +34,39 @@ const listUsers = async (req, res) => {
       fromDate = new Date(from);
     }
 
+    if (fromDate && toDate) {
+      const time_difference = toDate.getTime() - fromDate.getTime();
+      const days_difference = Math.abs(time_difference) / (1000 * 60 * 60 * 24);
+      if (days_difference > 61) {
+        return res.status(400).send('Only 60 days are allowed between dates');
+      }
+    }
+
   } catch (e) {
     return res.status(400).send(e.message);
   }
 
+
   let pageOfUserServices;
   let users;
+  let isWarning = false;
   if (status || from || to) {
+
+    if (toDate && !fromDate) {
+      fromDate = new Date(toDate);
+      fromDate.setMonth(toDate.getMonth() - 2);
+      isWarning = true;
+    }
+    else if (!toDate && fromDate) {
+      toDate = new Date(fromDate);
+      toDate.setMonth(fromDate.getMonth() + 2);
+      isWarning = true;
+    } else if (!toDate && !fromDate) {
+      toDate = new Date();
+      fromDate = new Date(new Date().setMonth(new Date().getMonth() - 2));
+      isWarning = true;
+    }
+
     users = await directories.getUserWithFilters(status, fromDate, toDate, req.correlationId);
     const userIds = users.map((user) => user.sub);
     pageOfUserServices = await listServiceUsers(req.client.id, userIds, page, pageSize, req.correlationId);
@@ -68,12 +94,18 @@ const listUsers = async (req, res) => {
     }
     return mappedUserService;
   });
-  return res.send({
+  const responseBody = {
     users: mappedRecords,
     numberOfRecords: pageOfUserServices.totalNumberOfRecords,
     page: pageOfUserServices.page,
-    numberOfPages: pageOfUserServices.totalNumberOfPages,
-  });
+    numberOfPages: pageOfUserServices.totalNumberOfPages
+  }
+
+  if (isWarning) {
+    responseBody.warning = 'Only 2 months of data can be fetched'
+  }
+
+  return res.send(responseBody);
 
 
 };
