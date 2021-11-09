@@ -11,6 +11,8 @@ const listUsers = async (req, res) => {
   let from;
   let fromDate;
   let toDate;
+  const dataSpan = 7;
+
 
   try {
     page = extractPageParam(req);
@@ -19,11 +21,10 @@ const listUsers = async (req, res) => {
     to = extractToParam(req);
     from = extractFromParam(req);
 
-    // for future implementation
-    // if (status && status !== '1' && status !== '0') {
-    //   return res.status(400).send('status should be either 0 or 1');
-    // }
-    status = '0';
+    if (status && status !== '0') {
+      return res.status(400).send('status should only be 0');
+    }
+
 
     if (to && isNaN(Date.parse(to))) {
       return res.status(400).send('to date is not a valid date');
@@ -39,8 +40,8 @@ const listUsers = async (req, res) => {
     if (fromDate && toDate) {
       const time_difference = toDate.getTime() - fromDate.getTime();
       const days_difference = Math.abs(time_difference) / (1000 * 60 * 60 * 24);
-      if (days_difference > 7) {
-        return res.status(400).send('Only 7 days are allowed between dates');
+      if (days_difference > dataSpan) {
+        return res.status(400).send(`Only ${dataSpan} days are allowed between dates`);
       }
     }
 
@@ -52,20 +53,21 @@ const listUsers = async (req, res) => {
   let pageOfUserServices;
   let users;
   let isWarning = false;
+
   if (status || from || to) {
 
     if (toDate && !fromDate) {
       fromDate = new Date(toDate);
-      fromDate.setDate(toDate.getDay() - 7);
+      fromDate.setDate(toDate.getDay() - dataSpan);
       isWarning = true;
     }
     else if (!toDate && fromDate) {
       toDate = new Date(fromDate);
-      toDate.setDate(fromDate.getDay() + 7);
+      toDate.setDate(fromDate.getDay() + dataSpan);
       isWarning = true;
     } else if (!toDate && !fromDate) {
       toDate = new Date();
-      fromDate = new Date(new Date().setDate(new Date().getDay() - 7));
+      fromDate = new Date(new Date().setDate(new Date().getDay() - dataSpan));
       isWarning = true;
     }
 
@@ -112,7 +114,7 @@ const listUsers = async (req, res) => {
   }
 
   if (isWarning) {
-    responseBody.warning = 'Only 7 days of data can be fetched'
+    responseBody.warning = `Only ${dataSpan} days of data can be fetched`
   }
 
   return res.send(responseBody);
