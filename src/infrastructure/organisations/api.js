@@ -32,10 +32,10 @@ const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
 const listServiceUsers = async (serviceId, userIds, page, pageSize, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const url = `${config.organisations.service.url}/services/${serviceId}/users?page=${page}&pageSize=${pageSize}`;
+    const url = `${config.organisations.service.url}/services/${serviceId}/users`;
     const pageOfUsers = await rp({
       method: 'POST',
-      body: { userIds },
+      body: { page, pageSize, userIds },
       uri: url,
       headers: {
         authorization: `bearer ${token}`,
