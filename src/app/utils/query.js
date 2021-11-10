@@ -22,10 +22,22 @@ const extractPageParam = (req) => {
 const extractPageSizeParam = (req) => {
   return extractIntParam(req, 'pageSize', 25);
 };
+const extractStatusParam = (req) => {
+  return extractParam(req, 'status');
+};
+const extractFromParam = (req) => {
+  return extractParam(req, 'from');
+};
+const extractToParam = (req) => {
+  return extractParam(req, 'to');
+};
 
 module.exports = {
   extractPageParam,
   extractPageSizeParam,
   extractIntParam,
   extractParam,
+  extractStatusParam,
+  extractFromParam,
+  extractToParam
 };

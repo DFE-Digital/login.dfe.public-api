@@ -27,6 +27,7 @@
     "express": "^4.16.3",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.3.0",
+    "login.dfe.dao": "1.0.82",
     "lodash": "^4.17.15",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v2.0.2",
     "login.dfe.audit.winston-sequelize-transport": "git+https://github.com/DFE-Digital/login.dfe.audit.winston-sequelize-transport.git#v2.12",
