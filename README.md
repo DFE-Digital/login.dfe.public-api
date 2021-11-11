@@ -345,7 +345,7 @@ This will return a response in the following format
 
 ### Service Users without filters
 
-You can get a list of users for a given service as defined in the authorisation token (iss attribute)  
+You can get a list of users without filters for a given service as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
 GET https://environment-url/users?page=1&pageSize=25
@@ -409,7 +409,7 @@ The response body contains the following attributes (example response below):
 
 ### Service Users with filters
 
-You can get a list of users for a given service as defined in the authorisation token (iss attribute)  
+You can get a list of users with filters for a given service as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
 GET https://environment-url/users?page=1&pageSize=25&status=0&from=2021%2F02%2F11%2002%3A22%3A06&to=2021%2F11%2F03%2002%3A22%3A06
