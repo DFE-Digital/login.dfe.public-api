@@ -348,11 +348,15 @@ This will return a response in the following format
 You can get a list of users for a given service as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
-GET https://environment-url/users?page=1&pageSize=25
+GET https://environment-url/users?page=1&pageSize=25&status=0&from=2021%2F02%2F11%2002%3A22%3A06&to=2021%2F11%2F03%2002%3A22%3A06
 Authorization: bearer {jwt-token}
 ```
 
 The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
+The stuats, from and to are optional 
+status accepts 0 at the moment.
+date range only accepts 7 days 
+dates should be in URL encoded form as shown in the URL
 
 The response body contains the following attributes (example response below):  
 
@@ -362,6 +366,7 @@ The response body contains the following attributes (example response below):
 | numberOfRecords             | Total number of records reported   |
 | page             | Current page number  | 
 | numberOfPages             | Total number of pages  |
+| warning (optional)             | appears only when fetching only 7 days of users  |
 
 *Response Example*
 ```json
