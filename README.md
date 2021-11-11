@@ -417,10 +417,16 @@ Authorization: bearer {jwt-token}
 ```
 
 The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
-The stuats, from and to are optional 
+The status, from and to are optional 
 status accepts 0 at the moment.
 date range only accepts 7 days 
-dates should be in URL encoded form as shown in the URL
+dates should be in URL encoded form as shown in the example
+
+*Date range validation*
+Send error message when the date range is more than 7 days.
+Only from date in the filter gets users updated 7 days after the from date.
+Only to date in the filter gets users updated 7 days before the to date.
+When no date specified, gets users updated from now to 7 days before it. 
 
 The response body contains the following attributes (example response below):  
 
