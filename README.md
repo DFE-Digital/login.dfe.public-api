@@ -343,9 +343,9 @@ This will return a response in the following format
 ]
 ```
 
-### Service Users
+### Service Users without filters
 
-You can get a list of users for a given service as defined in the authorisation token (iss attribute)  
+You can get a list of users without filters for a given service as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
 GET https://environment-url/users?page=1&pageSize=25
@@ -404,6 +404,82 @@ The response body contains the following attributes (example response below):
     "numberOfRecords": 1,
     "page": 1,
     "numberOfPages": 1
+}
+```
+
+### Service Users with filters
+
+You can get a list of users with filters for a given service as defined in the authorisation token (iss attribute)  
+The request looks like:    
+```
+GET https://environment-url/users?page=1&pageSize=25&status=0&from=2021%2F02%2F11%2002%3A22%3A06&to=2021%2F11%2F03%2002%3A22%3A06
+Authorization: bearer {jwt-token}
+```
+
+The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
+The status, from and to are optional 
+status accepts 0 at the moment.
+date range only accepts 7 days 
+dates should be in URL encoded form as shown in the example
+
+*Date range validation*
+Send error message when the date range is more than 7 days.
+Only from date in the filter gets users updated 7 days after the from date.
+Only to date in the filter gets users updated 7 days before the to date.
+When no date specified, gets users updated from now to 7 days before it. 
+
+The response body contains the following attributes (example response below):  
+
+| Name                  | Description |
+| --------------------- | -------- |
+| users              | An array of user details (including a child organisation object)      |
+| numberOfRecords             | Total number of records reported   |
+| page             | Current page number  | 
+| numberOfPages             | Total number of pages  |
+| warning (optional)             | appears only when fetching only 7 days of users  |
+
+*Response Example*
+```json
+
+{
+    "users": [
+        {
+            "approvedAt": "2019-06-19T15:09:58.683Z",
+            "updatedAt": "2019-06-19T15:09:58.683Z",
+            "organisation": {
+                "id": "13F20E54-79EA-4146-8E39-18197576F023",
+                "name": "Department for Education",
+                "Category": "002",
+                "Type": null,
+                "URN": null,
+                "UID": null,
+                "UKPRN": null,
+                "EstablishmentNumber": "001",
+                "Status": 1,
+                "ClosedOn": null,
+                "Address": null,
+                "phaseOfEducation": null,
+                "statutoryLowAge": null,
+                "statutoryHighAge": null,
+                "telephone": null,
+                "regionCode": null,
+                "legacyId": "1031237",
+                "companyRegistrationNumber": "1234567",
+                "createdAt": "2019-02-20T14:27:59.020Z",
+                "updatedAt": "2019-02-20T14:28:38.223Z"
+            },
+            "roleName": "Approver",
+            "roleId": 10000,
+            "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
+            "email": "foo@example.com",
+            "familyName": "Johnson",
+            "givenName": "Roger"
+        }
+    ],
+    "numberOfRecords": 1,
+    "page": 1,
+    "numberOfPages": 1,
+    "warning":  "Only 7 days of data can be fetched"
 }
 ```
 
