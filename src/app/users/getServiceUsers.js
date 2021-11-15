@@ -17,14 +17,14 @@ const listUsers = async (req, res) => {
     return res.status(400).send(e.message);
   }
   if (status || from || to) {
-    return listUsersWithFitlers(req, res);
+    return listUsersWithFilters(req, res);
   } else {
-    return listUsersWithOutFitlers(req, res);
+    return listUsersWithOutFilters(req, res);
   }
 
 }
 
-const listUsersWithOutFitlers = async (req, res) => {
+const listUsersWithOutFilters = async (req, res) => {
 
   let page;
   let pageSize;
@@ -52,7 +52,7 @@ const listUsersWithOutFitlers = async (req, res) => {
 }
 
 
-const listUsersWithFitlers = async (req, res) => {
+const listUsersWithFilters = async (req, res) => {
   let page;
   let pageSize;
   let status;
