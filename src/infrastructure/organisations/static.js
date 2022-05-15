@@ -38,6 +38,40 @@ const getOrganisationByTypeAndIdentifier = async (type, identifier) => {
   });
 };
 
+const getOrganisationById = async (identifier) => {
+  return Promise.resolve({
+    "id": "1923215A-0CB7-4255-A602-000276541FB7",
+    "name": "North Thoresby Primary Academy",
+    "category": {
+      "id": "001",
+      "name": "Establishment"
+    },
+    "urn": "139868",
+    "uid": null,
+    "ukprn": "10042285",
+    "establishmentNumber": "2183",
+    "status": {
+      "id": 1,
+      "name": "Open"
+    },
+    "closedOn": null,
+    "address": "High Street, North Thoresby, Grimsby, Lincolnshire, DN36 5PL",
+    "telephone": "01472840295",
+    "region": {
+      "id": "E",
+      "name": "East Midlands"
+    },
+    "phaseOfEducation": {
+      "id": 2,
+      "name": "Primary"
+    },
+    "statutoryLowAge": 4,
+    "statutoryHighAge": 11,
+    "legacyId": null,
+    "companyRegistrationNumber": null
+  });
+};
+
 const searchForAnnouncements = async (messageId, correlationId) => {
   return Promise.resolve(undefined);
 };
@@ -70,6 +104,7 @@ const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correla
 
 module.exports = {
   getOrganisationByTypeAndIdentifier,
+  getOrganisationById,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
