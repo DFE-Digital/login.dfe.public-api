@@ -9,6 +9,7 @@ const users = require('./app/users');
 
 const mountRoutes = (app) => {
   app.use('/healthcheck', healthCheck({ config }));
+  app.use('/version', (req, res) => { res.send({ version: 2 })});
 
   app.use(auth({
     audience: 'signin.education.gov.uk',
