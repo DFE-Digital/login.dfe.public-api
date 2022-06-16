@@ -1,6 +1,8 @@
 const logger = require('./../../infrastructure/logger');
 const { getUsersAccessToServiceAtOrganisation } = require('./../../infrastructure/access');
 const { getClientByServiceId } = require('./../../infrastructure/applications');
+const { getOrganisationById } = require('../../infrastructure/organisations');
+const { usersByIds } = require('../../infrastructure/directories');
 
 const getUsersAccess = async (req, res) => {
   const { uid, sid, oid } = req.params;
@@ -19,10 +21,22 @@ const getUsersAccess = async (req, res) => {
       return res.status(404).send();
     }
 
+    const organisation = await getOrganisationById(oid, correlationId);
+    if (!organisation) {
+        return res.status(404).send();
+    }
+
+    const user = await usersByIds(uid, correlationId);
+    if (!user) {
+        return res.status(404).send();
+    }
+
     return res.json({
       userId: access.userId,
+      userLegacyId: user.userLegacyId,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
+      organisationLegacyId: organisation.organisationLegacyId,
       roles: access.roles,
       identifiers: access.identifiers,
     });
