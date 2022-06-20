@@ -33,7 +33,8 @@ const getUsersAccess = async (req, res) => {
 
     return res.json({
       userId: access.userId,
-      userLegacyId: userOrganisation.number_identifier,
+      userLegacyNumericId: userOrganisation.number_identifier,
+      userLegacyTextId: userOrganisation.text_identifier,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
       organisationLegacyId: organisation.organisationLegacyId,
