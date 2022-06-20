@@ -26,14 +26,15 @@ const getUsersAccess = async (req, res) => {
         return res.status(404).send();
     }
 
-    const user = await usersByIds(uid, correlationId);
-    if (!user) {
+    const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
+    if (!userOrganisation) {
         return res.status(404).send();
     }
 
     return res.json({
       userId: access.userId,
-      userLegacyId: user.userLegacyId,
+      userLegacyNumericId: userOrganisation.number_identifier,
+      userLegacyTextId: userOrganisation.text_identifier,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
       organisationLegacyId: organisation.organisationLegacyId,
