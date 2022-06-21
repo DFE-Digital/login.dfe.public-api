@@ -27,21 +27,23 @@ const getUsersAccess = async (req, res) => {
         return res.status(404).send();
     }
  
+    return res.json(organisation);
+
     // const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
     // if (!userOrganisation) {
     //     return res.status(404).send();
     // }
 
-    return res.json({
-      userId: access.userId,
-      userLegacyNumericId: 'userLegacyNumericId', // userOrganisation.number_identifier,
-      userLegacyTextId: 'userLegacyTextId', // userOrganisation.text_identifier,
-      serviceId: access.serviceId,
-      organisationId: access.organisationId,
-      organisationLegacyId: organisation.legacyId,
-      roles: access.roles,
-      identifiers: access.identifiers,
-    });
+    // return res.json({
+    //   userId: access.userId,
+    //   userLegacyNumericId: 'userLegacyNumericId', // userOrganisation.number_identifier,
+    //   userLegacyTextId: 'userLegacyTextId', // userOrganisation.text_identifier,
+    //   serviceId: access.serviceId,
+    //   organisationId: access.organisationId,
+    //   organisationLegacyId: organisation.legacyId,
+    //   roles: access.roles,
+    //   identifiers: access.identifiers,
+    // });
   } catch (e) {
     logger.info(`Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
       correlationId,
