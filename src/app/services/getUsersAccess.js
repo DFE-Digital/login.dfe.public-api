@@ -27,12 +27,12 @@ const getUsersAccess = async (req, res) => {
         return res.status(404).send();
     }
  
+    return res.json(organisation);
+
     // const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
     // if (!userOrganisation) {
     //     return res.status(404).send();
     // }
-
-    return res.json(organisation);
 
     // return res.json({
     //   userId: access.userId,
