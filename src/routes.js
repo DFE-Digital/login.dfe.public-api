@@ -20,8 +20,8 @@ const mountRoutes = (app) => {
   app.use('/organisations', organisations());
   app.use('/users', users());
 
-  app.get('/test', function (req, res) {
-    res.send('GET request to homepage')
+  app.get('/test-routing', function (req, res) {
+    res.send('GET request to /test-route')
   })
 
   app.use((err, req, res, next) => {

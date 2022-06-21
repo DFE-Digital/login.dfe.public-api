@@ -26,19 +26,19 @@ const getUsersAccess = async (req, res) => {
     if (!organisation) {
         return res.status(404).send();
     }
-
-    const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
-    if (!userOrganisation) {
-        return res.status(404).send();
-    }
+ 
+    // const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
+    // if (!userOrganisation) {
+    //     return res.status(404).send();
+    // }
 
     return res.json({
       userId: access.userId,
-      userLegacyNumericId: userOrganisation.number_identifier,
-      userLegacyTextId: userOrganisation.text_identifier,
+      userLegacyNumericId: 'userLegacyNumericId', // userOrganisation.number_identifier,
+      userLegacyTextId: 'userLegacyTextId', // userOrganisation.text_identifier,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
-      organisationLegacyId: organisation.organisationLegacyId,
+      organisationLegacyId: 'organisationLegacyId', // organisation.organisationLegacyId,
       roles: access.roles,
       identifiers: access.identifiers,
     });
