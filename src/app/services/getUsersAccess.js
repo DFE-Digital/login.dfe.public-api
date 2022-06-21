@@ -2,6 +2,7 @@ const logger = require('./../../infrastructure/logger');
 const { getUsersAccessToServiceAtOrganisation } = require('./../../infrastructure/access');
 const { getClientByServiceId } = require('./../../infrastructure/applications');
 const { getOrganisationById } = require('../../infrastructure/organisations');
+const { getUserOrganisation } = require('../../infrastructure/organisations');
 const { usersByIds } = require('../../infrastructure/directories');
 
 const getUsersAccess = async (req, res) => {
