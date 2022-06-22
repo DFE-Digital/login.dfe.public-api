@@ -22,33 +22,28 @@ const getUsersAccess = async (req, res) => {
       return res.status(404).send();
     }
 
-    const organisation = await getOrganisationById(oid, correlationId);
-    if (!organisation) {
-        return res.status(404).send();
-    }
- 
     const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
     if (!userOrganisation) {
         return res.status(404).send();
     }
 
+    if (!userOrganisation.users[0]) {
+        return res.status(404).send();
+    }
+
+    return res.json({
+      userId: access.userId,
+      userLegacyNumericId: userOrganisation.users[0].numericIdentifier,
+      userLegacyTextId: userOrganisation.users[0].textIdentifier,
+      serviceId: access.serviceId,
+      organisationId: access.organisationId,
+      organisationLegacyId: userOrganisation.users[0].organisation.legacyId,
+      roles: access.roles,
+      identifiers: access.identifiers,
+    });
+
     return res.json(userOrganisation);
 
-    // const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
-    // if (!userOrganisation) {
-    //     return res.status(404).send();
-    // }
-
-    // return res.json({
-    //   userId: access.userId,
-    //   userLegacyNumericId: 'userLegacyNumericId', // userOrganisation.number_identifier,
-    //   userLegacyTextId: 'userLegacyTextId', // userOrganisation.text_identifier,
-    //   serviceId: access.serviceId,
-    //   organisationId: access.organisationId,
-    //   organisationLegacyId: organisation.legacyId,
-    //   roles: access.roles,
-    //   identifiers: access.identifiers,
-    // });
   } catch (e) {
     logger.info(`Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
       correlationId,
