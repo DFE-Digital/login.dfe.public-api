@@ -27,7 +27,7 @@ const getUsersAccess = async (req, res) => {
         return res.status(404).send();
     }
 
-    if (!userOrganisation.users[0]) {
+    if (!userOrganisation.users) {
         return res.status(404).send();
     }
 
