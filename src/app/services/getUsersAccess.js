@@ -4,6 +4,7 @@ const { getClientByServiceId } = require('./../../infrastructure/applications');
 const { getOrganisationById } = require('../../infrastructure/organisations');
 const { getUserOrganisation } = require('../../infrastructure/organisations');
 const { usersByIds } = require('../../infrastructure/directories');
+const { organisation } = require('login.dfe.dao');
 
 const getUsersAccess = async (req, res) => {
   const { uid, sid, oid } = req.params;
@@ -22,22 +23,23 @@ const getUsersAccess = async (req, res) => {
       return res.status(404).send();
     }
 
-    const userOrganisation = await getUserOrganisation(uid, oid, correlationId);
-    if (!userOrganisation) {
+    const userOrganisationIdentifer = await organisation.getUserOrganisationIdentifiers(uid, oid);
+    if (!userOrganisationIdentifer) {
         return res.status(404).send();
     }
 
-    if (!userOrganisation.users) {
-        return res.status(404).send();
+    const organisationDetails = await organisation.getOrganisation(oid);
+    if (!organisationDetails) {
+      return res.status(404).send();
     }
 
     return res.json({
       userId: access.userId,
-      userLegacyNumericId: userOrganisation.users.numericIdentifier,
-      userLegacyTextId: userOrganisation.users.textIdentifier,
+      userLegacyNumericId: userOrganisationIdentifer.numericIdentifier,
+      userLegacyTextId: userOrganisationIdentifer.textIdentifier,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
-      organisationLegacyId: userOrganisation.users.organisation.legacyId,
+      organisationLegacyId: organisationDetails.legacyId, 
       roles: access.roles,
       identifiers: access.identifiers,
     });

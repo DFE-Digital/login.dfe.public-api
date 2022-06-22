@@ -69,3 +69,4 @@ access.log
 \.idea/markdown-navigator/
 
 .vscode
+.npmrc
