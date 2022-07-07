@@ -20,6 +20,10 @@ const mountRoutes = (app) => {
   app.use('/organisations', organisations());
   app.use('/users', users());
 
+  app.get('/test-routing', function (req, res) {
+    res.send('GET request to /test-route')
+  })
+
   app.use((err, req, res, next) => {
     logger.error(`Unhandled error processing ${req.url} - ${err.message} [server id: ${req.correlationId}, client id: ${req.clientCorrelationId}]`, {
       url: req.url,
