@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "settings='./config/PROJECT-NAME.dev.json' node src/index.js",
+    "dev": "settings='./config/login.dfe.public-api.dev.json' nodemon src/index.js",
     "test": "./node_modules/.bin/jest"
   },
   "engines": {
@@ -25,12 +25,13 @@
     "body-parser": "^1.18.3",
     "email-validator": "^2.0.4",
     "express": "^4.16.3",
+    "express-validator": "^6.14.2",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.3.0",
-    "login.dfe.dao": "1.0.82",
     "lodash": "^4.17.15",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v2.0.2",
     "login.dfe.audit.winston-sequelize-transport": "git+https://github.com/DFE-Digital/login.dfe.audit.winston-sequelize-transport.git#v2.13",
+    "login.dfe.dao": "1.0.82",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v1.8",
     "login.dfe.jwt-strategies": "git+https://github.com/DFE-Digital/login.dfe.jwt-strategies.git#v3.0",
@@ -39,6 +40,7 @@
     "login.dfe.sanitization": "git+https://github.com/DFE-Digital/login.dfe.sanitization.git#v2.0.0",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v3.0",
     "niceware": "^1.0.6",
+    "nodemon": "^2.0.19",
     "promise-retry": "^1.1.1",
     "request-promise": "^4.2.2",
     "uuid": "^3.3.2",
