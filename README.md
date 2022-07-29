@@ -112,17 +112,17 @@ Authorization: bearer {jwt-token}
 
 The structure of an announcement is as follows:
 
-| Attribute   | Required   | Description                                             |
-| ----------- | ---------- | ------------------------------------------------------- |
-| messageId   | Y          | Identifier for message in origin system. Must be unique |
-| urn         | Y (Or uid) | Establishment URN                                       |
-| uid         | Y (Or urn) | Group UID                                               |
-| type        | Y          | The numeric type code of the message (see below)        |
-| title       | Y          | Title of the announcement                               |
-| summary     | Y          | Summary of the announcement                             |
-| body        | Y          | Body of the announcement                                |
-| publishedAt | Y          | Date/time announcement published at                     |
-| expiresAt   |            | Date/time announcement should expire at                 |
+| Attribute   | Required   | Description                                             | Type
+| ----------- | ---------- | ------------------------------------------------------- | ---------
+| messageId   | Y          | Identifier for message in origin system. Must be unique | UUID
+| urn         | Y (Or uid) | Establishment URN                                       | Numeric
+| uid         | Y (Or urn) | Group UID                                               | UUID
+| type        | Y          | The numeric type code of the message (see below)        | Integer
+| title       | Y          | Title of the announcement. Max characters limit 255     | Text or HTML
+| summary     | Y          | Summary of the announcement. Max characters Limit 340   | Text or HTML
+| body        | Y          | Body of the announcement. Max characters Limit 5000     | Text or HTML
+| publishedAt | Y          | Date/time announcement published at                     | ISO8601 
+| expiresAt   |            | Date/time announcement should expire at                 | ISO8601
 
 possible response codes are:
 
