@@ -56,6 +56,10 @@ const getOrganisationByTypeAndIdentifier = async (type, identifier, correlationI
   return await callOrganisationsApi(`organisations/by-external-id/${type}/${identifier}`, 'GET', undefined, correlationId);
 };
 
+const getOrganisationById = async (identifier, correlationId) => {
+  return await callOrganisationsApi(`organisations/${identifier}`, 'GET', undefined, correlationId);
+};
+
 const searchForAnnouncements = async (messageId, correlationId) => {
   return await callOrganisationsApi(`organisations/announcements?messageid=${messageId}`, 'GET', undefined, correlationId);
 };
@@ -89,11 +93,24 @@ const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correla
   return await callOrganisationsApi(uri, 'POST', payload, correlationId);
 };
 
+const getUserOrganisation = async (userId, organisationId, correlationId) => {
+  let uri = `organisations/v3/users`;
+  const payload = {
+    page: 1,
+    pageSize: 1,
+    userId,
+    organisationId
+  }
+  return await callOrganisationsApi(uri, 'POST', payload, correlationId);
+};
+
 module.exports = {
   getOrganisationByTypeAndIdentifier,
+  getOrganisationById,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
   listServiceUsers,
   listOrganisationUsersV3,
+  getUserOrganisation
 };
