@@ -1,45 +1,11 @@
-const express = require('express');
-const logger = require('./infrastructure/logger');
-const config = require('./infrastructure/config');
-const bodyParser = require('body-parser');
-const { requestCorrelation } = require('./app/utils');
-const mountRoutes = require('./routes');
 const http = require('http');
 const https = require('https');
-const helmet = require('helmet');
+const { app } = require('./app');
+const config = require('./infrastructure/config');
+const logger = require('./infrastructure/logger');
 
-https.globalAgent.maxSockets = http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
-
-const app = express();
-
-if (config.hostingEnvironment.hstsMaxAge) {
-  app.use(helmet({
-    noCache: true,
-    frameguard: {
-      action: 'deny',
-    },
-    hsts: {
-      maxAge: config.hostingEnvironment.hstsMaxAge,
-      preload: true,
-    }
-  }));
-} else {
-  app.use(helmet({
-    noCache: true,
-    frameguard: {
-      action: 'deny',
-    }
-  }));
-}
-
-if (config.hostingEnvironment.env !== 'dev') {
-  app.set('trust proxy', 1);
-}
-
-app.use(requestCorrelation());
-app.use(bodyParser.json());
-
-mountRoutes(app);
+http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
+https.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;
