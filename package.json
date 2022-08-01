@@ -40,7 +40,6 @@
     "login.dfe.sanitization": "git+https://github.com/DFE-Digital/login.dfe.sanitization.git#v2.0.0",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v3.0",
     "niceware": "^1.0.6",
-    "nodemon": "^2.0.19",
     "promise-retry": "^1.1.1",
     "request-promise": "^4.2.2",
     "uuid": "^3.3.2",
@@ -55,6 +54,7 @@
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",
     "node-mocks-http": "^1.7.0",
+    "nodemon": "^2.0.19",
     "supertest": "^6.2.4"
   },
   "jest": {
