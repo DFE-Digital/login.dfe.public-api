@@ -8,9 +8,9 @@ const { getUsersAccessToServiceAtOrganisation } = require('./../../../src/infras
 const getUsersAccess = require('./../../../src/app/services/getUsersAccess');
 const { getClientByServiceId } = require('./../../../src/infrastructure/applications');
 
-const uid = 'user-1';
-const sid = 'service-1';
-const oid = 'organisation-1';
+const uid = 'b5d58c18-a13c-4ecc-a7cd-0003350447e1';
+const sid = 'e191b83e-233c-4142-9d4c-df0454fed8ab';
+const oid = '446cb040-6f4d-4051-a3b8-004a997bb991';
 const res = mockResponse();
 
 describe('when getting users access to service', () => {
@@ -28,7 +28,7 @@ describe('when getting users access to service', () => {
     res.mockResetAll();
 
     getClientByServiceId.mockReset().mockReturnValue({
-      id: 'service-1',
+      id: 'e191b83e-233c-4142-9d4c-df0454fed8ab',
       name: 'Service One',
       description: 'First service',
       parentId: 'parent-1',
