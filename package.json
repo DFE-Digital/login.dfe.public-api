@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "settings='./config/login.dfe.public-api.dev.json' nodemon src/index.js",
+    "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
     "test": "settings='./config/login.dfe.public-api.dev.json' ./node_modules/.bin/jest --runInBand --detectOpenHandles --forceExit"
   },
   "engines": {
