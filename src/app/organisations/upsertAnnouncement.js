@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const logger = require('./../../infrastructure/logger');
 const { getOrganisationByTypeAndIdentifier, upsertOrganisationAnnouncement } = require('./../../infrastructure/organisations');
 
@@ -43,6 +44,16 @@ const getAndValidateModel = (req) => {
   if (model.announcement.urn && model.announcement.uid) {
     model.errors.push('Can only specify urn or uid, not both');
   }
+
+  const validationErrors = validationResult(req);
+
+  if (!validationErrors.isEmpty()) {
+    validationErrors.array().map((e) => e.msg).forEach((element) => {
+      model.errors.push(element);
+    });
+    model.errors.sort();
+  }
+
   return model;
 };
 
