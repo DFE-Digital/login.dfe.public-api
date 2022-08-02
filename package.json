@@ -7,7 +7,7 @@
     "test": "settings='./config/PROJECT-NAME.dev.json' ./node_modules/.bin/jest --runInBand --detectOpenHandles --forceExit"
   },
   "engines": {
-    "node": "12.x.x"
+    "node": "14.x.x"
   },
   "repository": {
     "type": "git",
