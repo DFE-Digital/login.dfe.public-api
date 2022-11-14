@@ -97,13 +97,6 @@
             "metadata": {
                 "description": "Whether or not to include a staging deployment slot"
             }
-        },
-         "pireanServices": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Add app settings to support the display of warning messages for pirean services"
-            }
         }
     },
     "variables": {
