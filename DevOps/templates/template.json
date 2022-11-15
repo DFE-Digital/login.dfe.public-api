@@ -168,6 +168,17 @@
                     },
                     "includeDeploymentSlot": {
                         "value": "[parameters('includeDeploymentSlot')]"
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": [
+                            {
+                                "vnetSubnetResourceId": "[variables('gatewaySubnetId')]",
+                                "action": "Allow",
+                                "tag": "Default",
+                                "name": "Gateway",
+                                "priority": 10
+                            }
+                        ]
                     }
 
                 }
