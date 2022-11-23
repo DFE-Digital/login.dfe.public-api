@@ -140,7 +140,7 @@ stages:
 
 
 - ${{ each var in variables }}:
-  - ${{ if le(length(var.key), 4) }}:
+  - ${{ if in(var.key, 'tran','dev','test','int','pp','pr') }}:
     - ${{ if eq(var.value, 'true') }}:
       - stage: Deployment_${{var.Key}}
         displayName: "Deployment [${{var.Key}}]"
