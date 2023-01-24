@@ -82,6 +82,10 @@ const getOrganisationsAssociatedWithUser = async (userId, correlationId) => {
   return await callOrganisationsApi(`organisations/v2/associated-with-user/${userId}`, 'GET', undefined, correlationId);
 };
 
+const getOrganisationsAssociatedWithUserV2 = async (userId, correlationId) => {
+  return await callOrganisationsApi(`organisations/v3/associated-with-user/${userId}`, 'GET', undefined, correlationId);
+};
+
 const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correlationId) => {
   let uri = `organisations/v3/users`;
   const payload = {
@@ -110,6 +114,7 @@ module.exports = {
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
+  getOrganisationsAssociatedWithUserV2,
   listServiceUsers,
   listOrganisationUsersV3,
   getUserOrganisation
