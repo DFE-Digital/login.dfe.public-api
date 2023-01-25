@@ -97,24 +97,12 @@
             "metadata": {
                 "description": "Whether or not to include a staging deployment slot"
             }
-        },
-        "gatewayVnetRg": {
-            "type": "string",
-            "metadata": {
-                "description": "Gateway virtual network resource group"
-            }
-        },
-        "gatewayVnetName": {
-            "type": "string",
-            "metadata": {
-                "description": "Gateway virtual network name"
-            }
         }
     },
     "variables": {
         "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
         "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
-        "gatewaySubnetId": "[resourceId(parameters('gatewayVnetRg'),'Microsoft.Network/virtualNetworks/subnets',parameters('gatewayVnetName'), 'gateway')]"
+        "gatewaySubnetId": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets',parameters('virtualNetworkName'), 'gateway')]"
     },
     "resources": [
         {
