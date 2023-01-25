@@ -38,6 +38,7 @@ const getOrganisationByTypeAndIdentifier = async (type, identifier) => {
   });
 };
 
+
 const searchForAnnouncements = async (messageId, correlationId) => {
   return Promise.resolve(undefined);
 };
