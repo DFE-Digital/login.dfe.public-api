@@ -666,3 +666,4 @@ This will return a response in the following format
 | 047 | Children's Centre|
 | 048 | Children's Centre Linked Site|
 | 056 | Institution funded by other government department|
+| 057 | Academy secure 16 to 19|
