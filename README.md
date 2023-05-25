@@ -298,6 +298,7 @@ This will return a response in the following format
     ]
 }
 ```
+Note: If no user does not have the requested service or is not in the organisation it will return status code **404 (Not Found)**.
 
 ## Get organisations for user
 You can use this API to get the organisations associated with a user
@@ -345,7 +346,7 @@ This will return a response in the following format
 
 ### Service Users without filters
 
-You can get a list of users without filters for a given service as defined in the authorisation token (iss attribute)  
+You can get a list of users without filters as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
 GET https://environment-url/users?page=1&pageSize=25
@@ -409,7 +410,7 @@ The response body contains the following attributes (example response below):
 
 ### Service Users with filters
 
-You can get a list of users with filters for a given service as defined in the authorisation token (iss attribute)  
+You can get a list of users with filters as defined in the authorisation token (iss attribute)  
 The request looks like:    
 ```
 GET https://environment-url/users?page=1&pageSize=25&status=0&from=2021%2F02%2F11%2002%3A22%3A06&to=2021%2F11%2F03%2002%3A22%3A06
@@ -667,3 +668,8 @@ This will return a response in the following format
 | 048 | Children's Centre Linked Site|
 | 056 | Institution funded by other government department|
 | 057 | Academy secure 16 to 19|
+
+
+
+## Postman collection
+We do have a Postman workspace with some sample requests, which is available upon request on Slack. 
