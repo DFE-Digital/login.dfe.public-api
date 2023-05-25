@@ -298,7 +298,7 @@ This will return a response in the following format
     ]
 }
 ```
-Note: If no user does not have the requested service or is not in the organisation it will return status code **404 (Not Found)**.
+Note: If User does not have the specified Service or is not in the Organisation stated, it will return status code **404 (Not Found)**.
 
 ## Get organisations for user
 You can use this API to get the organisations associated with a user
