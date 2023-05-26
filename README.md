@@ -672,4 +672,4 @@ This will return a response in the following format
 
 
 ## Postman collection
-We do have a Postman workspace with some sample requests, which is available upon request on Slack. 
+We do have a Postman workspace with some sample requests, which is available upon request on the Slack channel `dfe-sign-in`. 
