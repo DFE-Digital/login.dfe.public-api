@@ -5,6 +5,7 @@ const { getPoliciesOfService } = require('../../infrastructure/access');
 
 const listApprovers = async (req, res) => {
   if (!req.client.relyingParty || !req.client.relyingParty.params || req.client.relyingParty.params.canViewApproverReport !== 'true') {
+
     return res.status(403).send();
   }
 
@@ -27,7 +28,8 @@ const listApprovers = async (req, res) => {
       organisation: userOrg.organisation,
       roleId: userOrg.role && userOrg.role.id ? userOrg.role.id : undefined,
       roleName: userOrg.role && userOrg.role.name ? userOrg.role.name : undefined,
-      userId: userOrg.userId
+      userId: userOrg.userId, 
+      userStatus: userOrg.status
     };
     if (user) {
       mappedUserOrg = Object.assign({

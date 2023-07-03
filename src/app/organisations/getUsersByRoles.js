@@ -43,7 +43,7 @@ const getUsersByRoles = async (req, res) => {
           const newUsers = usersDetails.map((user) => {
             const role = userIdNRoles.find((ids) => ids.id === user.sub);
             return {
-              email: user.email, firstName: user.given_name, lastName: user.family_name, roles: role ? role.roles : null,
+              email: user.email, firstName: user.given_name, lastName: user.family_name, userStatus: user.status, roles: role ? role.roles : null,
             };
           });
           users = users.concat(newUsers);

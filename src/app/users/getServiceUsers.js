@@ -150,7 +150,8 @@ const prepareUserResponse = (pageOfUserServices, users, isWarning, res) => {
       organisation: userService.organisation,
       roleName: userService.role && userService.role.name ? userService.role.name : undefined,
       roleId: userService.role && userService.role.id ? userService.role.id : undefined,
-      userId: userService.id
+      userId: userService.id,
+      userStatus: userService.status
     };
     if (user) {
       mappedUserService = Object.assign({
