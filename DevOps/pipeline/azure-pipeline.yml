@@ -1,0 +1,186 @@
+name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
+resources:
+  repositories:
+  # Defult branch is master
+    - repository: devopsTemplates
+      type: github
+      endpoint: DfE-Digital
+      name: DFE-Digital/login.dfe.devops
+      ref: main
+    - repository: config
+      type: github
+      endpoint: DfE-Digital
+      name: DFE-Digital/login.dfe.config
+      ref: master
+
+trigger:
+  branches:
+    include:
+    - release/*
+    - feature/*
+
+pr:
+  branches:
+    include:
+    - main
+    - develop
+
+parameters:
+- name: AppDeploy
+  type: boolean
+  displayName: 'App Deployment only'
+  default: true
+- name: InfrDeploy
+  type: boolean
+  displayName: 'Infrastrucure Deployment only'
+  default: true
+- name: tran
+  type: boolean
+  displayName: 'Transformation Deployment'
+  default: false
+- name: dev
+  type: boolean
+  displayName: 'Dev Deployment'
+  default: false
+- name: test
+  type: boolean
+  displayName: 'Test Deployment'
+  default: false
+- name: int
+  type: boolean
+  displayName: 'INT Deployment'
+  default: false
+- name: pp
+  type: boolean
+  displayName: 'Pre-Prod Deployment'
+  default: false
+- name: pr
+  type: boolean
+  displayName: 'Prod Deployment'
+  default: false
+
+variables:
+- group: dsi-global
+- name: applicationShortName
+  value: 'papi'
+- name: applicationFullName
+  value: 'public-api'
+- name: numberOfWorkers
+  value: 1
+- name: tran
+  ${{ if eq(parameters.tran, 'true') }}:
+    value: true
+  ${{ else }}:
+    value: false
+- name: dev
+  ${{ if eq(parameters.dev, 'true') }}:
+    value: true
+  ${{ else }}:
+    value: false
+- name: test
+  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')) }}:
+    value: true
+  ${{ else }}:
+    value: false
+- name: int
+  ${{ if or(eq(parameters.int, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
+    value: true
+  ${{ else }}:
+    value: false
+- name: pp
+  ${{ if or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
+    value: true
+  ${{ else }}:
+    value: false
+- name: pr
+  ${{ if or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
+    value: true
+  ${{ else }}:
+    value: false
+
+stages:
+
+# Code Scans & Build the artifact for deployment
+- stage: scanBuildApp
+  displayName: "Scan tools & Build"
+  jobs:
+    # Code scaning tools
+  - ${{ if eq(parameters.InfrDeploy, 'true') }}:
+    - template:  pipeline/checkov.yml@devopsTemplates
+
+  - ${{ if eq(parameters.AppDeploy, 'true') }}:
+
+    - template:  pipeline/eslint.yml@devopsTemplates
+
+    # - template:  pipeline/dependencyCheck.yml@devopsTemplates
+    #   parameters:
+    #     npmInstCmd: 'install --force --json --no-package-lock'
+
+    - template: pipeline/build.yml@devopsTemplates
+      parameters:
+        applicationName: ${{variables.applicationFullName}}
+        custRegAuth: $(custRegAuth)
+        environmentNames:
+          - ${{ if eq(variables.tran, 'true') }}:
+            - tran
+          - ${{ if eq(variables.dev, 'true') }}:
+            - dev
+          - ${{ if eq(variables.test, 'true') }}:
+            - test
+          - ${{ if eq(variables.int, 'true') }}:
+            - int
+          - ${{ if eq(variables.pp, 'true') }}:
+            - pp
+          - ${{ if eq(variables.pr, 'true') }}:
+            - pr
+        pm2ProcessFileName: process.json
+        nodeVersionSpec: '14.18.1'
+        npmInstCmd: 'install --force --json --no-package-lock'
+        npmPruneFixCmd: 'install --production --json --force --no-package-lock'
+
+
+- ${{ each var in variables }}:
+  - ${{ if in(var.key, 'tran','dev','test','int','pp','pr') }}:
+    - ${{ if eq(var.value, 'true') }}:
+      - stage: Deployment_${{var.Key}}
+        displayName: "Deployment [${{var.Key}}]"
+        dependsOn: 
+        - scanBuildApp
+        condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+        variables:
+        - group: dsi-${{var.key}}-kv
+        jobs:
+        - ${{ if parameters.InfrDeploy }}:
+          - template: pipeline/appInfrastructure.yml@devopsTemplates
+            parameters:
+              ${{ if or(eq(var.key, 'dev'), eq(var.key, 'tran')) }}:
+                serviceConnection: $(devServiceConnection)
+              ${{ elseif eq(var.key, 'pr') }}:
+                serviceConnection: $(prodServiceConnection)
+              ${{ else }}:
+                serviceConnection: $(testServiceConnection)
+              environmentName: ${{var.key}}
+              applicationShortName: ${{variables.applicationShortName}}
+              applicationFullName: ${{variables.applicationFullName}}
+              releaseArtifactName: ${{variables.applicationFullName}}-${{var.key}}-$(Build.BuildId)-release
+              ${{ if eq(var.key, 'pr') }}:
+                certificateName: signin-generic
+              ${{ else }}:
+                certificateName: non-prod-gateway
+              AppDeploy: ${{parameters.AppDeploy}}
+
+        - ${{ if parameters.AppDeploy }}:
+          - template: pipeline/deploy.yml@devopsTemplates
+            parameters: 
+              ${{ if or(eq(var.key, 'dev'), eq(var.key, 'tran')) }}:
+                serviceConnection: $(devServiceConnection)
+              ${{ elseif eq(var.key, 'pr') }}:
+                serviceConnection: $(prodServiceConnection)
+              ${{ else }}:
+                serviceConnection: $(testServiceConnection)
+              environmentName: ${{var.key}}
+              applicationFullName: ${{variables.applicationFullName}}
+              applicationShortName: ${{variables.applicationShortName}}
+              releaseArtifactName: ${{variables.applicationFullName}}-${{var.key}}-$(Build.BuildId)-release
+              InfrDeploy: ${{parameters.InfrDeploy}}
+    
