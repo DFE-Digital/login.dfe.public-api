@@ -397,7 +397,7 @@ The response body contains the following attributes (example response below):
             "roleName": "Approver",
             "roleId": 10000,
             "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
-            "userStatus: 1,
+            "userStatus": 1,
             "email": "foo@example.com",
             "familyName": "Johnson",
             "givenName": "Roger"
