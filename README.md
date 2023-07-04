@@ -607,6 +607,7 @@ This will return a response in the following format
     ]
 }
 ```
+Roles object can be null if none were specified in the request.
 
 ## How do ids map to categories and types?
 
