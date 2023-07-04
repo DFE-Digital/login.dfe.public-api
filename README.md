@@ -397,6 +397,7 @@ The response body contains the following attributes (example response below):
             "roleName": "Approver",
             "roleId": 10000,
             "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
+            "userStatus: 1,
             "email": "foo@example.com",
             "familyName": "Johnson",
             "givenName": "Roger"
@@ -472,6 +473,7 @@ The response body contains the following attributes (example response below):
             "roleName": "Approver",
             "roleId": 10000,
             "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
+            "userStatus": 1,
             "email": "foo@example.com",
             "familyName": "Johnson",
             "givenName": "Roger"
@@ -552,6 +554,7 @@ possible response codes are:
             "roleId": 10000,
             "roleName": "Approver",
             "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
+            "userStatus": 1,
             "email": "foo@example.com",
             "familyName": "Johnson",
             "givenName": "Roger"
@@ -587,6 +590,7 @@ This will return a response in the following format
             "email": "user1@test.com",
             "firstName": "user1",
             "lastName": "test",
+            "userStatus": 1,
             "roles": [
                 "role1"
             ]
