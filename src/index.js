@@ -8,7 +8,6 @@ http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSocket
 https.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
 if (config.hostingEnvironment.env === 'dev') {
-  console.log('inside dev')
   app.proxy = true;
 
   const options = {
@@ -23,7 +22,6 @@ if (config.hostingEnvironment.env === 'dev') {
     logger.info(`Dev server listening on https://${config.hostingEnvironment.host}:${config.hostingEnvironment.port}`);
   });
 } else {
-  console.log('outside dev')
   app.listen(process.env.PORT, () => {
     logger.info(`Server listening on http://${config.hostingEnvironment.host}:${process.env.PORT}`);
   });
