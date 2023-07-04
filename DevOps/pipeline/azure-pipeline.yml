@@ -11,7 +11,7 @@ resources:
       type: github
       endpoint: DfE-Digital
       name: DFE-Digital/login.dfe.config
-      ref: feature/DSI-5680
+      ref: master
 
 trigger:
   branches:
