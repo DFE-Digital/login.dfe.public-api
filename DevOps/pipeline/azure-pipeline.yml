@@ -29,11 +29,11 @@ parameters:
 - name: AppDeploy
   type: boolean
   displayName: 'App Deployment only'
-  default: true
+  default: false
 - name: InfrDeploy
   type: boolean
   displayName: 'Infrastrucure Deployment only'
-  default: true
+  default: false
 - name: tran
   type: boolean
   displayName: 'Transformation Deployment'
