@@ -28,13 +28,12 @@ const listApprovers = async (req, res) => {
       organisation: userOrg.organisation,
       roleId: userOrg.role && userOrg.role.id ? userOrg.role.id : undefined,
       roleName: userOrg.role && userOrg.role.name ? userOrg.role.name : undefined,
-      userId: userOrg.userId, 
-      userStatus: userOrg.status
+      userId: userOrg.userId
     };
     if (user) {
       mappedUserOrg = Object.assign({
         ...mappedUserOrg,
-      }, {email: user.email, familyName: user.family_name, givenName: user.given_name});
+      }, {email: user.email, familyName: user.family_name, givenName: user.given_name, userStatus: user.status});
     }
     return mappedUserOrg;
   });

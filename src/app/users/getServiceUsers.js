@@ -150,13 +150,12 @@ const prepareUserResponse = (pageOfUserServices, users, isWarning, res) => {
       organisation: userService.organisation,
       roleName: userService.role && userService.role.name ? userService.role.name : undefined,
       roleId: userService.role && userService.role.id ? userService.role.id : undefined,
-      userId: userService.id,
-      userStatus: userService.status
+      userId: userService.id
     };
     if (user) {
       mappedUserService = Object.assign({
         ...mappedUserService,
-      }, { email: user.email, familyName: user.family_name, givenName: user.given_name });
+      }, { email: user.email, familyName: user.family_name, givenName: user.given_name, userStatus: user.status });
     }
     return mappedUserService;
   });
