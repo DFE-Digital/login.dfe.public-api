@@ -155,7 +155,7 @@ const prepareUserResponse = (pageOfUserServices, users, isWarning, res) => {
     if (user) {
       mappedUserService = Object.assign({
         ...mappedUserService,
-      }, { email: user.email, familyName: user.family_name, givenName: user.given_name });
+      }, { email: user.email, familyName: user.family_name, givenName: user.given_name, userStatus: user.status });
     }
     return mappedUserService;
   });
