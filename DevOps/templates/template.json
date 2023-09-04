@@ -106,7 +106,7 @@
     },
     "resources": [
         {
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2019-05-01",
             "name": "[parameters('appServiceName')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
