@@ -16,24 +16,24 @@ resources:
 trigger:
   branches:
     include:
-    - release/*
     - feature/*
+    - develop
+    - release/*
 
 pr:
   branches:
     include:
-    - main
     - develop
 
 parameters:
 - name: AppDeploy
   type: boolean
   displayName: 'App Deployment only'
-  default: false
+  default: true
 - name: InfrDeploy
   type: boolean
   displayName: 'Infrastrucure Deployment only'
-  default: false
+  default: true
 - name: tran
   type: boolean
   displayName: 'Transformation Deployment'
@@ -45,10 +45,6 @@ parameters:
 - name: test
   type: boolean
   displayName: 'Test Deployment'
-  default: false
-- name: int
-  type: boolean
-  displayName: 'INT Deployment'
   default: false
 - name: pp
   type: boolean
@@ -73,17 +69,12 @@ variables:
   ${{ else }}:
     value: false
 - name: dev
-  ${{ if eq(parameters.dev, 'true') }}:
+  ${{ if or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
     value: true
   ${{ else }}:
     value: false
 - name: test
   ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')) }}:
-    value: true
-  ${{ else }}:
-    value: false
-- name: int
-  ${{ if or(eq(parameters.int, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
     value: true
   ${{ else }}:
     value: false
@@ -127,8 +118,6 @@ stages:
             - dev
           - ${{ if eq(variables.test, 'true') }}:
             - test
-          - ${{ if eq(variables.int, 'true') }}:
-            - int
           - ${{ if eq(variables.pp, 'true') }}:
             - pp
           - ${{ if eq(variables.pr, 'true') }}:
@@ -140,7 +129,7 @@ stages:
 
 
 - ${{ each var in variables }}:
-  - ${{ if in(var.key, 'tran','dev','test','int','pp','pr') }}:
+  - ${{ if in(var.key, 'tran','dev','test','pp','pr') }}:
     - ${{ if eq(var.value, 'true') }}:
       - stage: Deployment_${{var.Key}}
         displayName: "Deployment [${{var.Key}}]"
