@@ -8,15 +8,23 @@ const getUsersByRoles = async (req, res) => {
   const roles = req.query.roles ? req.query.roles.split(',') : null;
 
   try {
-    logger.info(`Getting users for UKPRN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
+    logger.info(`Getting users for UKPRN/UPIN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
       correlationId,
       clientCorrelationId,
     });
     if (!req.client.id || !req.params.id) {
       return res.status(400).send();
     }
-    // Get organisations by UKPRN
-    const organisations = await getOrganisationByTypeAndIdentifier('UKPRN-multi', req.params.id, correlationId);
+    // Get organisations by UKPRN/UPIN
+    let isUPIN = false;
+    let organisations = await getOrganisationByTypeAndIdentifier('UKPRN-multi', req.params.id, correlationId);
+
+    if (organisations.length === 0) {
+      organisations = await getOrganisationByTypeAndIdentifier('UPIN', req.params.id, correlationId);
+      organisations = [].concat(organisations)
+      isUPIN = true;
+    }
+
     if (!organisations || organisations.length === 0) {
       return res.status(404).send();
     }
@@ -63,15 +71,15 @@ const getUsersByRoles = async (req, res) => {
           }
         }
       });
-
+      ukprnOrupin = isUPIN ? 'upin' : 'ukprn';
       return res.json(
-        { ukprn: req.params.id, users: result },
+        { [ukprnOrupin]: req.params.id, users: result },
       );
     }
     // return 404 if no users found
     return res.status(404).send();
   } catch (e) {
-    logger.info(`Error getting users for UKPRN ${req.params.id} (correlationId ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
+    logger.info(`Error getting users for UKPRN/UPIN ${req.params.id} (correlationId ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
       correlationId,
       clientCorrelationId,
       stack: e.stack,
