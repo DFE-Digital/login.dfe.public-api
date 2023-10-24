@@ -71,9 +71,9 @@ const getUsersByRoles = async (req, res) => {
           }
         }
       });
-      ukprnOrupin = isUPIN ? 'upin' : 'ukprn';
+      ukprnOrUpin = isUPIN ? 'upin' : 'ukprn';
       return res.json(
-        { [ukprnOrupin]: req.params.id, users: result },
+        { [ukprnOrUpin]: req.params.id, users: result },
       );
     }
     // return 404 if no users found
