@@ -391,6 +391,16 @@ The response body contains the following attributes (example response below):
                 "regionCode": null,
                 "legacyId": "1031237",
                 "companyRegistrationNumber": "1234567",
+                "ProviderProfileID": "",
+                "UPIN": "",
+                "PIMSProviderType": "Central Government Department",
+                "PIMSStatus": "",
+                "DistrictAdministrativeName": "",
+                "OpenedOn": "2007-09-01T00:00:00.0000000Z",
+                "SourceSystem": "",
+                "ProviderTypeName": "Government Body",
+                "GIASProviderType": "",
+                "PIMSProviderTypeCode": "",
                 "createdAt": "2019-02-20T14:27:59.020Z",
                 "updatedAt": "2019-02-20T14:28:38.223Z"
             },
@@ -467,6 +477,16 @@ The response body contains the following attributes (example response below):
                 "regionCode": null,
                 "legacyId": "1031237",
                 "companyRegistrationNumber": "1234567",
+                "ProviderProfileID": "",
+                "UPIN": "",
+                "PIMSProviderType": "Central Government Department",
+                "PIMSStatus": "",
+                "DistrictAdministrativeName": "",
+                "OpenedOn": "2007-09-01T00:00:00.0000000Z",
+                "SourceSystem": "",
+                "ProviderTypeName": "Government Body",
+                "GIASProviderType": "",
+                "PIMSProviderTypeCode": "",
                 "createdAt": "2019-02-20T14:27:59.020Z",
                 "updatedAt": "2019-02-20T14:28:38.223Z"
             },
@@ -549,7 +569,17 @@ possible response codes are:
                 "statutoryLowAge": null,
                 "statutoryHighAge": null,
                 "legacyId": "1031237",
-                "companyRegistrationNumber": "1234567"
+                "companyRegistrationNumber": "1234567",
+                "ProviderProfileID": "",
+                "UPIN": "",
+                "PIMSProviderType": "Central Government Department",
+                "PIMSStatus": "",
+                "DistrictAdministrativeName": "",
+                "OpenedOn": "2007-09-01T00:00:00.0000000Z",
+                "SourceSystem": "",
+                "ProviderTypeName": "Government Body",
+                "GIASProviderType": "",
+                "PIMSProviderTypeCode": ""
             },
             "roleId": 10000,
             "roleName": "Approver",
@@ -565,7 +595,7 @@ possible response codes are:
     "numberOfPages": 1
 }
 ```
-## Get organisation users by roles
+## Get organisation users by roles using UKPRN
 You can use this API to get the organisations users filtering by roles
 The request looks like
 ```
@@ -585,6 +615,50 @@ This will return a response in the following format
 ```
 {
     "ukprn": "organisation-ukprn-id",
+    "users": [
+        {
+            "email": "user1@test.com",
+            "firstName": "user1",
+            "lastName": "test",
+            "userStatus": 1,
+            "roles": [
+                "role1"
+            ]
+        },
+        {
+            "email": "user21@test.com",
+            "firstName": "user2",
+            "lastName": "test",
+            "roles": [
+                "role1",
+                "role2"
+            ]
+        }
+    ]
+}
+```
+Roles object can be null if none were specified in the request.
+
+## Get organisation users by roles using UPIN
+You can use this API to get the organisations users filtering by roles
+The request looks like
+```
+GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| UPIN                  | URL      | Y        | UKPRN for the organisation |
+| roles                 | URL      | N        | User role codes to filter organisation user's list |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+This will return a response in the following format
+```
+{
+    "upin": "organisation-ukprn-id",
     "users": [
         {
             "email": "user1@test.com",
