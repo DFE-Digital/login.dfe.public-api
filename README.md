@@ -651,14 +651,14 @@ The variable data items are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UPIN                  | URL      | Y        | UKPRN for the organisation |
+| UPIN                  | URL      | Y        | UPIN for the organisation |
 | roles                 | URL      | N        | User role codes to filter organisation user's list |
 | jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
 
 This will return a response in the following format
 ```
 {
-    "upin": "organisation-ukprn-id",
+    "upin": "organisation-upin-id",
     "users": [
         {
             "email": "user1@test.com",
