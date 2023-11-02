@@ -344,6 +344,69 @@ This will return a response in the following format
 ]
 ```
 
+
+## Get organisations for user including Provider Profile organisation attributes
+You can use this API to get the organisations associated with a user
+The request looks like
+```
+GET https://environment-url/users/{user-id}/v2/organisations
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| user-id               | URL      | Y        | The DfE Sign-in identifier for the user |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+This will return a response in the following format
+```
+[
+    {
+        "id": "org-id",
+        "name": "Organisation name",
+        "category": {
+            "id": "001",
+            "name": "Establishment"
+        },
+        "urn": null,
+        "uid": null,
+        "upin": "111111",
+        "ukprn": "21133510",
+        "establishmentNumber": null,
+        "status": {
+            "id": 1,
+            "name": "Open"
+        },
+        "closedOn": null,
+        "address": "Organisation address",
+        "telephone": null,
+        "statutoryLowAge": null,
+        "statutoryHighAge": null,
+        "legacyId": "1111",
+        "companyRegistrationNumber": null,
+        "DistrictAdministrativeCode": null,
+        "DistrictAdministrative_code": null,
+        "providerTypeName": "Commercial and Charitable Provider",
+        "ProviderProfileID": "7777777",
+        "OpenedOn": null,
+        "SourceSystem": "PIMS",
+        "GIASProviderType": null,
+        "PIMSProviderType": "Private Limited Company",
+        "PIMSProviderTypeCode": 11,
+        "PIMSStatus": "1",
+        "masteringCode": null,
+        "PIMSStatusName": "",
+        "GIASStatus": null,
+        "GIASStatusName": null,
+        "MasterProviderStatusCode": 1,
+        "MasterProviderStatusName": "Active",
+        "LegalName": "Org Legal Name"
+    },
+]
+```
+
 ### Service Users without filters
 
 You can get a list of users without filters as defined in the authorisation token (iss attribute)  
