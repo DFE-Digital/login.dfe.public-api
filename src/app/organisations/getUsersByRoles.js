@@ -20,7 +20,7 @@ const getUsersByRoles = async (req, res) => {
     let organisations = await getOrganisationByTypeAndIdentifier('UKPRN-multi', req.params.id, correlationId);
 
     if (organisations.length === 0) {
-      organisations = await getOrganisationByTypeAndIdentifier('UPIN', req.params.id, correlationId);
+      organisations = await getOrganisationByTypeAndIdentifier('UPIN-multi', req.params.id, correlationId);
       organisations = [].concat(organisations)
       isUPIN = true;
     }
