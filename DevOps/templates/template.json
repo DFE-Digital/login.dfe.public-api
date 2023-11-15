@@ -13,7 +13,7 @@
         },
         "branch": {
             "type": "string",
-            "defaultValue": "main",
+            "defaultValue": "feature/DSI-6485",
             "metadata": {
                 "description": "Branch that use for the ARM templateLinks"
             }
@@ -101,8 +101,7 @@
     },
     "variables": {
         "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
-        "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
-        "gatewaySubnetId": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets',parameters('virtualNetworkName'), 'gateway')]"
+        "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]"
     },
     "resources": [
         {
@@ -160,10 +159,10 @@
                     "ipSecurityRestrictions": {
                         "value": [
                             {
-                                "vnetSubnetResourceId": "[variables('gatewaySubnetId')]",
+                                "ipAddress": "AzureFrontDoor.Backend",
                                 "action": "Allow",
-                                "tag": "Default",
-                                "name": "Gateway",
+                                "tag": "ServiceTag",
+                                "name": "AzureFrontDoor",
                                 "priority": 10
                             }
                         ]
