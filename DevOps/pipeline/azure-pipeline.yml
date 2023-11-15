@@ -6,7 +6,7 @@ resources:
       type: github
       endpoint: DfE-Digital
       name: DFE-Digital/login.dfe.devops
-      ref: main
+      ref: feature/DSI-6485
     - repository: config
       type: github
       endpoint: DfE-Digital
@@ -26,6 +26,13 @@ pr:
     - develop
 
 parameters:
+- name: location
+  type: string
+  displayName: 'Select Deploy location'
+  default: westeurope
+  values:
+    - westeurope
+    - northeurope
 - name: AppDeploy
   type: boolean
   displayName: 'App Deployment only'
@@ -70,7 +77,7 @@ variables:
     value: false
 - name: dev
   ${{ if or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
-    value: true
+    value: false
   ${{ else }}:
     value: false
 - name: test
@@ -126,13 +133,14 @@ stages:
         nodeVersionSpec: '14.18.1'
         npmInstCmd: 'install --force --json --no-package-lock'
         npmPruneFixCmd: 'install --production --json --force --no-package-lock'
+        deploymentLocation: ${{parameters.location}}
 
 
 - ${{ each var in variables }}:
   - ${{ if in(var.key, 'tran','dev','test','pp','pr') }}:
     - ${{ if eq(var.value, 'true') }}:
       - stage: Deployment_${{var.Key}}
-        displayName: "Deployment [${{var.Key}}]"
+        displayName: "Deployment [${{var.Key}}] ${{parameters.location}}"
         dependsOn: 
         - scanBuildApp
         condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
@@ -157,6 +165,7 @@ stages:
               ${{ else }}:
                 certificateName: non-prod-gateway
               AppDeploy: ${{parameters.AppDeploy}}
+              deploymentLocation: ${{parameters.location}}
 
         - ${{ if parameters.AppDeploy }}:
           - template: pipeline/deploy.yml@devopsTemplates
@@ -172,4 +181,5 @@ stages:
               applicationShortName: ${{variables.applicationShortName}}
               releaseArtifactName: ${{variables.applicationFullName}}-${{var.key}}-$(Build.BuildId)-release
               InfrDeploy: ${{parameters.InfrDeploy}}
+              deploymentLocation: ${{parameters.location}}
     
