@@ -102,7 +102,7 @@
     "variables": {
         "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
         "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
-        "frontDoorRg": "[replace(parameters('virtualNetworkResourceGroupName'), 'shd', 'fd')]",
+        "frontDoorRg": "[if(contains(parameters('virtualNetworkResourceGroupName'),'neu'), replace(parameters('virtualNetworkResourceGroupName'), 'neu-shd', 'fd') ,replace(parameters('virtualNetworkResourceGroupName'), 'shd', 'fd'))]",
         "frontDoorName": "[replace(variables('frontDoorRg'), '-', '-signin-')]"
     },
     "resources": [
