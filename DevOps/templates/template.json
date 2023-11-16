@@ -101,7 +101,9 @@
     },
     "variables": {
         "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
-        "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]"
+        "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
+        "frontDoorRg": "[replace(parameters('virtualNetworkResourceGroupName'), 'shd', 'fd')]",
+        "frontDoorName": "[replace(variables('frontDoorRg'), '-', '-signin-')]"
     },
     "resources": [
         {
@@ -163,7 +165,12 @@
                                 "action": "Allow",
                                 "tag": "ServiceTag",
                                 "name": "AzureFrontDoor",
-                                "priority": 10
+                                "priority": 10,
+                                "headers": {
+                                    "x-azure-fdid": [
+                                            "[reference(resourceId(variables('frontDoorRg'),'Microsoft.Cdn/profiles', variables('frontDoorName')), '2022-11-01-preview').frontDoorId]"
+                                    ]
+                                }
                             }
                         ]
                     }
