@@ -1,8 +1,8 @@
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 
 const requestCorrelation = () => {
   return (req, res, next) => {
-    req.correlationId = uuid();
+    req.correlationId = uuid.v4();
     req.clientCorrelationId = req.get('x-correlation-id') || undefined;
     next();
   };
