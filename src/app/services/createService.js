@@ -1,4 +1,4 @@
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const { createService: createServiceInApi } = require('./../../infrastructure/applications');
 
 const parseAndValidateModel = (req) => {
@@ -38,8 +38,8 @@ const createService = async (req, res) => {
     parentId: req.client.id,
     isChildService: true,
     relyingParty: {
-      client_id: `c${uuid().replace(/\-/g, '')}`,
-      client_secret: uuid(),
+      client_id: `c${uuid.v4().replace(/\-/g, '')}`,
+      client_secret: uuid.v4(),
       redirect_uris: model.service.redirectUris,
       grant_types: ['authorization_code', 'refresh_token'],
       params: {

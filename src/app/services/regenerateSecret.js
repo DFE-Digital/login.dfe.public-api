@@ -1,5 +1,5 @@
 const { getClientByServiceId, updateService } = require('./../../infrastructure/applications');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 
 const regenerateSecret = async (req, res) => {
   const service = await getClientByServiceId(req.params.clientid);
@@ -10,7 +10,7 @@ const regenerateSecret = async (req, res) => {
     return res.status(403).send();
   }
 
-  const clientSecret = uuid();
+  const clientSecret = uuid.v4();
   await updateService(service.id, { clientSecret }, req.correlationId);
   return res.json({ clientSecret });
 };

@@ -1,8 +1,8 @@
-jest.mock('uuid/v4');
+jest.mock('uuid');
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/applications');
 
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const { requestCorrelation } = require('./../../../src/app/utils');
 
 const res = {};
@@ -13,7 +13,7 @@ describe('When processing a request', () => {
   let middleware;
 
   beforeEach(() => {
-    uuid.mockReset().mockReturnValue('some-uuid');
+    uuid.v4.mockReset().mockReturnValue('some-uuid');
 
     req = {
       get: jest.fn().mockReturnValue('client-correlation-id'),
