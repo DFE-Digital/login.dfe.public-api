@@ -1,4 +1,4 @@
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 
 const clients = [
   {
@@ -19,7 +19,7 @@ const getClientByServiceId = async (id) => {
 };
 
 const createService = async (service) => {
-  Promise.resolve(Object.assign({}, service, { id: uuid() }));
+  Promise.resolve(Object.assign({}, service, { id: uuid.v4() }));
 };
 
 const updateService = async (id, patchedProperties) => {

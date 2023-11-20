@@ -1,11 +1,11 @@
-jest.mock('uuid/v4');
+jest.mock('uuid');
 jest.mock('niceware');
 jest.mock('./../../../src/infrastructure/applications', () => ({
   createService: jest.fn(),
 }));
 
 const { mockResponse, mockRequest } = require('./../../utils');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const { createService: createServiceInApi } = require('./../../../src/infrastructure/applications');
 const createService = require('./../../../src/app/services/createService');
 
@@ -33,7 +33,7 @@ describe('when creating a sub-application', () => {
 
     res.mockResetAll();
 
-    uuid.mockReset().mockReturnValue('new-uuid');
+    uuid.v4.mockReset().mockReturnValue('new-uuid');
 
     createServiceInApi.mockReset().mockReturnValue({
       id: 'service-1',
