@@ -1,4 +1,4 @@
-jest.mock('uuid/v4');
+jest.mock('uuid');
 jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
 jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
 jest.mock('./../../../src/infrastructure/applications');
