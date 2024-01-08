@@ -6,7 +6,7 @@ resources:
       type: github
       endpoint: DfE-Digital
       name: DFE-Digital/login.dfe.devops
-      ref: feature/DSI-6485
+      ref: main
     - repository: config
       type: github
       endpoint: DfE-Digital
@@ -76,12 +76,12 @@ variables:
   ${{ else }}:
     value: false
 - name: dev
-  ${{ if or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
-    value: false
+  ${{ if and(or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')),eq(parameters.location, 'westeurope')) }}:
+    value: true
   ${{ else }}:
     value: false
 - name: test
-  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')) }}:
+  ${{ if and(or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')),eq(parameters.location, 'westeurope')) }}:
     value: true
   ${{ else }}:
     value: false
@@ -110,9 +110,9 @@ stages:
 
     - template:  pipeline/eslint.yml@devopsTemplates
 
-    # - template:  pipeline/dependencyCheck.yml@devopsTemplates
-    #   parameters:
-    #     npmInstCmd: 'install --force --json --no-package-lock'
+    - template:  pipeline/dependencyCheck.yml@devopsTemplates
+      parameters:
+        npmInstCmd: 'install --force --json --no-package-lock'
 
     - template: pipeline/build.yml@devopsTemplates
       parameters:
