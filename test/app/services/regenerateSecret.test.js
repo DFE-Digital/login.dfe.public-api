@@ -4,11 +4,11 @@ jest.mock('./../../../src/infrastructure/applications', () => ({
   updateService: jest.fn(),
 }));
 
-jest.mock('uuid/v4')
+jest.mock('uuid')
 
 
 const { mockResponse, mockRequest } = require('./../../utils');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const { getClientByServiceId, updateService } = require('./../../../src/infrastructure/applications');
 const regenerateSecret = require('./../../../src/app/services/regenerateSecret');
 
@@ -29,7 +29,7 @@ describe('when creating a sub-application', () => {
 
     res.mockResetAll();
 
-    uuid.mockReset().mockReturnValue('428fd7d3-b6d5-4cc0-8645-57cc22164fca');
+    uuid.v4.mockReset().mockReturnValue('428fd7d3-b6d5-4cc0-8645-57cc22164fca');
 
     getClientByServiceId.mockReset().mockReturnValue({
       id: 'service-1',

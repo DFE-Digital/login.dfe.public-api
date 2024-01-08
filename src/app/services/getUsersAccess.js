@@ -39,7 +39,8 @@ const getUsersAccess = async (req, res) => {
       userLegacyTextId: userOrganisationIdentifer.textIdentifier,
       serviceId: access.serviceId,
       organisationId: access.organisationId,
-      organisationLegacyId: organisationDetails.legacyId, 
+      organisationLegacyId: organisationDetails.legacyId,
+      organisationIsOnAPAR: organisationDetails.IsOnAPAR,
       roles: access.roles,
       identifiers: access.identifiers,
     });
