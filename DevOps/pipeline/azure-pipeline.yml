@@ -26,6 +26,13 @@ pr:
     - develop
 
 parameters:
+- name: location
+  type: string
+  displayName: 'Select Deploy location'
+  default: westeurope
+  values:
+    - westeurope
+    - northeurope
 - name: AppDeploy
   type: boolean
   displayName: 'App Deployment only'
@@ -69,12 +76,12 @@ variables:
   ${{ else }}:
     value: false
 - name: dev
-  ${{ if or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
+  ${{ if and(or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')),eq(parameters.location, 'westeurope')) }}:
     value: true
   ${{ else }}:
     value: false
 - name: test
-  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')) }}:
+  ${{ if and(or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'develop')),eq(parameters.location, 'westeurope')) }}:
     value: true
   ${{ else }}:
     value: false
@@ -103,9 +110,9 @@ stages:
 
     - template:  pipeline/eslint.yml@devopsTemplates
 
-    # - template:  pipeline/dependencyCheck.yml@devopsTemplates
-    #   parameters:
-    #     npmInstCmd: 'install --force --json --no-package-lock'
+    - template:  pipeline/dependencyCheck.yml@devopsTemplates
+      parameters:
+        npmInstCmd: 'install --force --json --no-package-lock'
 
     - template: pipeline/build.yml@devopsTemplates
       parameters:
@@ -126,13 +133,14 @@ stages:
         nodeVersionSpec: '18.17.0'
         npmInstCmd: 'install --force --json --no-package-lock'
         npmPruneFixCmd: 'install --production --json --force --no-package-lock'
+        deploymentLocation: ${{parameters.location}}
 
 
 - ${{ each var in variables }}:
   - ${{ if in(var.key, 'tran','dev','test','pp','pr') }}:
     - ${{ if eq(var.value, 'true') }}:
       - stage: Deployment_${{var.Key}}
-        displayName: "Deployment [${{var.Key}}]"
+        displayName: "Deployment [${{var.Key}}] ${{parameters.location}}"
         dependsOn: 
         - scanBuildApp
         condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
@@ -157,6 +165,7 @@ stages:
               ${{ else }}:
                 certificateName: non-prod-gateway
               AppDeploy: ${{parameters.AppDeploy}}
+              deploymentLocation: ${{parameters.location}}
               runtimeStack: NODE|18-lts
 
         - ${{ if parameters.AppDeploy }}:
@@ -173,5 +182,6 @@ stages:
               applicationShortName: ${{variables.applicationShortName}}
               releaseArtifactName: ${{variables.applicationFullName}}-${{var.key}}-$(Build.BuildId)-release
               InfrDeploy: ${{parameters.InfrDeploy}}
+              deploymentLocation: ${{parameters.location}}
               runtimeStack: NODE|18-lts
     
