@@ -35,9 +35,16 @@ const listServices = async (parentId, page, pageSize, correlationId) => {
   });
 };
 
+const getServiceRoles = async (clientId) => {
+  return Promise.resolve({
+    roles: []
+  });
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
   updateService,
   listServices,
+  getServiceRoles,
 };

@@ -154,6 +154,27 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
   }
 };
 
+const getServiceRoles = async (clientId) => {
+  const token = await jwtStrategy(config.applications.service).getBearerToken();
+  try {
+    const serviceRoles = await rp({
+      method: 'GET',
+      uri: `${config.applications.service.url}/services/${clientId}/roles/`,
+      headers: {
+        authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
+      },
+      json: true,
+    });
+    return serviceRoles;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
   getClientByServiceId,
   createService,
@@ -162,4 +183,5 @@ module.exports = {
   destroyService,
   listServiceGrants,
   listServiceGrantTokens,
+  getServiceRoles,
 };
