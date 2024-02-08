@@ -50,11 +50,11 @@ const getUsersByRoles = async (req, res) => {
         if (userIdNRoles && userIdNRoles.length) {
           const userIds = userIdNRoles.map((ids) => ids.id);
           usersDetails = await usersByIds(userIds.join(','), req.correlationId);
-          if (email.length > 1) {
-            usersDetails = usersDetails.filter((user) => user.email === email);
+          if (email !== null && email.length > 1) {
+            usersDetails = usersDetails.filter((user) => user.email.toLowerCase() === email.toLowerCase());
           }
-          if (userId.length > 1) {
-            usersDetails = usersDetails.filter((user) => user.sub === userId);
+          if (userId !== null && userId.length > 1) {
+            usersDetails = usersDetails.filter((user) => user.sub.toLowerCase() === userId.toLowerCase());
           }
           const newUsers = usersDetails.map((user) => {
             const role = userIdNRoles.find((ids) => ids.id === user.sub);
