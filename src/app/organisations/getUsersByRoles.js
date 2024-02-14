@@ -6,6 +6,8 @@ const { usersByIds } = require('../../infrastructure/directories');
 const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
   const roles = req.query.roles ? req.query.roles.split(',') : null;
+  const email = req.query.email ? req.query.email : null;
+  const userId = req.query.userId ? req.query.userId : null; 
 
   try {
     logger.info(`Getting users for UKPRN/UPIN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
@@ -48,6 +50,12 @@ const getUsersByRoles = async (req, res) => {
         if (userIdNRoles && userIdNRoles.length) {
           const userIds = userIdNRoles.map((ids) => ids.id);
           usersDetails = await usersByIds(userIds.join(','), req.correlationId);
+          if (email !== null && email.length > 1) {
+            usersDetails = usersDetails.filter((user) => user.email.toLowerCase() === email.toLowerCase());
+          }
+          if (userId !== null && userId.length > 1) {
+            usersDetails = usersDetails.filter((user) => user.sub.toLowerCase() === userId.toLowerCase());
+          }
           const newUsers = usersDetails.map((user) => {
             const role = userIdNRoles.find((ids) => ids.id === user.sub);
             return {
