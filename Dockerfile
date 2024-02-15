@@ -1,19 +1,10 @@
-FROM node:10
-
-EXPOSE 80
-
-ARG NODE_ENV
-ENV NODE_ENV $NODE_ENV
-
-RUN mkdir /app
-WORKDIR /app
-
-RUN npm install -g nodemon
-
-COPY package*.json ./
-
+FROM node:lts-alpine
+ENV NODE_ENV=production
+WORKDIR /usr/src/app
+COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
 RUN npm install
-
 COPY . .
-
-CMD node src/index.js
+EXPOSE 3000
+RUN chown -R node /usr/src/app
+USER node
+CMD ["npm", "start"]
