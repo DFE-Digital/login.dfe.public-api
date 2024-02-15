@@ -1,5 +1,5 @@
 {
-  "name": "login.dfe.migration.admin",
+  "name": "login.dfe.public-api",
   "version": "1.0.0",
   "description": "",
   "scripts": {
