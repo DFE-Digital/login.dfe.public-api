@@ -344,6 +344,45 @@ This will return a response in the following format
 ]
 ```
 
+## Get roles for service
+You can use this API to get the roles associated with a service
+The request looks like
+```
+GET https://environment-url/services/{client-id}/roles
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| client-id             | URL      | Y        | The DfE Sign-in client identifier for the service |
+| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+
+This will return a response in the following format
+```
+[
+    {
+        "clientId": "client-id",
+        "serviceName": "Service name",
+        "status": {
+            "id": 1,
+            "name": "Open"
+        },
+        "roles": [
+            {
+                "id": "role-id",
+                "name": "The name of the role",
+                "code": "The code of the role",
+                "numericId": "9999",
+                "status": {
+                    "id": 1
+                }
+            }
+        ]
+    },
+]
+```
 
 ## Get organisations for user including Provider Profile organisation attributes
 You can use this API to get the organisations associated with a user
