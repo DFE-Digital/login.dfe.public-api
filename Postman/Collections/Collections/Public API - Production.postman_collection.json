@@ -1,0 +1,785 @@
+{
+	"info": {
+		"_postman_id": "f33de5bc-9dca-4d9d-9a3c-3fb8f91fced1",
+		"name": "Public API - Production",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1029983"
+	},
+	"item": [
+		{
+			"name": "Service Org User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"services",
+						":sid",
+						"organisations",
+						":oid",
+						"users",
+						":uid"
+					],
+					"variable": [
+						{
+							"key": "sid",
+							"value": "b895ea1c-b644-402b-a10d-4ac5fbc6f97c"
+						},
+						{
+							"key": "oid",
+							"value": "8f1b4e7a-8ba1-4eab-85f5-7ad061bd57fc"
+						},
+						{
+							"key": "uid",
+							"value": "5503e059-e3d9-4cdc-ab7b-8c618eb9fae3"
+						}
+					]
+				},
+				"description": "Checks service access for a specific user org relationship"
+			},
+			"response": [
+				{
+					"name": "Service Org User - Organisation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+							"host": [
+								"{{public-api-url}}"
+							],
+							"path": [
+								"services",
+								":sid",
+								"organisations",
+								":oid",
+								"users",
+								":uid"
+							],
+							"variable": [
+								{
+									"key": "sid",
+									"value": "2354CB2E-F559-4BF4-9981-4F6C6890AA5E"
+								},
+								{
+									"key": "oid",
+									"value": "FD0E5C93-FA9C-43F8-8967-000A36832AA0"
+								},
+								{
+									"key": "uid",
+									"value": "7E5C41FC-3397-4EF7-B5A9-0003FFB00A6B"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "306"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 21 Jun 2022 23:22:28 GMT"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"132-eB+Nelq6UmM2CLgAYNxELcYMAX8\""
+						},
+						{
+							"key": "request-context",
+							"value": "appId=cid-v1:7b1320c9-9bd7-44de-9079-9e5aed5c2e16"
+						},
+						{
+							"key": "Content-Security-Policy",
+							"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+						},
+						{
+							"key": "X-DNS-Prefetch-Control",
+							"value": "off"
+						},
+						{
+							"key": "Expect-CT",
+							"value": "max-age=0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=86400; includeSubDomains; preload"
+						},
+						{
+							"key": "X-Download-Options",
+							"value": "noopen"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-Permitted-Cross-Domain-Policies",
+							"value": "none"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "no-referrer"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"FD0E5C93-FA9C-43F8-8967-000A36832AA0\",\n    \"name\": \"Kingskerswell Church of England Primary School\",\n    \"Category\": \"001\",\n    \"Type\": \"03\",\n    \"URN\": \"113398\",\n    \"UID\": null,\n    \"UKPRN\": \"10073838\",\n    \"EstablishmentNumber\": \"3112\",\n    \"Status\": 1,\n    \"ClosedOn\": null,\n    \"Address\": \"Coffinswell Lane, Kingskerswell, Newton Abbot, Devon, TQ12 5HN\"\n}"
+				}
+			]
+		},
+		{
+			"name": "List Organisation Users (v3)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"CB467D21-76C5-4906-A7BA-2A6E973795BF\",\n    \"organisationId\": \"09158CF5-A701-47E8-BDCD-4EA201B024A3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{public-api-url}}/organisations/v3/users",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"organisations",
+						"v3",
+						"users"
+					]
+				},
+				"description": "Checks service access for a specific user org relationship"
+			},
+			"response": [
+				{
+					"name": "Service Org User - Organisation",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+							"host": [
+								"{{public-api-url}}"
+							],
+							"path": [
+								"services",
+								":sid",
+								"organisations",
+								":oid",
+								"users",
+								":uid"
+							],
+							"variable": [
+								{
+									"key": "sid",
+									"value": "2354CB2E-F559-4BF4-9981-4F6C6890AA5E"
+								},
+								{
+									"key": "oid",
+									"value": "FD0E5C93-FA9C-43F8-8967-000A36832AA0"
+								},
+								{
+									"key": "uid",
+									"value": "7E5C41FC-3397-4EF7-B5A9-0003FFB00A6B"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "306"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 21 Jun 2022 23:22:28 GMT"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"132-eB+Nelq6UmM2CLgAYNxELcYMAX8\""
+						},
+						{
+							"key": "request-context",
+							"value": "appId=cid-v1:7b1320c9-9bd7-44de-9079-9e5aed5c2e16"
+						},
+						{
+							"key": "Content-Security-Policy",
+							"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+						},
+						{
+							"key": "X-DNS-Prefetch-Control",
+							"value": "off"
+						},
+						{
+							"key": "Expect-CT",
+							"value": "max-age=0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Strict-Transport-Security",
+							"value": "max-age=86400; includeSubDomains; preload"
+						},
+						{
+							"key": "X-Download-Options",
+							"value": "noopen"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-Permitted-Cross-Domain-Policies",
+							"value": "none"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "no-referrer"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"FD0E5C93-FA9C-43F8-8967-000A36832AA0\",\n    \"name\": \"Kingskerswell Church of England Primary School\",\n    \"Category\": \"001\",\n    \"Type\": \"03\",\n    \"URN\": \"113398\",\n    \"UID\": null,\n    \"UKPRN\": \"10073838\",\n    \"EstablishmentNumber\": \"3112\",\n    \"Status\": 1,\n    \"ClosedOn\": null,\n    \"Address\": \"Coffinswell Lane, Kingskerswell, Newton Abbot, Devon, TQ12 5HN\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Invite User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let date = Date.now();",
+							"pm.environment.set('date' , date);",
+							"",
+							"let email = 'eoin.corr+' + date + '@digital.education.gov.uk';",
+							"pm.environment.set('user-email' , email);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sourceId\": \"{{date}}\",\n\t\"given_name\": \"Postman\",\n\t\"family_name\": \"Test\",\n\t\"email\": {{user-email}},\n    \"callback\": \"https://sit2-coursedirectory.nationalcareersservice.org.uk/auth/cb\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{public-api-url}}/services/:sid/invitations",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"services",
+						":sid",
+						"invitations"
+					],
+					"variable": [
+						{
+							"key": "sid",
+							"value": "CCE5DB23-7588-4B6B-9CD8-3665A4709484"
+						}
+					]
+				},
+				"description": "This invites a user to a service. Currently getting a 500."
+			},
+			"response": []
+		},
+		{
+			"name": "Manage Announcements",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});",
+							"",
+							"const response = JSON.parse(responseBody);",
+							"const messageId = response.originId;",
+							"pm.environment.set('message-id', messageId);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let date = Date.now();",
+							"pm.environment.set('date' , date);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"messageId\": \"{{$guid}}\",\n\t\"urn\": \"120063\",\n\t\"type\": 1,\n\t\"title\": \"Test announcement\",\n\t\"summary\": \"Announcement summary\",\n\t\"body\": \"Announcement body\",\n\t\"publishedAt\": {{date}},\n\t\"expiresAt\": {{future-epoch}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{public-api-url}}/organisations/announcements",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"organisations",
+						"announcements"
+					]
+				},
+				"description": "Stored in the organisation_announcement tables, can check this to verify"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Child Applications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Public_api_test_app\",\n    \"description\": \"does nothing\",\n    \"clientId\": \"test-client-id\",\n    \"client\": \"child-application-clientsecret\",\n    \"redirectUris\": [\n\t    \"https://endpoint.one/auth/cb\",\n\t    \"https://endpoint.two/login/callback\"\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{public-api-url}}/services",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Organisations for User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/users/:uid/organisations",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"users",
+						":uid",
+						"organisations"
+					],
+					"variable": [
+						{
+							"key": "uid",
+							"value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
+						}
+					]
+				},
+				"description": "Gives all orgs associated with a user."
+			},
+			"response": []
+		},
+		{
+			"name": "Service Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/users?page=1&pageSize=25",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "pageSize",
+							"value": "25"
+						}
+					]
+				},
+				"description": "Get all users with a service"
+			},
+			"response": []
+		},
+		{
+			"name": "Manage Announcement",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/organisations/announcements/:mid",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"organisations",
+						"announcements",
+						":mid"
+					],
+					"variable": [
+						{
+							"key": "mid",
+							"value": "{{message-id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Approvers for Organisations",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/users/approvers?page=1&pageSize=25",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"users",
+						"approvers"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "pageSize",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Organisation Users by Roles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/organisations/:ukprn/users",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"organisations",
+						":ukprn",
+						"users"
+					],
+					"variable": [
+						{
+							"key": "ukprn",
+							"value": "10039896"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Roles for Service",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{public-api-url}}/services/:cid/roles",
+					"host": [
+						"{{public-api-url}}"
+					],
+					"path": [
+						"services",
+						":cid",
+						"roles"
+					],
+					"variable": [
+						{
+							"key": "cid",
+							"value": ""
+						}
+					]
+				},
+				"description": "Gives all orgs associated with a user."
+			},
+			"response": []
+		}
+	]
+}

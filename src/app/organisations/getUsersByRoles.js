@@ -7,7 +7,7 @@ const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
   const roles = req.query.roles ? req.query.roles.split(',') : null;
   const email = req.query.email ? req.query.email : null;
-  const userId = req.query.userId ? req.query.userId : null; 
+  const userId = req.query.userId ? req.query.userId : null;
 
   try {
     logger.info(`Getting users for UKPRN/UPIN ${req.params.id} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}`, {
