@@ -108,8 +108,6 @@ const getUserOrganisation = async (userId, organisationId, correlationId) => {
   return await callOrganisationsApi(uri, 'POST', payload, correlationId);
 };
 
-
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   getOrganisationById,
