@@ -1,6 +1,6 @@
 const logger = require('../../infrastructure/logger');
 const { extractPageParam, extractPageSizeParam } = require('../utils');
-const { listServiceRoles } = require('../../infrastructure/applications');
+const { serviceRoles } = require('../../infrastructure/applications');
 
 const listServiceRoles = async (req, res) => {
 
@@ -10,9 +10,9 @@ const listServiceRoles = async (req, res) => {
     clientCorrelationId
   });
 
-  const serviceRoles = await listServiceRoles(req.params.cid, req.correlationId);
+  const rolesForService = await serviceRoles(req.params.cid, req.correlationId);
   return res.send({
-    roles: serviceRoles.roles
+    roles: rolesForService.roles
   });
 };
 module.exports = listRoles;
