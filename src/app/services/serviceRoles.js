@@ -15,4 +15,4 @@ const listServiceRoles = async (req, res) => {
     roles: rolesForService.roles
   });
 };
-module.exports = listRoles;
+module.exports = listServiceRoles;
