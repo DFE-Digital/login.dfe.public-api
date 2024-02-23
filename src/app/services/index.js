@@ -30,7 +30,7 @@ const area = () => {
 
   router.get('/:sid/grants', asyncWrapper(serviceGrants));
   router.get('/:sid/grants/:grantId/tokens', asyncWrapper(serviceGrantTokens));
-  router.get('/:cid/roles/', asyncWrapper(getServiceRoles));
+  router.get('/:clientId/roles/', asyncWrapper(getServiceRoles));
 
   return router;
 };
