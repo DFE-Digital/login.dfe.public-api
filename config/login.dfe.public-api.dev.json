@@ -32,5 +32,8 @@
   },
   "organisations": {
     "type": "static"
+  },
+  "directories": {
+    "type": "static"
   }
 }
