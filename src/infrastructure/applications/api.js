@@ -157,7 +157,7 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
 const getServiceRoles = async (clientId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const serviceRoles = await rp({
+    const rolesForService = await rp({
       method: 'GET',
       uri: `${config.applications.service.url}/services/${clientId}/roles/`,
       headers: {
@@ -166,7 +166,7 @@ const getServiceRoles = async (clientId) => {
       },
       json: true,
     });
-    return serviceRoles;
+    return rolesForService;
   } catch (e) {
     if (e.statusCode === 404) {
       return undefined;
