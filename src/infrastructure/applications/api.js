@@ -154,7 +154,7 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
   }
 };
 
-const getServiceRoles = async (clientId) => {
+const getAllRolesForService = async (clientId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const rolesForService = await rp({
@@ -183,5 +183,5 @@ module.exports = {
   destroyService,
   listServiceGrants,
   listServiceGrantTokens,
-  getServiceRoles,
+  getAllRolesForService,
 };
