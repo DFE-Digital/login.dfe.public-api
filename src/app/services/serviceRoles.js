@@ -10,7 +10,7 @@ const getServiceRoles = async (req, res) => {
     clientCorrelationId
   });
 
-  const rolesForService = await getAllRolesForService(req.params.cid, req.params.correlationId);
+  const rolesForService = await getAllRolesForService(req.params.cid, correlationId);
   return res.send({
     roles: rolesForService.roles
   });
