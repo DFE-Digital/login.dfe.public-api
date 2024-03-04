@@ -10,8 +10,8 @@ resources:
     - repository: config
       type: github
       endpoint: DfE-Digital
-      name: DFE-Digital/login.dfe.config
-      ref: master
+      name: DFE-Digital/login.dfe.dsi-config
+      ref: main
 
 trigger:
   branches:
