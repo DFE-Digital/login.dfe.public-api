@@ -51,7 +51,6 @@ const listUsersWithOutFilters = async (req, res) => {
 
 }
 
-
 const listUsersWithFilters = async (req, res) => {
   let page;
   let pageSize;
@@ -61,7 +60,6 @@ const listUsersWithFilters = async (req, res) => {
   let fromDate;
   let toDate;
   const duration = 7;
-
 
   try {
     page = extractPageParam(req);
@@ -107,7 +105,6 @@ const listUsersWithFilters = async (req, res) => {
   } catch (e) {
     return res.status(400).send(e.message);
   }
-
 
   let pageOfUserServices;
   let users;
@@ -170,7 +167,6 @@ const prepareUserResponse = (pageOfUserServices, users, isWarning, res) => {
 
 }
 
-
 const addAddionalMessage = (responseBody, fromDate, toDate, duration, isWarning) => {
   if (fromDate && toDate) {
     responseBody.dateRange = `Users between ${fromDate} and ${toDate}`;
@@ -203,6 +199,5 @@ const findDateRange = (toDate, fromDate, duration, isWarning) => {
   }
   return { toDate, fromDate, isWarning };
 }
-
 
 module.exports = listUsers;
