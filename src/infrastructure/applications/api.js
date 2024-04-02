@@ -159,7 +159,7 @@ const getAllRolesForService = async (clientId) => {
   try {
     const rolesForService = await rp({
       method: 'GET',
-      uri: `${config.applications.service.url}/services/${clientId}/roles/`,
+      uri: `${config.applications.service.url}/services/${clientId}/roles`,
       headers: {
         authorization: `bearer ${token}`,
         'x-correlation-id': correlationId,
