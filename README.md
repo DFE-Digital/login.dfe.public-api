@@ -1,10 +1,10 @@
-# DfE Login Public Api
+# DfE Login Public API
 [![Build Status](https://travis-ci.org/DFE-Digital/login.dfe.public-api.svg?branch=master)](https://travis-ci.org/DFE-Digital/login.dfe.public-api)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest) [![jest](https://jestjs.io/img/jest-badge.svg)](https://github.com/facebook/jest)
 
 API for external consumers to interact with DfE login
 
-## You need to authenticate with these APIs!
+## You need to authenticate with these APIs
 
 To use any of the APIs below you will need to provide a Bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
 
@@ -20,6 +20,19 @@ The token body will require and issuer (your service client id) and an audience 
 
 The token must be signed using the HS256 algorythm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are seervice/env specific.)  
 
+## Using Postman for evaluating and testing the APIs
+
+### Overview of Postman
+
+Postman is an API platform tool used for building and executing APIs. Postman simplifies each step of the API lifecycle and is used extensively in the development and documentation of the DfE Sign-in Public API.
+
+A suite of Postman collections and their associated execution environments have been provided to help you learn, test and debug your integrations with DfE Sign-in platform via the Public API.
+
+### Getting started with Postman and the DfE Sign-in collection suite
+
+The Postman API platform tools are available as a desktop client, hosted web application and a command line interface (CLI) at https://www.postman.com/api-platform/api-client/.
+
+The DfE Sign-in Public API Postman collection and environments are available at https://github.com/DFE-Digital/login.dfe.public-api/tree/develop/Postman/.
 
 ## Invite User
 As a service on-boarded to DfE Sign-in, you can use the API to invite users to the service.
