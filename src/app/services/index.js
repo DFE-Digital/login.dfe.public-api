@@ -11,8 +11,7 @@ const getUsersAccess = require('./getUsersAccess');
 const deleteService = require('./deleteService');
 const serviceGrants = require('./serviceGrants');
 const serviceGrantTokens = require('./serviceGrantTokens');
-const getServiceRoles = require('./serviceRoles');
-
+const getServiceRoles = require('./getServiceRoles');
 
 const area = () => {
   const router = express.Router();
@@ -30,7 +29,7 @@ const area = () => {
 
   router.get('/:sid/grants', asyncWrapper(serviceGrants));
   router.get('/:sid/grants/:grantId/tokens', asyncWrapper(serviceGrantTokens));
-  router.get('/:clientId/roles/', asyncWrapper(getServiceRoles));
+  router.get('/:clientId/roles', asyncWrapper(getServiceRoles));
 
   return router;
 };
