@@ -154,7 +154,7 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
   }
 };
 
-const getAllRolesForService = async (clientId) => {
+const getAllRolesForService = async (clientId, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const rolesForService = await rp({
