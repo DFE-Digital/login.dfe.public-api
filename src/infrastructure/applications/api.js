@@ -1,7 +1,7 @@
-const config = require('./../config');
-
 const rp = require('login.dfe.request-promise-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
+
+const config = require('../config');
 
 const getClientByServiceId = async (id) => {
   if (!id) {
@@ -154,27 +154,6 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
   }
 };
 
-const getAllRolesForService = async (clientId, correlationId) => {
-  const token = await jwtStrategy(config.applications.service).getBearerToken();
-  try {
-    const rolesForService = await rp({
-      method: 'GET',
-      uri: `${config.applications.service.url}/services/${clientId}/roles`,
-      headers: {
-        authorization: `bearer ${token}`,
-        'x-correlation-id': correlationId,
-      },
-      json: true,
-    });
-    return rolesForService;
-  } catch (e) {
-    if (e.statusCode === 404) {
-      return undefined;
-    }
-    throw e;
-  }
-};
-
 module.exports = {
   getClientByServiceId,
   createService,
@@ -183,5 +162,4 @@ module.exports = {
   destroyService,
   listServiceGrants,
   listServiceGrantTokens,
-  getAllRolesForService,
 };
