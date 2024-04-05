@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
-    "test": "settings='./config/login.dfe.public-api.local.json' ./node_modules/.bin/jest --runInBand --detectOpenHandles --forceExit"
+    "test": "jest"
   },
   "engines": {
     "node": "18.x.x"
