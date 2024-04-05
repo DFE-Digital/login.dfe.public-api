@@ -1,12 +1,21 @@
-jest.mock('./../../../src/infrastructure/config', () => require('./../../utils').mockConfig());
-jest.mock('./../../../src/infrastructure/logger', () => require('./../../utils').mockLogger());
+const { organisation } = require('login.dfe.dao');
+const {
+  mockRequest, mockResponse, mockConfig, mockLogger,
+} = require('../../utils');
+const { getUsersAccessToServiceAtOrganisation } = require('../../../src/infrastructure/access');
+const getUsersAccess = require('../../../src/app/services/getUsersAccess');
+const { getClientByServiceId } = require('../../../src/infrastructure/applications');
+
+jest.mock('./../../../src/infrastructure/config', () => mockConfig());
+jest.mock('./../../../src/infrastructure/logger', () => mockLogger());
+jest.mock('login.dfe.dao', () => ({
+  organisation: {
+    getOrganisation: jest.fn(),
+    getUserOrganisationIdentifiers: jest.fn(),
+  },
+}));
 jest.mock('./../../../src/infrastructure/access');
 jest.mock('./../../../src/infrastructure/applications');
-
-const { mockRequest, mockResponse } = require('./../../utils');
-const { getUsersAccessToServiceAtOrganisation } = require('./../../../src/infrastructure/access');
-const getUsersAccess = require('./../../../src/app/services/getUsersAccess');
-const { getClientByServiceId } = require('./../../../src/infrastructure/applications');
 
 const uid = 'b5d58c18-a13c-4ecc-a7cd-0003350447e1';
 const sid = 'e191b83e-233c-4142-9d4c-df0454fed8ab';
@@ -45,7 +54,17 @@ describe('when getting users access to service', () => {
       organisationId: oid,
       roles: ['role1', 'role1'],
       identifiers: [{ key: 'some', value: 'thing' }],
-      accessGrantedOn: '2018-08-17T15:44:16Z'
+      accessGrantedOn: '2018-08-17T15:44:16Z',
+    });
+
+    organisation.getUserOrganisationIdentifiers.mockReset().mockReturnValue({
+      numericIdentifier: 123456,
+      textIdentifier: 'foobarbaz',
+    });
+
+    organisation.getOrganisation.mockReset().mockReturnValue({
+      legacyId: '123456',
+      IsOnAPAR: true,
     });
   });
 
