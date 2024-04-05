@@ -3,7 +3,7 @@ const jwtStrategy = require('login.dfe.jwt-strategies');
 
 const config = require('../config');
 
-const getClientByServiceId = async (id) => {
+const getClientByServiceId = async (id, correlationId) => {
   if (!id) {
     return undefined;
   }
@@ -14,6 +14,7 @@ const getClientByServiceId = async (id) => {
       uri: `${config.applications.service.url}/services/${id}`,
       headers: {
         authorization: `bearer ${token}`,
+        'x-correlation-id': correlationId,
       },
       json: true,
     });
