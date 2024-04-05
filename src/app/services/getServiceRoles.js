@@ -1,19 +1,33 @@
 const logger = require('../../infrastructure/logger');
-const { getAllRolesForService } = require('../../infrastructure/applications');
+const { getClientByServiceId } = require('../../infrastructure/applications');
+const { getRoles } = require('../../infrastructure/access');
 
 const getServiceRoles = async (req, res) => {
+  const { correlationId, clientCorrelationId, client } = req;
+  const requestedClientId = req.params.clientid;
 
-  const { correlationId, clientCorrelationId } = req;
-  logger.info(`Getting roles for service with clientId: ${req.params.clientId} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId})`, {
+  const clientServiceId = client.id;
+  const clientId = client.relyingParty.client_id;
+
+  logger.info(`${clientId} is attempting to get service roles for: ${requestedClientId} (correlationId: ${correlationId}, clientCorrelationId: ${clientCorrelationId})`, {
     correlationId,
-    clientCorrelationId
+    clientCorrelationId,
+    requester: clientId,
+    requestedClientId,
   });
 
-  const rolesForService = await getAllRolesForService(req.params.clientId, correlationId);
-  return res.send({
-    roles: rolesForService.roles
-  });
+  const service = await getClientByServiceId(requestedClientId, correlationId);
+  if (!service) {
+    return res.status(404).send();
+  }
 
+  if (service.relyingParty.client_id !== clientId && service.parentId !== clientServiceId) {
+    return res.status(403).send();
+  }
+
+  const roles = await getRoles(service.id, correlationId) ?? [];
+
+  return res.json(roles);
 };
 
 module.exports = getServiceRoles;
