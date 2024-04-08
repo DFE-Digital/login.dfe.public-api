@@ -27,7 +27,11 @@ const getServiceRoles = async (req, res) => {
 
   const roles = await getRoles(service.id, correlationId) ?? [];
 
-  return res.json(roles);
+  return res.json(roles.map((role) => ({
+    name: role.name,
+    code: role.code,
+    status: (role.status?.id === 1) ? 'Active' : 'Inactive',
+  })));
 };
 
 module.exports = getServiceRoles;
