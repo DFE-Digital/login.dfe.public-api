@@ -1,6 +1,6 @@
 const config = require('./../config');
 
-const rp = require('login.dfe.request-promise-retry');
+const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
 
 const getClientByServiceId = async (id) => {
@@ -9,7 +9,7 @@ const getClientByServiceId = async (id) => {
   }
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const client = await rp({
+    const client = await fetchApi({
       method: 'GET',
       uri: `${config.applications.service.url}/services/${id}`,
       headers: {
@@ -29,7 +29,7 @@ const getClientByServiceId = async (id) => {
 const createService = async (service, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const client = await rp({
+    const client = await fetchApi({
       method: 'POST',
       uri: `${config.applications.service.url}/services`,
       headers: {
@@ -51,7 +51,7 @@ const createService = async (service, correlationId) => {
 const updateService = async (id, patchedProperties, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const client = await rp({
+    const client = await fetchApi({
       method: 'PATCH',
       uri: `${config.applications.service.url}/services/${id}`,
       headers: {
@@ -73,7 +73,7 @@ const updateService = async (id, patchedProperties, correlationId) => {
 const destroyService = async (id, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const client = await rp({
+    const client = await fetchApi({
       method: 'DELETE',
       uri: `${config.applications.service.url}/services/${id}`,
       headers: {
@@ -94,7 +94,7 @@ const destroyService = async (id, correlationId) => {
 const listServices = async (parentId, page, pageSize, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const pageOfServices = await rp({
+    const pageOfServices = await fetchApi({
       method: 'GET',
       uri: `${config.applications.service.url}/services?page=${page}&pageSize=${pageSize}&parent=${parentId}`,
       headers: {
@@ -115,7 +115,7 @@ const listServices = async (parentId, page, pageSize, correlationId) => {
 const listServiceGrants = async (serviceId, page, pageSize, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const pageOfGrants = await rp({
+    const pageOfGrants = await fetchApi({
       method: 'GET',
       uri: `${config.applications.service.url}/services/${serviceId}/grants?page=${page}&pageSize=${pageSize}`,
       headers: {
@@ -136,7 +136,7 @@ const listServiceGrants = async (serviceId, page, pageSize, correlationId) => {
 const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const pageOfTokens = await rp({
+    const pageOfTokens = await fetchApi({
       method: 'GET',
       uri: `${config.applications.service.url}/services/${serviceId}/grants/${grantId}/tokens?page=${page}&pageSize=${pageSize}`,
       headers: {
@@ -157,7 +157,7 @@ const listServiceGrantTokens = async (serviceId, grantId, page, pageSize, correl
 const getAllRolesForService = async (clientId, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
-    const rolesForService = await rp({
+    const rolesForService = await fetchApi({
       method: 'GET',
       uri: `${config.applications.service.url}/services/${clientId}/roles`,
       headers: {

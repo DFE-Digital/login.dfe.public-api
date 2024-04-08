@@ -1,5 +1,5 @@
 const config = require('./../config');
-const rp = require('login.dfe.request-promise-retry');
+const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
 
 const usersByIds = async (ids) => {
@@ -8,7 +8,7 @@ const usersByIds = async (ids) => {
   }
   const token = await jwtStrategy(config.directories.service).getBearerToken();
   try {
-    const users = await rp({
+    const users = await fetchApi({
       method: 'POST',
       uri: `${config.directories.service.url}/users/by-ids`,
       body: { ids },

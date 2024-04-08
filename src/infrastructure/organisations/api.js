@@ -1,12 +1,12 @@
 const jwtStrategy = require('login.dfe.jwt-strategies');
 const config = require('./../config');
-const rp = require('login.dfe.request-promise-retry');
+const { fetchApi } = require('login.dfe.async-retry');
 
 const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
   const token = await jwtStrategy(config.organisations.service).getBearerToken();
 
   try {
-    return await rp({
+    return await fetchApi({
       method: method,
       uri: `${config.organisations.service.url}/${endpoint}`,
       headers: {
@@ -33,7 +33,7 @@ const listServiceUsers = async (serviceId, userIds, page, pageSize, correlationI
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const url = `${config.organisations.service.url}/services/${serviceId}/users`;
-    const pageOfUsers = await rp({
+    const pageOfUsers = await fetchApi({
       method: 'POST',
       body: { page, pageSize, userIds },
       uri: url,
