@@ -385,22 +385,14 @@ This will return a response in the following format:
 ```
 [
     {
-        "id": "UUID-of-role",
         "name": "Role 1 Name",
         "code": "Role1Code",
-        "numericId": "123456",
-        "status": {
-            "id": 1
-        }
+        "status": "Active"
     },
     {
-        "id": "UUID-of-role2",
         "name": "Role 2 Name",
         "code": "Role2Code",
-        "numericId": "678910",
-        "status": {
-            "id": 1
-        }
+        "status": "Inactive"
     }
 ]
 ```
