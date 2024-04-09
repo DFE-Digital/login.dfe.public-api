@@ -1,5 +1,15 @@
 const request = require('supertest');
+const { mockConfig, mockLogger } = require('../../utils');
 const { app } = require('../../../src/app');
+
+// Mock dependencies, including middleware.
+jest.mock('../../../src/infrastructure/config', () => mockConfig());
+jest.mock('../../../src/infrastructure/logger', () => mockLogger());
+jest.mock('../../../src/app/utils', () => ({
+  auth: jest.fn().mockImplementation(() => (req, res, next) => next()),
+  requestCorrelation: jest.fn().mockImplementation(() => (req, res, next) => next()),
+}));
+jest.mock('login.dfe.dao', () => jest.fn());
 
 /*
  'messageId must be a valid UUID'
@@ -15,8 +25,6 @@ const { app } = require('../../../src/app');
 
 // POST /organisations/announcements
 describe('When providing invalid body to upsert an announcement via /organisations/announcements', () => {
-  jest.setTimeout(20000);
-
   const body = {
     messageId: 'b69e1cbf', // -97c8-4c2f-a16a-df5c5b4e6ade',
     urn: '123456K',
@@ -43,8 +51,6 @@ describe('When providing invalid body to upsert an announcement via /organisatio
       .send(body)
       .expect(400);
 
-    console.log(response.body);
-
     expect(response.body.reasons.includes('body field cannot be more than 5000 characters')).toBe(true);
     expect(response.body.reasons.includes('expiresAt is not a valid ISO8601 format')).toBe(true);
     expect(response.body.reasons.includes('messageId must be a valid UUID')).toBe(true);
@@ -53,15 +59,5 @@ describe('When providing invalid body to upsert an announcement via /organisatio
     expect(response.body.reasons.includes('title field cannot be more than 255 characters')).toBe(true);
     expect(response.body.reasons.includes('type must be one of 1, 2, 4, 5. Received 21')).toBe(true);
     expect(response.body.reasons.includes('urn must be numeric type')).toBe(true);
-
-  });
-
-  afterAll(async () => {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 10000);
-      //
-    }); // avoid jest open handle error
   });
 });

@@ -17,11 +17,12 @@ const area = () => {
   const router = express.Router();
 
   router.get('/', asyncWrapper(listServices));
+  router.post('/', asyncWrapper(createService));
   router.get('/:clientid', asyncWrapper(getService));
   router.patch('/:clientid', asyncWrapper(updateService));
   router.delete('/:clientid', asyncWrapper(deleteService));
-  router.post('/', asyncWrapper(createService));
   router.post('/:clientid/regenerate-secret', asyncWrapper(regenerateSecret));
+  router.get('/:clientid/roles', asyncWrapper(getServiceRoles));
 
   router.post('/:sid/invitations', asyncWrapper(inviteUser));
   router.get('/:sid/organisations/:oid/users/:uid', asyncWrapper(getUsersAccess));
@@ -29,7 +30,6 @@ const area = () => {
 
   router.get('/:sid/grants', asyncWrapper(serviceGrants));
   router.get('/:sid/grants/:grantId/tokens', asyncWrapper(serviceGrantTokens));
-  router.get('/:clientId/roles', asyncWrapper(getServiceRoles));
 
   return router;
 };

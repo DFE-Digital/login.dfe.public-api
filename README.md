@@ -358,8 +358,8 @@ This will return a response in the following format
 ```
 
 ## Get roles for service
-You can use this API to get the roles associated with a service
-The request looks like
+
+You can use this API endpoint to get the roles associated with your service, or one of your child services. The request looks like:
 ```
 GET https://environment-url/services/{client-id}/roles
 Authorization: bearer {jwt-token}
@@ -369,32 +369,38 @@ The variable data items are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| client-id             | URL      | Y        | The DfE Sign-in client identifier for the service |
-| jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
+| client-id             | URL      | Y        | The DfE Sign-in client identifier for the service. |
+| jwt-token             | Header   | Y        | The JWT token for authorization. Signed with your API secret. |
 
-This will return a response in the following format
+ Possible response codes are:
+ 
+| HTTP Status Code | Reason |
+| ---------------- | ------ |
+| 200              | A (possibly empty) list of roles has been retrieved successfully for the requested client ID. |
+| 403              | The specified client ID is not your service, or a child of your service. |
+| 404              | No service can be found with the specified client ID. |
+
+This will return a response in the following format:
+
 ```
 [
     {
-        "clientId": "client-id",
-        "serviceName": "Service name",
-        "status": {
-            "id": 1,
-            "name": "Open"
-        },
-        "roles": [
-            {
-                "id": "role-id",
-                "name": "The name of the role",
-                "code": "The code of the role",
-                "numericId": "9999",
-                "status": {
-                    "id": 1
-                }
-            }
-        ]
+        "name": "Role 1 Name",
+        "code": "Role1Code",
+        "status": "Active"
     },
+    {
+        "name": "Role 2 Name",
+        "code": "Role2Code",
+        "status": "Inactive"
+    }
 ]
+```
+
+or the following if no roles were found:
+
+```
+[]
 ```
 
 ## Get organisations for user including Provider Profile organisation attributes
