@@ -331,7 +331,7 @@
 						}
 					]
 				},
-				"description": "Gives all orgs associated with a user."
+				"description": "Returns all roles associated with a service."
 			},
 			"response": []
 		},
