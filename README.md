@@ -72,10 +72,10 @@ Possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 202              | Your request has been accepted |
-| 400              | Your request is not valid. Details will be included in the body |
+| 400              | Your request is invalid. Additional details will be provided in the response body |
 | 401              | Your JWT is missing or not valid. |
 | 404              | The service id in the uri does not exist |
-| 500              | Something has gone wrong on server. If the problem continues contact the team |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 When the request is made, the user may or may not exist in the system;
 and may or may not have the desired organisation and service mappings requested.
@@ -142,9 +142,9 @@ possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 202              | Your request has been accepted |
-| 400              | Your request is not valid. Details will be included in the body |
+| 400              | Your request is invalid. Additional details will be provided in the response body |
 | 401              | Your JWT is missing or not valid. |
-| 500              | Something has gone wrong on server. If the problem continues contact the team |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 The valid types of announcement are:
 
@@ -170,7 +170,7 @@ Possible response codes are:
 | 204              | Announcement has been unpublished |
 | 401              | Your JWT is missing or not valid. |
 | 404              | The message id in the uri does not exist |
-| 500              | Something has gone wrong on server. If the problem continues contact the team |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 ## Create child applications
 If your application has been enabled, you are able to create child applications through the API. These child applications are intended for use when
@@ -209,7 +209,7 @@ Possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 201              | Your child application has been created |
-| 400              | Your request was malformed. See the reasons in the body for details |
+| 400              | Your request is invalid. Additional details will be provided in the response body |
 | 403              | Your application does not have permission to create child applications |
 
 Upon successful creation of a child application, you will receive a response like:
@@ -658,10 +658,10 @@ possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 200              | Your request has been accepted |
-| 400              | Your request is not valid. Details will be included in the body |
+| 400              | Your request is invalid. Additional details will be provided in the response body |
 | 401              | Your JWT is missing or not valid. |
 | 403              | Your application does not have permission to get approvers for organisations |
-| 500              | Something has gone wrong on server. If the problem continues contact the team |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 
 ```json
@@ -737,8 +737,11 @@ Possible response codes include:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 200              | Roles retrieved successfully for the requested organisation |
-| 403              | Your application does not have permission to get users for this organisation |
-| 404              | No users found with the specified roles for the requested organisation. An empty array is returned |
+| 400	           | Your request is invalid. Additional details will be provided in the response body |
+| 401	           | Your JWT is missing or not valid |
+| 403              | Your application lacks permission to retrieve users for this organisation |
+| 404              | No users were found with the specified roles for the requested organization, resulting in an empty array |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 This will return a response in the following format
 ```
@@ -810,8 +813,11 @@ Possible response codes include:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 200              | Roles retrieved successfully for the requested organisation |
-| 403              | Your application does not have permission to get users for this organisation |
-| 404              | No users found with the specified roles for the requested organisation. An empty array is returned |
+| 400	           | Your request is invalid. Additional details will be provided in the response body |
+| 401	           | Your JWT is missing or not valid |
+| 403              | Your application lacks permission to retrieve users for this organisation |
+| 404              | No users were found with the specified roles for the requested organization, resulting in an empty array |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
 This will return a response in the following format
 ```
@@ -858,8 +864,8 @@ The variable data items are:
 | email                 | URL      | N        | The email address of the user for filtering |
 | jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
 
-
 The response format remains the same as the previous API call, allowing for filtering by specific criteria.
+
 
 ## How do ids map to categories and types?
 
