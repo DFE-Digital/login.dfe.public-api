@@ -39,7 +39,7 @@
     "login.dfe.public-api.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.public-api.jobs.client.git#v3.0.0",
     "login.dfe.sanitization": "git+https://github.com/DFE-Digital/login.dfe.sanitization.git#v3.0.1",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v5.0.1",
-    "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.1",
+    "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.2",
     "niceware": "^4.0.0",
     "uuid": "^9.0.1",
     "valid-url": "^1.0.9",
