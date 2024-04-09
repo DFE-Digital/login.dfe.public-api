@@ -776,6 +776,14 @@ The variable data items are:
 | roles                 | URL      | N        | User role codes to filter organisation user's list |
 | jwt-token             | Header   | Y        | The JWT token for authorization. You will be given a secret to use to sign the token |
 
+Possible response codes include:
+ 
+| HTTP Status Code | Reason |
+| ---------------- | ------ |
+| 200              | Roles retrieved successfully for the requested organisation. |
+| 403              | Your application does not have permission to get users for this organisation. |
+| 404              | No users found with the specified roles for the requested organisation. An empty array is returned. |
+
 This will return a response in the following format
 ```
 {
@@ -802,7 +810,27 @@ This will return a response in the following format
     ]
 }
 ```
-Roles object can be null if none were specified in the request.
+
+Retrieve Organisation Users by Filtered Criteria
+You can also use the above API to retrieve organisation users based on filtered criteria such as email address or user ID. 
+
+The request looks like
+
+```
+GET https://environment-url/organisations/{UPIN}/users?email=example@example.com
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| UPIN                  | URL      | Y        | UPIN for the organisation |
+| email                 | URL      | N        | The email address of the user for filtering. |
+| jwt-token             | Header   | Y        | The JWT token for authorization, signed with your API secret. |
+
+
+The response format remains the same as the previous API call, allowing for filtering by specific criteria.
 
 ## How do ids map to categories and types?
 
