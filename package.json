@@ -43,8 +43,7 @@
     "niceware": "^4.0.0",
     "uuid": "^9.0.1",
     "valid-url": "^1.0.9",
-    "winston": "^3.11.0",
-    "winston-redis": "^3.1.0"
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "eslint": "^8.53.0",
