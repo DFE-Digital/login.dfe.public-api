@@ -37,7 +37,7 @@
     "login.dfe.express-error-handling": "github:DFE-Digital/login.dfe.express-error-handling#v3.0.1",
     "login.dfe.healthcheck": "github:DFE-Digital/login.dfe.healthcheck#v3.0.1",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.1.0",
-    "login.dfe.public-api.jobs.client": "github:DFE-Digital/login.dfe.public-api.jobs.client#tech/update-dependencies",
+    "login.dfe.public-api.jobs.client": "github:DFE-Digital/login.dfe.public-api.jobs.client#v3.0.1",
     "login.dfe.sanitization": "github:DFE-Digital/login.dfe.sanitization#v3.0.1",
     "login.dfe.winston-appinsights": "github:DFE-Digital/login.dfe.winston-appinsights#v5.0.1",
     "niceware": "^4.0.0",
