@@ -716,21 +716,30 @@ possible response codes are:
     "numberOfPages": 1
 }
 ```
-## Get organisation users by roles using UKPRN
-You can use this API to get the organisations users filtering by roles
-The request looks like
+## Get Organisation Users by Roles or Filtered Criteria
+You can use the following APIs to retrieve organisation users either by roles or based on filtered criteria such as email address or userId.
+
+### Retrieve Organisation Users by Roles using UKPRN or UPIN
+This API enables you to retrieve organisation users filtering by roles using the UKPRN (UK Provider Reference Number) OR using the UPIN (Unique Provider Identification Number).
+
+The request using UKPRN looks like
 ```
 GET https://environment-url/organisations/{UKPRN}/users?roles=role1,role2
-Authorisation: bearer {jwt-token}
+Authorisation: Bearer {jwt-token}
 ```
 
-The variable data items are:
+The request using UPIN looks like
+```
+GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
+Authorisation: Bearer {jwt-token}
+
+The variable data items using UKPRN/UPIN are
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UKPRN                 | URL      | Y        | UKPRN for the organisation |
+| UKPRN                 | URL      | Y        | UKPRN/UPIN for the organisation |
 | roles                 | URL      | N        | User role codes to filter organisation user's list |
-| jwt-token             | Header   | Y        | The JWT token for authorization should be signed using your API secret, which will be provided to you |
+| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
 
 Possible response codes include:
  
@@ -743,7 +752,7 @@ Possible response codes include:
 | 404              | No users were found with the specified roles for the requested organization, resulting in an empty array |
 | 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
 
-This will return a response in the following format
+This will return a response in the following format for UKPRN
 ```
 {
     "ukprn": "organisation-ukprn-id",
@@ -769,102 +778,35 @@ This will return a response in the following format
     ]
 }
 ```
+N.B. The response format remains the same as the previous API call when using UPIN instead of UKPRN.
 
-Retrieve Organisation Users by Filtered Criteria
+#### Retrieve Organisation Users by Filtered Criteria
 
 You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId. 
-The request looks like
 
+The request using UKPRN looks like
 ```
 GET https://environment-url/organisations/{UKPRN}/users?email=example@example.com
 Authorisation: bearer {jwt-token}
 ```
 
-The variable data items are:
-
-| Name                  | Location | Required | Description |
-| --------------------- | -------- | -------- | ----------- |
-| UKPRN                 | URL      | Y        | UKPRN for the organisation |
-| email                 | URL      | N        | The email address of the user for filtering |
-| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
-
-
-The response format remains the same as the previous API call, allowing for filtering by specific criteria.
-
-## Get organisation users by roles using UPIN
-You can use this API to get the organisations users filtering by roles
-The request looks like
-
-```
-GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
-Authorisation: bearer {jwt-token}
-```
-
-The variable data items are:
-
-| Name                  | Location | Required | Description |
-| --------------------- | -------- | -------- | ----------- |
-| UPIN                  | URL      | Y        | UPIN for the organisation |
-| roles                 | URL      | N        | User role codes to filter organisation user's list |
-| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
-
-Possible response codes include:
- 
-| HTTP Status Code | Reason |
-| ---------------- | ------ |
-| 200              | Roles retrieved successfully for the requested organisation |
-| 400	           | Your request is invalid. Additional details will be provided in the response body |
-| 401	           | Your JWT is missing or not valid |
-| 403              | Your application lacks permission to retrieve users for this organisation |
-| 404              | No users were found with the specified roles for the requested organization, resulting in an empty array |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
-
-This will return a response in the following format
-```
-{
-    "upin": "organisation-upin-id",
-    "users": [
-        {
-            "email": "user1@test.com",
-            "firstName": "user1",
-            "lastName": "test",
-            "userStatus": 1,
-            "roles": [
-                "role1"
-            ]
-        },
-        {
-            "email": "user21@test.com",
-            "firstName": "user2",
-            "lastName": "test",
-            "roles": [
-                "role1",
-                "role2"
-            ]
-        }
-    ]
-}
-```
-
-Retrieve Organisation Users by Filtered Criteria
-
-You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId. 
-The request looks like
-
+The request using UPIN looks like
 ```
 GET https://environment-url/organisations/{UPIN}/users?email=example@example.com
 Authorisation: bearer {jwt-token}
 ```
 
-The variable data items are:
+```
+
+The variable data items using UKPRN/UPIN are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UPIN                  | URL      | Y        | UPIN for the organisation |
+| UKPRN/UPIN            | URL      | Y        | UKPRN/UPIN for the organisation |
 | email                 | URL      | N        | The email address of the user for filtering |
 | jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
 
-The response format remains the same as the previous API call, allowing for filtering by specific criteria.
+N.B. The response format remains the same as the previous API call, allowing for filtering by specific criteria.
 
 
 ## How do ids map to categories and types?
