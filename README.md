@@ -6,7 +6,7 @@ API for external consumers to interact with DfE login
 
 ## You need to authenticate with these APIs
 
-To use any of the APIs below you will need to provide a Bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
+To use any of the APIs below you will need to provide a bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
 
 You should create a JWT at the point of use in your calling application using the standard JWT library that comes with your chosen technology.
 
@@ -725,13 +725,13 @@ This API enables you to retrieve organisation users filtering by roles using the
 The request using UKPRN looks like
 ```
 GET https://environment-url/organisations/{UKPRN}/users?roles=role1,role2
-Authorisation: Bearer {jwt-token}
+Authorisation: bearer {jwt-token}
 ```
 
 The request using UPIN looks like
 ```
 GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
-Authorisation: Bearer {jwt-token}
+Authorisation: bearer {jwt-token}
 
 The variable data items using UKPRN/UPIN are
 
