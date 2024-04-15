@@ -162,7 +162,17 @@ stages:
                 - scanBuildApp
                 condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
             variables:
-            - group: dsi-${{var.key}}-kv
+            - name: environmentId
+              ${{ if eq(var.key, 'tran') }}:
+                value: d03
+              ${{ if eq(var.key, 'dev') }}:
+                value: d01
+              ${{ if eq(var.key, 'test') }}:
+                value: t01
+              ${{ if eq(var.key, 'pp') }}:
+                value: t02
+              ${{ if eq(var.key, 'pr') }}:
+                value: p01
             jobs:
             - ${{ if parameters.InfrDeploy }}:
               - template: pipeline/appInfrastructure.yml@devopsTemplates
