@@ -1,6 +1,6 @@
 const config = require('./../config');
 
-const rp = require('login.dfe.request-promise-retry');
+const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
 
 const callApi = async (route, correlationId, method = 'GET', body = undefined) => {
@@ -12,15 +12,13 @@ const callApi = async (route, correlationId, method = 'GET', body = undefined) =
     }
     uri += route;
 
-    return await rp({
+    return await fetchApi(uri, {
       method: method || 'GET',
-      uri,
       headers: {
         authorization: `bearer ${token}`,
         'x-correlation-id': correlationId,
       },
       body,
-      json: true,
     });
   } catch (e) {
     if (e.statusCode === 404) {
