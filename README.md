@@ -6,7 +6,7 @@ API for external consumers to interact with DfE login
 
 ## You need to authenticate with these APIs
 
-To use any of the APIs below you will need to provide a bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
+To use any of the APIs below you will need to provide a Bearer token in the header of the request, this bearer token is simply a JWT (see https://jwt.io) with a simple payload which is signed using a secret that only DfE Sign-in and you know.
 
 You should create a JWT at the point of use in your calling application using the standard JWT library that comes with your chosen technology.
 
@@ -72,10 +72,10 @@ Possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 202              | Your request has been accepted |
-| 400              | Your request is invalid. Additional details will be provided in the response body |
+| 400              | Your request is not valid. Details will be included in the body |
 | 401              | Your JWT is missing or not valid. |
 | 404              | The service id in the uri does not exist |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
 
 When the request is made, the user may or may not exist in the system;
 and may or may not have the desired organisation and service mappings requested.
@@ -142,9 +142,9 @@ possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 202              | Your request has been accepted |
-| 400              | Your request is invalid. Additional details will be provided in the response body |
+| 400              | Your request is not valid. Details will be included in the body |
 | 401              | Your JWT is missing or not valid. |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
 
 The valid types of announcement are:
 
@@ -170,7 +170,7 @@ Possible response codes are:
 | 204              | Announcement has been unpublished |
 | 401              | Your JWT is missing or not valid. |
 | 404              | The message id in the uri does not exist |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
 
 ## Create child applications
 If your application has been enabled, you are able to create child applications through the API. These child applications are intended for use when
@@ -209,7 +209,7 @@ Possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 201              | Your child application has been created |
-| 400              | Your request is invalid. Additional details will be provided in the response body |
+| 400              | Your request was malformed. See the reasons in the body for details |
 | 403              | Your application does not have permission to create child applications |
 
 Upon successful creation of a child application, you will receive a response like:
@@ -658,10 +658,10 @@ possible response codes are:
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 200              | Your request has been accepted |
-| 400              | Your request is invalid. Additional details will be provided in the response body |
+| 400              | Your request is not valid. Details will be included in the body |
 | 401              | Your JWT is missing or not valid. |
 | 403              | Your application does not have permission to get approvers for organisations |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+| 500              | Something has gone wrong on server. If the problem continues contact the team |
 
 
 ```json
@@ -716,43 +716,31 @@ possible response codes are:
     "numberOfPages": 1
 }
 ```
-## Get Organisation Users by Roles or Filtered Criteria
-You can use the following APIs to retrieve organisation users either by roles or based on filtered criteria such as email address or userId.
-
-### Retrieve Organisation Users by Roles using UKPRN or UPIN
-This API enables you to retrieve organisation users filtering by roles using the UKPRN (UK Provider Reference Number) OR using the UPIN (Unique Provider Identification Number).
-
-The request using UKPRN looks like
+## Get organisation users by roles using UKPRN
+You can use this API to get the organisations users filtering by roles
+The request looks like
 ```
 GET https://environment-url/organisations/{UKPRN}/users?roles=role1,role2
 Authorisation: bearer {jwt-token}
 ```
 
-The request using UPIN looks like
-```
-GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
-Authorisation: bearer {jwt-token}
-
-The variable data items using UKPRN/UPIN are
+The variable data items are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UKPRN                 | URL      | Y        | UKPRN/UPIN for the organisation |
+| UKPRN                 | URL      | Y        | UKPRN for the organisation |
 | roles                 | URL      | N        | User role codes to filter organisation user's list |
-| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
+| jwt-token             | Header   | Y        | The JWT token for authorization should be signed using your API secret, which will be provided to you |
 
 Possible response codes include:
  
 | HTTP Status Code | Reason |
 | ---------------- | ------ |
 | 200              | Roles retrieved successfully for the requested organisation |
-| 400	           | Your request is invalid. Additional details will be provided in the response body |
-| 401	           | Your JWT is missing or not valid |
-| 403              | Your application lacks permission to retrieve users for this organisation |
-| 404              | No users were found with the specified roles for the requested organization, resulting in an empty array |
-| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+| 403              | Your application does not have permission to get users for this organisation |
+| 404              | No users found with the specified roles for the requested organisation. An empty array is returned |
 
-This will return a response in the following format for UKPRN
+This will return a response in the following format
 ```
 {
     "ukprn": "organisation-ukprn-id",
@@ -778,36 +766,100 @@ This will return a response in the following format for UKPRN
     ]
 }
 ```
-N.B. The response format remains the same as the previous API call when using UPIN instead of UKPRN.
 
-#### Retrieve Organisation Users by Filtered Criteria
+Retrieve Organisation Users by Filtered Criteria
 
 You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId. 
+The request looks like
 
-The request using UKPRN looks like
 ```
 GET https://environment-url/organisations/{UKPRN}/users?email=example@example.com
 Authorisation: bearer {jwt-token}
 ```
 
-The request using UPIN looks like
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| UKPRN                 | URL      | Y        | UKPRN for the organisation |
+| email                 | URL      | N        | The email address of the user for filtering |
+| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
+
+
+The response format remains the same as the previous API call, allowing for filtering by specific criteria.
+
+## Get organisation users by roles using UPIN
+You can use this API to get the organisations users filtering by roles
+The request looks like
+
+```
+GET https://environment-url/organisations/{UPIN}/users?roles=role1,role2
+Authorisation: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name                  | Location | Required | Description |
+| --------------------- | -------- | -------- | ----------- |
+| UPIN                  | URL      | Y        | UPIN for the organisation |
+| roles                 | URL      | N        | User role codes to filter organisation user's list |
+| jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
+
+Possible response codes include:
+ 
+| HTTP Status Code | Reason |
+| ---------------- | ------ |
+| 200              | Roles retrieved successfully for the requested organisation |
+| 403              | Your application does not have permission to get users for this organisation |
+| 404              | No users found with the specified roles for the requested organisation. An empty array is returned |
+
+This will return a response in the following format
+```
+{
+    "upin": "organisation-upin-id",
+    "users": [
+        {
+            "email": "user1@test.com",
+            "firstName": "user1",
+            "lastName": "test",
+            "userStatus": 1,
+            "roles": [
+                "role1"
+            ]
+        },
+        {
+            "email": "user21@test.com",
+            "firstName": "user2",
+            "lastName": "test",
+            "roles": [
+                "role1",
+                "role2"
+            ]
+        }
+    ]
+}
+```
+
+Retrieve Organisation Users by Filtered Criteria
+
+You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId. 
+The request looks like
+
 ```
 GET https://environment-url/organisations/{UPIN}/users?email=example@example.com
 Authorisation: bearer {jwt-token}
 ```
 
-```
-
-The variable data items using UKPRN/UPIN are:
+The variable data items are:
 
 | Name                  | Location | Required | Description |
 | --------------------- | -------- | -------- | ----------- |
-| UKPRN/UPIN            | URL      | Y        | UKPRN/UPIN for the organisation |
+| UPIN                  | URL      | Y        | UPIN for the organisation |
 | email                 | URL      | N        | The email address of the user for filtering |
 | jwt-token             | Header   | Y        | The JWT token for authorisation should be signed using your API secret, which will be provided to you |
 
-N.B. The response format remains the same as the previous API call, allowing for filtering by specific criteria.
 
+The response format remains the same as the previous API call, allowing for filtering by specific criteria.
 
 ## How do ids map to categories and types?
 
