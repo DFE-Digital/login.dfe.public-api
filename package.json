@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
-    "swagger-autogen": "node ./docs/swagger.js",
+    "swagger-autogen": "node ./docs/swagger.json",
     "test": "settings='./config/login.dfe.public-api.dev.json' ./node_modules/.bin/jest --runInBand --detectOpenHandles --forceExit",
     "start": "node --inspect=0.0.0.0 src/index.js"
   },
