@@ -8,46 +8,51 @@ const logger = require('./infrastructure/logger');
 
 const app = express();
 
-if (config.hostingEnvironment.hstsMaxAge) {
-  app.use(helmet({
-    noCache: true,
-    hsts: {
-      maxAge: config.hostingEnvironment.hstsMaxAge,
-      preload: true,
-    },
-  }));
-}
-
 logger.info('set helmet policy defaults');
 
-// Setting helmet Content Security Policy
-const scriptSources = ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost', '*.signin.education.gov.uk', 'https://code.jquery.com'];
+  const self = "'self'";
+  const allowedOrigin = '*.signin.education.gov.uk';
 
-app.use(helmet.contentSecurityPolicy({
-  browserSniff: false,
-  setAllHeaders: false,
-  useDefaults: false,
-  directives: {
-    defaultSrc: ["'self'"],
-    childSrc: ["'none'"],
-    objectSrc: ["'none'"],
-    scriptSrc: scriptSources,
-    styleSrc: ["'self'", "'unsafe-inline'", 'localhost', '*.signin.education.gov.uk'],
-    imgSrc: ["'self'", 'data:', 'blob:', 'localhost', '*.signin.education.gov.uk'],
-    fontSrc: ["'self'", 'data:', '*.signin.education.gov.uk'],
-    connectSrc: ["'self'"],
-    formAction: ["'self'", '*'],
-  },
-}));
+  if (config.hostingEnvironment.hstsMaxAge) {
+    app.use(helmet({
+      strictTransportSecurity: {
+        maxAge: config.hostingEnvironment.hstsMaxAge,
+        preload: true,
+        includeSubDomains: true,
+      }
+    }));
+  }
 
-logger.info('Set helmet filters');
+  // Setting helmet Content Security Policy
+  const scriptSources = [self, "'unsafe-inline'", "'unsafe-eval'", allowedOrigin, 'https://code.jquery.com'];
+  const styleSources = [self, allowedOrigin];
+  const imgSources = [self, allowedOrigin, 'data:', 'blob:'];
 
-app.use(helmet.xssFilter());
-app.use(helmet.frameguard('false'));
-app.use(helmet.ieNoOpen());
+  if (config.hostingEnvironment.env === 'dev') {
+    scriptSources.push('localhost');
+    styleSources.push('localhost');
+    imgSources.push('localhost');
+  }
 
-logger.info('helmet setup complete');
+  app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [self],
+      scriptSrc: scriptSources,
+      styleSrc: styleSources,
+      imgSrc: imgSources,
+      fontSrc: [self, 'data:', allowedOrigin],
+      connectSrc: [self],
+      formAction: [self, '*'],
+    },
+  }));
 
+  logger.info('Set helmet filters');
+
+  app.use(helmet.xssFilter());
+  app.use(helmet.frameguard('false'));
+  app.use(helmet.ieNoOpen());
+
+  logger.info('helmet setup complete');
 
 if (config.hostingEnvironment.env !== 'dev') {
   app.set('trust proxy', 1);
