@@ -12,16 +12,14 @@ logger.info('set helmet policy defaults');
 
   const self = "'self'";
   const allowedOrigin = '*.signin.education.gov.uk';
-
-  if (config.hostingEnvironment.hstsMaxAge) {
-    app.use(helmet({
-      strictTransportSecurity: {
-        maxAge: config.hostingEnvironment.hstsMaxAge,
-        preload: true,
-        includeSubDomains: true,
-      }
-    }));
-  }
+  
+  app.use(helmet({
+    strictTransportSecurity: {
+      maxAge: 86400,
+      preload: true,
+      includeSubDomains: true,
+    }
+  }));
 
   // Setting helmet Content Security Policy
   const scriptSources = [self, "'unsafe-inline'", "'unsafe-eval'", allowedOrigin, 'https://code.jquery.com'];
