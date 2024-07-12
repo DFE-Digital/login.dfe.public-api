@@ -58,7 +58,7 @@ parameters:
   default: false
 - name: gitCheck
   type: boolean
-  displayName: 'OverWrite Git Check in Test'
+  displayName: 'Bypass Git Check in Test'
   default: false
 
 variables:
@@ -80,12 +80,12 @@ variables:
   ${{ else }}:
     value: false
 - name: test
-  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'main')) }}:
+  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
     value: true
   ${{ else }}:
     value: false
 - name: pp
-  ${{ if and(or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'release')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}:
+  ${{ if and(or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'main')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}:
     value: true
   ${{ else }}:
     value: false
@@ -137,15 +137,9 @@ stages:
           - stage: Deployment_${{var.key}}_${{location}}
             displayName: "Deployment [${{var.key}}] ${{location}}"
             ${{ if eq(location,'westeurope') }}:
-              ${{ if eq(var.key,'pr') }}:
-                dependsOn: 
-                - scanBuildApp
-                - Deployment_pp_${{location}}
-                condition: and(in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped'),in(dependencies.Deployment_pp_westeurope.result, 'Succeeded', 'Skipped'))
-              ${{ else }}:
-                dependsOn: 
-                - scanBuildApp
-                condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+              dependsOn: 
+              - scanBuildApp
+              condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
             ${{ if eq(location,'northeurope') }}:
               ${{ if eq(length(parameters.location), 2) }}:
                 dependsOn: 
@@ -186,3 +180,13 @@ stages:
                 runtimeStack: NODE|18-lts
                 pm2ProcessFileName: process.json
                 gitCheck: ${{parameters.gitCheck}}
+          
+          - ${{ if and(eq(var.key, 'pr'),eq(location, 'westeurope')) }}:
+            - stage: branchPrTag
+              displayName: "GitHub PR & Release Branch Tag"
+              dependsOn: 
+              - Deployment_${{var.key}}_${{location}}
+              jobs:
+              - template:  pipeline/tagCreation.yml@devopsTemplates
+                parameters:
+                  applicationName: ${{variables.applicationFullName}}
