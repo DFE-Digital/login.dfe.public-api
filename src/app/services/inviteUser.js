@@ -73,7 +73,7 @@ const parseAndValidateRequest = async (req) => {
 const queueInvitationRequest = async (details) => {
   await jobsClient.sendInvitationRequest(details.givenName, details.familyName, details.email, details.organisationId,
     details.sourceId, details.callbackUrl, details.userRedirect, details.clientId, details.inviteSubjectOverride, details.inviteBodyOverride);
-  logger.info(`Queued invitation for ${details.email}, source id = ${details.sourceId}, callback = ${details.callbackUrl}`);
+  logger.info(`Queued invitation for source id = ${details.sourceId}, callback = ${details.callbackUrl}`);
 };
 
 const inviteUser = async (req, res) => {
