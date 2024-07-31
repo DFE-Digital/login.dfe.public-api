@@ -90,7 +90,7 @@ variables:
   ${{ else }}:
     value: false
 - name: pr
-  ${{ if and(or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}:
+  ${{ if or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
     value: true
   ${{ else }}:
     value: false
