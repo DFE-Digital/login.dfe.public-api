@@ -1,10 +1,14 @@
-'use strict';
+const {
+  createLogger, format, transports, addColors,
+} = require('winston');
 
-const winston = require('winston');
-const config = require('./../config');
+const {
+  combine, prettyPrint, errors, simple, colorize,
+} = format;
 const appInsights = require('applicationinsights');
 const AuditTransporter = require('login.dfe.audit.transporter');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
+const config = require('../config');
 
 const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
 
@@ -19,19 +23,34 @@ const customLevels = {
     silly: 6,
   },
   colors: {
-    info: 'yellow',
-    ok: 'green',
-    error: 'red',
     audit: 'magenta',
+    error: 'red',
+    warn: 'yellow',
+    info: 'blue',
+    verbose: 'cyan',
+    debug: 'green',
+    silly: 'cyan',
   },
 };
+
+addColors(customLevels.colors);
+
+// Formatter to hide audit records from other loggers.
+const hideAudit = format((info) => ((info.level.toLowerCase() === 'audit') ? false : info));
 
 const loggerConfig = {
   levels: customLevels.levels,
   transports: [],
 };
 
-loggerConfig.transports.push(new (winston.transports.Console)({ level: logLevel, colorize: true }));
+loggerConfig.transports.push(new transports.Console({
+  format: combine(
+    hideAudit(),
+    colorize({ all: true }),
+    simple(),
+  ),
+  level: logLevel,
+}));
 
 const opts = { application: config.loggerSettings.applicationName, level: 'audit' };
 const auditTransport = AuditTransporter(opts);
@@ -46,6 +65,7 @@ if (config.hostingEnvironment.applicationInsights) {
     .setSendLiveMetrics(config.loggerSettings.aiSendLiveMetrics || false)
     .start();
   loggerConfig.transports.push(new AppInsightsTransport({
+    format: combine(hideAudit(), format.json()),
     client: appInsights.defaultClient,
     applicationName: config.loggerSettings.applicationName || 'PublicApi',
     type: 'event',
@@ -53,7 +73,15 @@ if (config.hostingEnvironment.applicationInsights) {
   }));
 }
 
-const logger = winston.createLogger(loggerConfig);
+const logger = createLogger({
+  format: combine(
+    simple(),
+    errors({ stack: true }),
+    prettyPrint(),
+  ),
+  transports: loggerConfig.transports,
+  levels: loggerConfig.levels,
+});
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at:', p, 'reason:', reason);
