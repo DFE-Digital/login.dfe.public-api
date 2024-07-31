@@ -10,7 +10,7 @@ app.post('/users/signed-up', (req, res) => {
   const sourceId = req.body.sourceId;
   const token = req.get('authorization');
 
-  console.info(`Received callback\n  sub: ${sub}\n  sourceId: ${sourceId}\n  token: ${token}`);
+  console.info(`Received callback\n  sub: ${sub}\n  sourceId: ${sourceId}\n  token: ${token ? 'received' : 'not provided'}`);
 
   res.status(202).send();
 });
