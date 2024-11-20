@@ -3,7 +3,7 @@ const { getOrganisationByTypeAndIdentifier } = require('../../infrastructure/org
 const { getServiceUsers } = require('../../infrastructure/access');
 const { usersByIds } = require('../../infrastructure/directories');
 
-const getUsersByRoles = async (req, res) => {
+const getUsersByRolesV2 = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
   const roles = req.query.roles ? req.query.roles.split(',') : null;
   const email = req.query.email ? req.query.email : null;
@@ -79,7 +79,7 @@ const getUsersByRoles = async (req, res) => {
           }
         }
       });
-      ukprnOrUpin = isUPIN ? 'upin' : 'ukprn';
+      const ukprnOrUpin = isUPIN ? 'upin' : 'ukprn';
       return res.json(
         { [ukprnOrUpin]: req.params.id, users: result },
       );
@@ -95,4 +95,4 @@ const getUsersByRoles = async (req, res) => {
     throw e;
   }
 };
-module.exports = getUsersByRoles;
+module.exports = getUsersByRolesV2;
