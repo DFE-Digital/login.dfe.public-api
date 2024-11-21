@@ -1,10 +1,10 @@
 jest.mock('login.dfe.async-retry');
 jest.mock('login.dfe.jwt-strategies');
 jest.mock('./../../../src/infrastructure/config', () => require('../../utils').mockConfig({
-  access: {
+  directories: {
     type: 'api',
     service: {
-      url: 'http://access.test',
+      url: 'http://directories.test',
       retryFactor: 0,
       numberOfRetries: 2,
     },
@@ -13,10 +13,9 @@ jest.mock('./../../../src/infrastructure/config', () => require('../../utils').m
 
 const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
-const { getRoles } = require('../../../src/infrastructure/access/api');
+const { usersByIds } = require('../../../src/infrastructure/directories/api');
 
-const serviceId = 'service-1';
-const correlationId = 'abc123';
+const userIds = ['user1', 'user2'];
 const apiResponse = [
   {
     userId: 'user-1',
@@ -48,31 +47,26 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('then it should call users resource with user id', async () => {
-    await getRoles(serviceId, correlationId);
+    await usersByIds(userIds);
 
     expect(fetchApi.mock.calls).toHaveLength(1);
-    expect(fetchApi.mock.calls[0][0]).toBe('http://access.test/services/service-1/roles');
+    expect(fetchApi.mock.calls[0][0]).toBe('http://directories.test/users/by-ids');
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
-      method: 'GET',
+      method: 'POST',
     });
+  });
+
+  it('should return undefined when provided with an a falsy value for ids', async () => {
+    const testUserIds = undefined;
+    const result = await usersByIds(testUserIds);
+    expect(result).toBe(undefined);
   });
 
   it('should use the token from jwt strategy as bearer token', async () => {
-    await getRoles(serviceId, correlationId);
-
+    await usersByIds(userIds);
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
         authorization: 'bearer token',
-      },
-    });
-  });
-
-  it('should include the correlation id', async () => {
-    await getRoles(serviceId, correlationId);
-
-    expect(fetchApi.mock.calls[0][1]).toMatchObject({
-      headers: {
-        'x-correlation-id': correlationId,
       },
     });
   });
@@ -84,7 +78,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await getRoles(serviceId, correlationId);
+    const result = await usersByIds(userIds);
     expect(result).toEqual(undefined);
   });
 
@@ -96,7 +90,7 @@ describe('when getting a users services mapping from api', () => {
     });
 
     try {
-      await getRoles(serviceId, correlationId);
+      await usersByIds(userIds);
     } catch (e) {
       expect(e.statusCode).toEqual(400);
       expect(e.message).toEqual('Client Error');

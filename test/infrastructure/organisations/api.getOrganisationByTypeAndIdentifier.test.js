@@ -1,10 +1,10 @@
 jest.mock('login.dfe.async-retry');
 jest.mock('login.dfe.jwt-strategies');
 jest.mock('./../../../src/infrastructure/config', () => require('../../utils').mockConfig({
-  access: {
+  organisations: {
     type: 'api',
     service: {
-      url: 'http://access.test',
+      url: 'http://organisations.test',
       retryFactor: 0,
       numberOfRetries: 2,
     },
@@ -13,9 +13,10 @@ jest.mock('./../../../src/infrastructure/config', () => require('../../utils').m
 
 const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
-const { getRoles } = require('../../../src/infrastructure/access/api');
+const { getOrganisationByTypeAndIdentifier } = require('../../../src/infrastructure/organisations/api');
 
-const serviceId = 'service-1';
+const type = 'type-1';
+const identifier = 'identifier-1';
 const correlationId = 'abc123';
 const apiResponse = [
   {
@@ -48,17 +49,17 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('then it should call users resource with user id', async () => {
-    await getRoles(serviceId, correlationId);
+    await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
 
     expect(fetchApi.mock.calls).toHaveLength(1);
-    expect(fetchApi.mock.calls[0][0]).toBe('http://access.test/services/service-1/roles');
+    expect(fetchApi.mock.calls[0][0]).toBe('http://organisations.test/organisations/by-external-id/type-1/identifier-1');
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       method: 'GET',
     });
   });
 
   it('should use the token from jwt strategy as bearer token', async () => {
-    await getRoles(serviceId, correlationId);
+    await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -68,7 +69,7 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('should include the correlation id', async () => {
-    await getRoles(serviceId, correlationId);
+    await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -77,29 +78,51 @@ describe('when getting a users services mapping from api', () => {
     });
   });
 
-  it('should return false on a 404 response', async () => {
+  it('should return null on a 401 response', async () => {
+    fetchApi.mockImplementation(() => {
+      const error = new Error('Unauthorized');
+      error.statusCode = 401;
+      throw error;
+    });
+
+    const result = await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
+    expect(result).toEqual(null);
+  });
+
+  it('should return null on a 404 response', async () => {
     fetchApi.mockImplementation(() => {
       const error = new Error('not found');
       error.statusCode = 404;
       throw error;
     });
 
-    const result = await getRoles(serviceId, correlationId);
-    expect(result).toEqual(undefined);
+    const result = await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
+    expect(result).toEqual(null);
   });
 
-  it('should raise an exception on any failure status code that is not 404', async () => {
+  it('should return false on a 409 response', async () => {
     fetchApi.mockImplementation(() => {
-      const error = new Error('Client Error');
-      error.statusCode = 400;
+      const error = new Error('Conflict');
+      error.statusCode = 409;
       throw error;
     });
 
-    try {
-      await getRoles(serviceId, correlationId);
-    } catch (e) {
-      expect(e.statusCode).toEqual(400);
-      expect(e.message).toEqual('Client Error');
-    }
+    const result = await getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
+    expect(result).toEqual(false);
+  });
+
+  it('should raise an exception on any failure status code that is not 401, 404 or 409', async () => {
+    fetchApi.mockImplementation(() => {
+      const error = new Error('Server Error');
+      error.statusCode = 500;
+      throw error;
+    });
+
+    const act = () => getOrganisationByTypeAndIdentifier(type, identifier, correlationId);
+
+    await expect(act).rejects.toThrow(expect.objectContaining({
+      message: 'Server Error',
+      statusCode: 500,
+    }));
   });
 });

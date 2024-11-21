@@ -13,9 +13,13 @@ jest.mock('./../../../src/infrastructure/config', () => require('../../utils').m
 
 const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
-const { searchForAnnouncements } = require('../../../src/infrastructure/organisations/api');
+const { listOrganisationUsersV3 } = require('../../../src/infrastructure/organisations/api');
 
-const messageId = 'message-1';
+const page = 1;
+const pageSize = 10;
+const roleId = 'role-1';
+const policies = ['policy-1'];
+const identifier = 'identifier-1';
 const correlationId = 'abc123';
 const apiResponse = [
   {
@@ -48,17 +52,17 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('then it should call users resource with user id', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
 
     expect(fetchApi.mock.calls).toHaveLength(1);
-    expect(fetchApi.mock.calls[0][0]).toBe('http://organisations.test/organisations/announcements?messageid=message-1');
+    expect(fetchApi.mock.calls[0][0]).toBe('http://organisations.test/organisations/v3/users');
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
-      method: 'GET',
+      method: 'POST',
     });
   });
 
   it('should use the token from jwt strategy as bearer token', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -68,7 +72,7 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('should include the correlation id', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -84,7 +88,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
     expect(result).toEqual(null);
   });
 
@@ -95,7 +99,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
     expect(result).toEqual(null);
   });
 
@@ -106,10 +110,9 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
     expect(result).toEqual(false);
   });
-
 
   it('should raise an exception on any failure status code that is not 401, 404 or 409', async () => {
     fetchApi.mockImplementation(() => {
@@ -118,7 +121,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const act = () => searchForAnnouncements(messageId, correlationId);
+    const act = () => listOrganisationUsersV3(page, pageSize, roleId, policies, correlationId);
 
     await expect(act).rejects.toThrow(expect.objectContaining({
       message: 'Server Error',

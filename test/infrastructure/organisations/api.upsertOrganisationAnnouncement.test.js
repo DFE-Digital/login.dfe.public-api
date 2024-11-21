@@ -13,9 +13,17 @@ jest.mock('./../../../src/infrastructure/config', () => require('../../utils').m
 
 const { fetchApi } = require('login.dfe.async-retry');
 const jwtStrategy = require('login.dfe.jwt-strategies');
-const { searchForAnnouncements } = require('../../../src/infrastructure/organisations/api');
+const { upsertOrganisationAnnouncement } = require('../../../src/infrastructure/organisations/api');
 
+const organisationId = 'org-1';
 const messageId = 'message-1';
+const type = 'type-1';
+const title = 'title-1';
+const summary = 'summary-1';
+const body = 'body-1';
+const publishedAt = '';
+const expiresAt = '';
+const published = true;
 const correlationId = 'abc123';
 const apiResponse = [
   {
@@ -48,17 +56,17 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('then it should call users resource with user id', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
 
     expect(fetchApi.mock.calls).toHaveLength(1);
-    expect(fetchApi.mock.calls[0][0]).toBe('http://organisations.test/organisations/announcements?messageid=message-1');
+    expect(fetchApi.mock.calls[0][0]).toBe('http://organisations.test/organisations/org-1/announcements');
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
-      method: 'GET',
+      method: 'POST',
     });
   });
 
   it('should use the token from jwt strategy as bearer token', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -68,7 +76,7 @@ describe('when getting a users services mapping from api', () => {
   });
 
   it('should include the correlation id', async () => {
-    await searchForAnnouncements(messageId, correlationId);
+    await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -84,7 +92,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
     expect(result).toEqual(null);
   });
 
@@ -95,7 +103,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
     expect(result).toEqual(null);
   });
 
@@ -106,10 +114,9 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
     expect(result).toEqual(false);
   });
-
 
   it('should raise an exception on any failure status code that is not 401, 404 or 409', async () => {
     fetchApi.mockImplementation(() => {
@@ -118,7 +125,7 @@ describe('when getting a users services mapping from api', () => {
       throw error;
     });
 
-    const act = () => searchForAnnouncements(messageId, correlationId);
+    const act = () => upsertOrganisationAnnouncement(organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId);
 
     await expect(act).rejects.toThrow(expect.objectContaining({
       message: 'Server Error',
