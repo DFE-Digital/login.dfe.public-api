@@ -1,5 +1,5 @@
 const logger = require('../../infrastructure/logger');
-const { getOrganisationByTypeAndIdentifier } = require('../../infrastructure/organisations');
+const { getOrganisationByTypeAndIdentifier, getUsersForOrganisation } = require('../../infrastructure/organisations');
 const { getServiceUsers } = require('../../infrastructure/access');
 const { usersByIds } = require('../../infrastructure/directories');
 
@@ -63,6 +63,16 @@ const getUsersByRolesV2 = async (req, res) => {
             };
           });
           users = users.concat(newUsers);
+        }
+        // I think this goes either here or in the if (users.length) section below.  Need to figure that out.
+        // Once we know all the users we care about, we need to find out their organisation role (approver or end user)
+        if (users.length > 0) {
+          const organisationUsers = getUsersForOrganisation(organisation.id, correlationId);
+          console.log(organisationUsers);
+          // for (user in users) {
+          //   if role_id === 10000 it's an approver and add it to the user in the "orgRole" key
+          //   if role_id === 0 it's an end user and add it to the user in the "orgRole" key
+          // }
         }
       }
     }
