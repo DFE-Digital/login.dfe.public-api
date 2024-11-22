@@ -101,31 +101,31 @@ describe('when getting organisations users with roles by ukprn', () => {
 
     usersByIds.mockReset().mockReturnValue([
       {
-        sub: 'userId',
+        sub: '3AC5A26C-4DE4-45E9-914E-2D45AC98F298',
         given_name: 'User',
         family_name: 'One',
         email: 'user.one@unit.tests',
       },
     ]);
 
-    // getUsersForOrganisation.mockReset().mockReturnValue([
-    //   {
-    //     id: '3AC5A26C-4DE4-45E9-914E-2D45AC98F298',
-    //     status: 0,
-    //     role: { id: 10000, name: 'Approver' },
-    //     numericIdentifier: '68716',
-    //     textIdentifier: 'k83rknd',
-    //     totalNumberOfPages: 1,
-    //   },
-    //   {
-    //     id: 'E15CCDE2-FFDC-4593-8475-3759C0F86FFD',
-    //     status: 0,
-    //     role: { id: 0, name: 'End user' },
-    //     numericIdentifier: '71643',
-    //     textIdentifier: '3rk7zde',
-    //     totalNumberOfPages: 1,
-    //   },
-    // ]);
+    getUsersForOrganisation.mockReset().mockReturnValue([
+      {
+        id: '3AC5A26C-4DE4-45E9-914E-2D45AC98F298',
+        status: 0,
+        role: { id: 10000, name: 'Approver' },
+        numericIdentifier: '68716',
+        textIdentifier: 'k83rknd',
+        totalNumberOfPages: 1,
+      },
+      {
+        id: 'E15CCDE2-FFDC-4593-8475-3759C0F86FFD',
+        status: 0,
+        role: { id: 0, name: 'End user' },
+        numericIdentifier: '71643',
+        textIdentifier: '3rk7zde',
+        totalNumberOfPages: 1,
+      },
+    ]);
   });
 
   it('should return 400 when not provided with an id in the params', async () => {
@@ -180,10 +180,20 @@ describe('when getting organisations users with roles by ukprn', () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  // TODO need to set this up correctly to actually return some data
-  // it('should return some results when everything is set up', async () => {
-  //   const result = await getUsersByRolesV2(req, res);
-  //   expect(res.json).toHaveBeenCalledTimes(1);
-  //   expect(result).toMatchObject({});
-  // });
+  it('should return some results when everything is set up', async () => {
+    await getUsersByRolesV2(req, res);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      ukprn: '10029085',
+      users: [
+        {
+          email: 'user.one@unit.tests',
+          firstName: 'User',
+          lastName: 'One',
+          userStatus: undefined,
+          roles: ['USER'],
+        },
+      ],
+    });
+  });
 });

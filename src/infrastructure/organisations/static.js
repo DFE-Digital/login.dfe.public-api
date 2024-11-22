@@ -68,9 +68,14 @@ const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correla
   return Promise.resolve();
 };
 
+const getUsersForOrganisation = async (organisationId, correlationId) => {
+  return Promise.resolve();
+};
+
 
 module.exports = {
   getOrganisationByTypeAndIdentifier,
+  getUsersForOrganisation,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
