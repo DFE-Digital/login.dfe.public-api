@@ -56,23 +56,18 @@ const getUsersByRolesV2 = async (req, res) => {
           if (userId !== null && userId.length > 1) {
             usersDetails = usersDetails.filter((user) => user.sub.toLowerCase() === userId.toLowerCase());
           }
+          const organisationUsers = await getUsersForOrganisation(organisation.id, correlationId);
+
           const newUsers = usersDetails.map((user) => {
             const role = userIdNRoles.find((ids) => ids.id === user.sub);
+            const orgUser = organisationUsers.find((organisationUser) => organisationUser.id === user.sub);
+            const orgRoleName = orgUser ? orgUser.role.name : null;
+
             return {
-              email: user.email, firstName: user.given_name, lastName: user.family_name, userStatus: user.status, roles: role ? role.roles : null,
+              email: user.email, firstName: user.given_name, lastName: user.family_name, userStatus: user.status, roles: role ? role.roles : null, orgRole: orgRoleName,
             };
           });
           users = users.concat(newUsers);
-        }
-        // I think this goes either here or in the if (users.length) section below.  Need to figure that out.
-        // Once we know all the users we care about, we need to find out their organisation role (approver or end user)
-        if (users.length > 0) {
-          const organisationUsers = getUsersForOrganisation(organisation.id, correlationId);
-          console.log(organisationUsers);
-          // for (user in users) {
-          //   if role_id === 10000 it's an approver and add it to the user in the "orgRole" key
-          //   if role_id === 0 it's an end user and add it to the user in the "orgRole" key
-          // }
         }
       }
     }
