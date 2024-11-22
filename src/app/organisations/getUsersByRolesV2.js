@@ -64,7 +64,12 @@ const getUsersByRolesV2 = async (req, res) => {
             const orgRoleName = orgUser ? orgUser.role.name : null;
 
             return {
-              email: user.email, firstName: user.given_name, lastName: user.family_name, userStatus: user.status, roles: role ? role.roles : null, orgRole: orgRoleName,
+              email: user.email,
+              firstName: user.given_name,
+              lastName: user.family_name,
+              userStatus: user.status,
+              roles: role ? role.roles : null,
+              orgRole: orgRoleName,
             };
           });
           users = users.concat(newUsers);
