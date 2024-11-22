@@ -16,21 +16,22 @@ const id = '10029085';
 describe('when getting organisations users with roles by ukprn', () => {
   let req;
 
-  beforeEach(() => {
-    req = mockRequest({
-      client: {
-        id: 'serviceId',
-      },
-      params: {
-        id,
-      },
-      query: {
-        roles: 'USER',
-        page: 1,
-        pageSize: 5,
-      },
-    });
+  const requestPayload = {
+    client: {
+      id: 'serviceId',
+    },
+    params: {
+      id,
+    },
+    query: {
+      roles: 'USER',
+      page: 1,
+      pageSize: 5,
+    },
+  };
 
+  beforeEach(() => {
+    req = mockRequest(requestPayload);
     res.mockResetAll();
 
     getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue([{
@@ -177,5 +178,80 @@ describe('when getting organisations users with roles by ukprn', () => {
         },
       ],
     });
+  });
+
+  it('should return some results when everything is set up and no query keys are provided', async () => {
+    const clonedRequest = JSON.parse(JSON.stringify(requestPayload));
+    delete clonedRequest.query.roles;
+
+    await getUsersByRoles(clonedRequest, res);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      ukprn: '10029085',
+      users: [
+        {
+          email: 'user.one@unit.tests',
+          firstName: 'User',
+          lastName: 'One',
+          userStatus: undefined,
+          roles: ['USER'],
+        },
+      ],
+    });
+  });
+
+  it('should return some results when everything is set up and email is provided in the query', async () => {
+    const clonedRequest = JSON.parse(JSON.stringify(requestPayload));
+    clonedRequest.query.email = 'user.one@unit.tests';
+
+    await getUsersByRoles(clonedRequest, res);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      ukprn: '10029085',
+      users: [
+        {
+          email: 'user.one@unit.tests',
+          firstName: 'User',
+          lastName: 'One',
+          userStatus: undefined,
+          roles: ['USER'],
+        },
+      ],
+    });
+  });
+
+  it('should return some results when everything is set up and userId is provided in the query', async () => {
+    const clonedRequest = JSON.parse(JSON.stringify(requestPayload));
+    clonedRequest.query.userId = '3AC5A26C-4DE4-45E9-914E-2D45AC98F298';
+
+    await getUsersByRoles(clonedRequest, res);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      ukprn: '10029085',
+      users: [
+        {
+          email: 'user.one@unit.tests',
+          firstName: 'User',
+          lastName: 'One',
+          userStatus: undefined,
+          roles: ['USER'],
+        },
+      ],
+    });
+  });
+
+  it('should throw an exception if there is a non-404 api call', async () => {
+    getServiceUsers.mockImplementation(() => {
+      const error = new Error('Server Error');
+      error.statusCode = 500;
+      throw error;
+    });
+
+    const act = () => getUsersByRoles(req, res);
+
+    await expect(act).rejects.toThrow(expect.objectContaining({
+      message: 'Server Error',
+      statusCode: 500,
+    }));
   });
 });
