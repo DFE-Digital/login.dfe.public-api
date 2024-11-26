@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const logger = require('../../infrastructure/logger');
 const { getOrganisationByTypeAndIdentifier, getUsersForOrganisation } = require('../../infrastructure/organisations');
 const { getServiceUsers } = require('../../infrastructure/access');
