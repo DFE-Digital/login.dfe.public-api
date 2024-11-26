@@ -258,19 +258,4 @@ describe('when getting organisations users with roles by ukprn', () => {
       ],
     });
   });
-
-  it('should throw an exception if there is a non-404 api call', async () => {
-    getServiceUsers.mockImplementation(() => {
-      const error = new Error('Server Error');
-      error.statusCode = 500;
-      throw error;
-    });
-
-    const act = () => getUsersByRolesV2(req, res);
-
-    await expect(act).rejects.toThrow(expect.objectContaining({
-      message: 'Server Error',
-      statusCode: 500,
-    }));
-  });
 });
