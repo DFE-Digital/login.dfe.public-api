@@ -98,9 +98,13 @@ const getUserOrganisation = async (userId, organisationId, correlationId) => {
     page: 1,
     pageSize: 1,
     userId,
-    organisationId
-  }
+    organisationId,
+  };
   return await callOrganisationsApi(uri, 'POST', payload, correlationId);
+};
+
+const getUsersForOrganisation = async (organisationId, correlationId) => {
+  return await callOrganisationsApi(`/organisations/${organisationId}/users`, 'GET', undefined, correlationId);
 };
 
 module.exports = {
@@ -110,7 +114,8 @@ module.exports = {
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
   getOrganisationsAssociatedWithUserV2,
+  getUsersForOrganisation,
   listServiceUsers,
   listOrganisationUsersV3,
-  getUserOrganisation
+  getUserOrganisation,
 };
