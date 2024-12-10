@@ -1,6 +1,6 @@
 {
   "name": "login.dfe.public-api",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "",
   "scripts": {
     "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
