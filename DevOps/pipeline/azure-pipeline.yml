@@ -1,7 +1,7 @@
 name: $(BuildDefinitionName)_tag-$(BuildID)_at-$(Date:yyyyMMdd)$(Rev:.r)
 resources:
   repositories:
-  # Defult branch is master
+    # Defult branch is master
     - repository: devopsTemplates
       type: github
       endpoint: DfE-Digital
@@ -16,162 +16,133 @@ resources:
 trigger:
   branches:
     include:
-    - feature/*
-    - main
-    - release/*
+      - feature/*
+      - main
+      - release/*
 
 pr:
   branches:
     include:
-    - main
+      - main
 
 parameters:
-- name: location
-  type: object
-  displayName: 'Deployment locations (- westeurope & - northeurope)'
-  default:
-    - westeurope
-    - northeurope
-- name: InfrDeploy
-  type: boolean
-  displayName: 'Infrastrucure Deployment only'
-  default: false
-- name: tran
-  type: boolean
-  displayName: 'Transformation Deployment'
-  default: false
-- name: dev
-  type: boolean
-  displayName: 'Dev Deployment'
-  default: false
-- name: test
-  type: boolean
-  displayName: 'Test Deployment'
-  default: false
-- name: pp
-  type: boolean
-  displayName: 'Pre-Prod Deployment'
-  default: false
-- name: pr
-  type: boolean
-  displayName: 'Prod Deployment'
-  default: false
-- name: gitCheck
-  type: boolean
-  displayName: 'Bypass Git Check in Test'
-  default: false
+  - name: location
+    type: object
+    displayName: "Deployment locations (- westeurope & - northeurope)"
+    default:
+      - westeurope
+      - northeurope
+  - name: InfrDeploy
+    type: boolean
+    displayName: "Infrastrucure Deployment only"
+    default: false
+  - name: tran
+    type: boolean
+    displayName: "Transformation Deployment"
+    default: false
+  - name: dev
+    type: boolean
+    displayName: "Dev Deployment"
+    default: false
+  - name: test
+    type: boolean
+    displayName: "Test Deployment"
+    default: false
+  - name: pp
+    type: boolean
+    displayName: "Pre-Prod Deployment"
+    default: false
+  - name: pr
+    type: boolean
+    displayName: "Prod Deployment"
+    default: false
+  - name: gitCheck
+    type: boolean
+    displayName: "Bypass Git Check in Test"
+    default: false
 
 variables:
-- group: dsi-global
-- name: applicationShortName
-  value: 'papi'
-- name: applicationFullName
-  value: 'public-api'
-- name: numberOfWorkers
-  value: 1
-- name: tran
-  ${{ if eq(parameters.tran, 'true') }}:
-    value: true
-  ${{ else }}:
-    value: false
-- name: dev
-  ${{ if or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
-    value: true
-  ${{ else }}:
-    value: false
-- name: test
-  ${{ if or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
-    value: true
-  ${{ else }}:
-    value: false
-- name: pp
-  ${{ if and(or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'main')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}:
-    value: true
-  ${{ else }}:
-    value: false
-- name: pr
-  ${{ if or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')) }}:
-    value: true
-  ${{ else }}:
-    value: false
+  - group: dsi-global
+  - group: dsi-envs-list
+  - name: applicationShortName
+    value: "papi"
+  - name: applicationFullName
+    value: "public-api"
+  - name: numberOfWorkers
+    value: 1
+  - name: tran
+    value: ${{ eq(parameters.tran, 'true') }}
+  - name: dev
+    value: ${{ or(eq(parameters.dev, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}
+  - name: test
+    value: ${{ or(eq(parameters.test, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}
+  - name: pp
+    value: ${{ and(or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'main')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}
+  - name: pr
+    value: ${{ or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')) }}
 
 stages:
+  # Code Scans & Build the artifact for deployment
+  - stage: scanBuildApp
+    displayName: "Scan tools & Build"
+    jobs:
+      - template: pipeline/scanTools.yml@devopsTemplates
+        parameters:
+          npmInstCmd: "install --force --json --no-package-lock"
+          AppDeploy: ${{ not(parameters.InfrDeploy) }}
 
-# Code Scans & Build the artifact for deployment
-- stage: scanBuildApp
-  displayName: "Scan tools & Build"
-  jobs:
+      - ${{ if not(eq(parameters.InfrDeploy, 'true')) }}:
+          - template: pipeline/build.yml@devopsTemplates
+            parameters:
+              applicationName: ${{variables.applicationFullName}}
+              custRegAuth: $(custRegAuth)
+              environmentNames:
+                - ${{ if eq(variables.tran, 'true') }}:
+                    - tran
+                - ${{ if eq(variables.dev, 'true') }}:
+                    - dev
+                - ${{ if eq(variables.test, 'true') }}:
+                    - test
+                - ${{ if eq(variables.pp, 'true') }}:
+                    - pp
+                - ${{ if eq(variables.pr, 'true') }}:
+                    - pr
+              pm2ProcessFileName: process.json
+              nodeVersionSpec: "18.17.0"
+              npmInstCmd: "install --force --json --no-package-lock"
+              npmPruneFixCmd: "install --production --json --force --no-package-lock"
 
-  - template:  pipeline/scanTools.yml@devopsTemplates
-    parameters:
-      npmInstCmd: 'install --force --json --no-package-lock'
-      AppDeploy: ${{ not(parameters.InfrDeploy) }}
-
-  - ${{ if not(eq(parameters.InfrDeploy, 'true')) }}:
-    - template: pipeline/build.yml@devopsTemplates
-      parameters:
-        applicationName: ${{variables.applicationFullName}}
-        custRegAuth: $(custRegAuth)
-        environmentNames:
-          - ${{ if eq(variables.tran, 'true') }}:
-            - tran
-          - ${{ if eq(variables.dev, 'true') }}:
-            - dev
-          - ${{ if eq(variables.test, 'true') }}:
-            - test
-          - ${{ if eq(variables.pp, 'true') }}:
-            - pp
-          - ${{ if eq(variables.pr, 'true') }}:
-            - pr
-        pm2ProcessFileName: process.json
-        nodeVersionSpec: '18.17.0'
-        npmInstCmd: 'install --force --json --no-package-lock'
-        npmPruneFixCmd: 'install --production --json --force --no-package-lock'
-
-
-- ${{ each location in parameters.location }}:
-  - ${{ each var in variables }}:
-    - ${{ if in(var.key, 'tran','dev','test','pp','pr') }}:
-      - ${{ if eq(var.value, 'true') }}:
-        - ${{ if or(and(in(var.key, 'tran','pp','pr'),eq(location, 'northeurope')),and(in(var.key, 'tran','dev','test','pp','pr'),eq(location, 'westeurope'))) }}:
-          - stage: Deployment_${{var.key}}_${{location}}
-            displayName: "Deployment [${{var.key}}] ${{location}}"
-            ${{ if eq(location,'westeurope') }}:
-              dependsOn: 
+  - ${{ each location in parameters.location }}:
+    - ${{ each var in variables }}:
+      - ${{ if and(or(and(in(var.key, 'tran','pp','pr'),eq(location, 'northeurope')),and(in(var.key, 'tran','dev','test','pp','pr'),eq(location, 'westeurope'))), eq(var.value, 'true')) }}:
+        - stage: Deployment_${{var.key}}_${{location}}
+          displayName: "Deployment [${{var.key}}] ${{location}}"
+          ${{ if eq(location,'westeurope') }}:
+            dependsOn:
               - scanBuildApp
-              condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-            ${{ if eq(location,'northeurope') }}:
-              ${{ if eq(length(parameters.location), 2) }}:
-                dependsOn: 
+            condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+          ${{ if eq(location,'northeurope') }}:
+            ${{ if eq(length(parameters.location), 2) }}:
+              dependsOn:
                 - scanBuildApp
                 - Deployment_${{var.key}}_westeurope
-                condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-              ${{ else }}:
-                dependsOn: 
+              condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+            ${{ else }}:
+              dependsOn:
                 - scanBuildApp
-                condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-            variables:
+              condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+          variables:
             - name: environmentId
-              ${{ if eq(var.key, 'tran') }}:
-                value: d03
-              ${{ if eq(var.key, 'dev') }}:
-                value: d01
-              ${{ if eq(var.key, 'test') }}:
-                value: t01
-              ${{ if eq(var.key, 'pp') }}:
-                value: t02
-              ${{ if eq(var.key, 'pr') }}:
-                value: p01
-            jobs:
+              value: $[variables['${{var.key}}EnvId']]
+            - name: ServConName
+              value: ${{ format('{0}{1}', var.key, 'ServCon') }}
+            - name: ShaCodeName
+              value: ${{ format('{0}{1}', var.key, 'ShaCode') }}
+          jobs:
             - template: pipeline/deployment.yml@devopsTemplates
               parameters:
-                ${{ if or(eq(var.key, 'dev'), eq(var.key, 'tran')) }}:
-                  serviceConnection: $(devServiceConnection)
-                ${{ elseif eq(var.key, 'pr') }}:
-                  serviceConnection: $(prodServiceConnection)
-                ${{ else }}:
-                  serviceConnection: $(testServiceConnection)
-                environmentName: ${{var.key}}
+                serviceConnection: $(${{variables.ServConName}})
+                devOpsEnv: ${{variables.secRegionId}}${{var.key}}
                 applicationShortName: ${{variables.applicationShortName}}
                 applicationFullName: ${{variables.applicationFullName}}
                 releaseArtifactName: ${{variables.applicationShortName}}-${{var.key}}-$(Build.BuildId)-release
@@ -180,13 +151,21 @@ stages:
                 runtimeStack: NODE|18-lts
                 pm2ProcessFileName: process.json
                 gitCheck: ${{parameters.gitCheck}}
-          
-          - ${{ if and(eq(var.key, 'pr'),eq(location, 'westeurope')) }}:
+
+        - ${{ if and(eq(var.key, 'pp'),eq(location, 'westeurope')) }}:
+            - stage: releasebranch
+              displayName: "GitHub Release Branch Creation"
+              dependsOn:
+                - Deployment_${{var.key}}_${{location}}
+              jobs:
+                - template: pipeline/releaseCreation.yml@devopsTemplates
+
+        - ${{ if and(eq(var.key, 'pr'),eq(location, 'westeurope')) }}:
             - stage: branchPrTag
               displayName: "GitHub PR & Release Branch Tag"
-              dependsOn: 
-              - Deployment_${{var.key}}_${{location}}
+              dependsOn:
+                - Deployment_${{var.key}}_${{location}}
               jobs:
-              - template:  pipeline/tagCreation.yml@devopsTemplates
-                parameters:
-                  applicationName: ${{variables.applicationFullName}}
+                - template: pipeline/tagCreation.yml@devopsTemplates
+                  parameters:
+                    applicationName: ${{variables.applicationFullName}}
