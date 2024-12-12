@@ -92,7 +92,6 @@ stages:
     jobs:
       - template: pipeline/scanTools.yml@devopsTemplates
         parameters:
-          useRevisedLinting: true
           AppDeploy: ${{ not(parameters.InfrDeploy) }}
 
       - ${{ if not(eq(parameters.InfrDeploy, 'true')) }}:
