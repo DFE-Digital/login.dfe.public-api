@@ -80,6 +80,10 @@ variables:
     value: ${{ and(or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'main')), not(contains(variables['Build.SourceVersionMessage'],'Upgrade to version'))) }}
   - name: pr
     value: ${{ or(eq(parameters.pr, 'true'), contains(variables['Build.SourceBranch'],'release')) }}
+  - name: northeurope
+    value: 'tran,pp,pr'
+  - name: westeurope
+    value: 'tran,dev,test,pp,pr'
 
 stages:
   # Code Scans & Build the artifact for deployment
@@ -88,7 +92,7 @@ stages:
     jobs:
       - template: pipeline/scanTools.yml@devopsTemplates
         parameters:
-          npmInstCmd: "install --force --json --no-package-lock"
+          useRevisedLinting: true
           AppDeploy: ${{ not(parameters.InfrDeploy) }}
 
       - ${{ if not(eq(parameters.InfrDeploy, 'true')) }}:
@@ -109,13 +113,12 @@ stages:
                     - pr
               pm2ProcessFileName: process.json
               nodeVersionSpec: "18.17.0"
-              npmInstCmd: "install --force --json --no-package-lock"
-              npmPruneFixCmd: "install --production --json --force --no-package-lock"
+              useRevisedLinting: true
 
-  - ${{ each location in parameters.location }}:
-    - ${{ each var in variables }}:
-      - ${{ if and(or(and(in(var.key, 'tran','pp','pr'),eq(location, 'northeurope')),and(in(var.key, 'tran','dev','test','pp','pr'),eq(location, 'westeurope'))), eq(var.value, 'true')) }}:
-        - stage: Deployment_${{var.key}}_${{location}}
+  - ${{ each location in parameters.location }}:           
+    - ${{each env in split(variables[location],',') }}:
+      - ${{ if eq(variables[env], 'true') }}:
+        - stage: Deployment_${{env}}_${{location}}
           displayName: "Deployment [${{var.key}}] ${{location}}"
           ${{ if eq(location,'westeurope') }}:
             dependsOn:
@@ -132,6 +135,8 @@ stages:
                 - scanBuildApp
               condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
           variables:
+            - name: secRegionId
+              value: $(${{ format('{0}{1}', location, 'Id') }})
             - name: environmentId
               value: $[variables['${{var.key}}EnvId']]
             - name: ServConName
@@ -142,7 +147,10 @@ stages:
             - template: pipeline/deployment.yml@devopsTemplates
               parameters:
                 serviceConnection: $(${{variables.ServConName}})
+                # shaPool: $[variables['${{env}}ShaPool']]
+                # shaCode: $(${{variables.ShaCodeName}})
                 devOpsEnv: ${{variables.secRegionId}}${{var.key}}
+                environmentName: ${{var.key}}
                 applicationShortName: ${{variables.applicationShortName}}
                 applicationFullName: ${{variables.applicationFullName}}
                 releaseArtifactName: ${{variables.applicationShortName}}-${{var.key}}-$(Build.BuildId)-release
