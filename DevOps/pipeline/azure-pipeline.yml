@@ -112,7 +112,6 @@ stages:
                     - pr
               pm2ProcessFileName: process.json
               nodeVersionSpec: "18.17.0"
-              useRevisedLinting: true
 
   - ${{ each location in parameters.location }}:           
     - ${{each env in split(variables[location],',') }}:
