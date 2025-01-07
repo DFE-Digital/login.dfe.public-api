@@ -46,7 +46,7 @@ const getUsersByRoles = async (req, res) => {
 
     // loop through all organisations found with that UKPRN and build the result
     let users = [];
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const organisation of organisations) {
       // Get all users associated with that service
       const serviceUsers = await getServiceUsers(
