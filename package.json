@@ -2,11 +2,6 @@
   "name": "login.dfe.public-api",
   "version": "5.0.0",
   "description": "",
-  "scripts": {
-    "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
-    "format": "prettier . --write",
-    "test": "jest --coverage"
-  },
   "engines": {
     "node": "18.x.x"
   },
@@ -16,10 +11,16 @@
   },
   "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/DFE-Digital/login.dfe.node-boilerplate/issues"
+  "scripts": {
+    "dev": "settings='./config/login.dfe.public-api.dev.json' node src/index.js",
+    "format": "prettier . --write",
+    "test": "jest --coverage"
   },
-  "homepage": "https://github.com/DFE-Digital/login.dfe.node-boilerplate#readme",
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "clearMocks": true
+  },
   "dependencies": {
     "agentkeepalive": "^4.5.0",
     "applicationinsights": "^2.9.1",
@@ -56,10 +57,5 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.4.2",
     "supertest": "^6.2.4"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "collectCoverage": false,
-    "clearMocks": true
   }
 }
