@@ -1,291 +1,267 @@
 {
-	"info": {
-		"_postman_id": "3b31735c-bca8-43d7-9317-9ba15a36ca0d",
-		"name": "Regression Testing",
-		"description": "# About this collection\n\nThis collection helps ensure your API continues to work as expected after updates or changes. It contains sample requests for a series of tests that validate different aspects of an API, including:\n\n1. **Status code verification:** We'll check if the API returns the expected status codes for various requests, ensuring reliability and proper error handling.\n2. **JSON schema verification:** We'll make sure the JSON response conforms to a specified JSON Schema, ensuring API contracts are honored.\n3. **Response time verification:** We'll verify that the API's response time is within the acceptable range, providing a smooth user experience and optimizing performance.\n4. **Response body verification:** We'll validate the structure and content of the response body for accuracy, ensuring the integrity of the data and preventing potential issues downstream.\n5. **Header verification:** We'll confirm the presence and correct values of specific headers in the response, enabling secure and well-structured communication between your app and its users.\n    \n\n## **Using this collection**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n**Step 4:** Run the collection by selecting \"Run\".\n\n### Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1029983"
-	},
-	"item": [
-		{
-			"name": "Status code verification",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/get",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"get"
-					]
-				},
-				"description": "The test on this request asserts that the reponse has a \"200 OK\" status.\n\nYou can check for any HTTP status code using the same mechanism, for example `pm.response.to.have.status(403)` if your API should return an \"Unauthorized\" response."
-			},
-			"response": []
-		},
-		{
-			"name": "JSON schema verification",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"// Describe the expected response shape with JSON Schema",
-							"// https://json-schema.org/",
-							"const expectedSchema = {",
-							"  \"type\": \"object\",",
-							"  \"properties\": {",
-							"    \"data\": {",
-							"      \"type\": \"array\",",
-							"      \"items\": {",
-							"        \"type\": \"object\",",
-							"        \"properties\": {",
-							"          \"title\": {",
-							"            \"type\": \"string\"",
-							"          },",
-							"          \"author\": {",
-							"            \"type\": \"string\"",
-							"          },",
-							"          \"published\": {",
-							"            \"type\": \"integer\"",
-							"          }",
-							"        },",
-							"        \"required\": [",
-							"          \"title\",",
-							"          \"author\",",
-							"          \"published\"",
-							"        ]",
-							"      }",
-							"    }",
-							"  }",
-							"};",
-							"",
-							"// Test that the response matches the expected schema using built-in schema verification",
-							"pm.test('response matches JSON schema', () => {",
-							"    pm.response.to.have.jsonSchema(expectedSchema);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "[{\n    \"title\": \"Sapiens\",\n    \"author\": \"Yuval Noah Harari\",\n    \"published\": 2011\n}, {\n    \"title\": \"Moneyball\",\n    \"author\": \"Michael Lewis\",\n    \"published\": 2010\n}, {\n    \"title\": \"Women & Power\",\n    \"author\": \"Mary Beard\",\n    \"published\": 2017\n}]",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "This request has a test using Postman's built-in support for JSON Schema verification to ensure that the response data matches the expected shape.\n\nSchema validation can be used to verify your API returns data in the right format, without worrying about the exact values. This might be helpful when testing various inputs for a consistent output format.\n\nLearn more about JSON Schema at [https://json-schema.org](https://json-schema.org/.)."
-			},
-			"response": []
-		},
-		{
-			"name": "Response body verification",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"const getData = () => pm.response.json().data;",
-							"",
-							"pm.test(\"Returns a book object\", () => {",
-							"    const data = getData();",
-							"",
-							"    // Check the expected properties exist",
-							"    pm.expect(data).to.have.property(\"title\");",
-							"    pm.expect(data).to.have.property(\"author\");",
-							"    pm.expect(data).to.have.property(\"published\");",
-							"",
-							"    // Check the values have the expected types",
-							"    pm.expect(data.title).to.be.a('string');",
-							"    pm.expect(data.author).to.be.a('string');",
-							"    pm.expect(data.published).to.be.a('number');",
-							"});",
-							"",
-							"pm.test(\"Return correct details for 'Sapiens' book\", () => {",
-							"    const data = getData();",
-							"",
-							"    // Check expected values are present",
-							"    pm.expect(data.title).to.equal(\"Sapiens\");",
-							"    pm.expect(data.author).to.equal(\"Yuval Noah Harari\");",
-							"    pm.expect(data.published).to.equal(2011);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"title\": \"Sapiens\",\n    \"author\": \"Yuval Noah Harari\",\n    \"published\": 2011\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "This request uses tests to verify both the structure (existence and type of individual properties) and exact values of the response data.\n\nUse `pm.expect(subject)` to wrap test subjects, and [Chai](https://www.chaijs.com/api/bdd/) for assertions."
-			},
-			"response": []
-		},
-		{
-			"name": "Response time verification",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Verify response time is less than 5 seconds\", function () {",
-							"    const fiveSecondsMs = 5_000; // 5 seconds in milliseconds",
-							"    pm.expect(pm.response.responseTime).to.be.below(fiveSecondsMs);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"foo\": \"bar\"\n}\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/get",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"get"
-					]
-				},
-				"description": "This request has a test asserting that a response is received within a specific time limit (in this case 5 seconds). This is useful for ensuring consistent API performance.\n\nYou can access details of the response, such as response time, on the `pm.response` object. See the [response object documentation](https://learning.postman.com/docs/writing-scripts/script-references/postman-sandbox-api-reference/#scripting-with-response-data) for other properties available."
-			},
-			"response": []
-		},
-		{
-			"name": "Header verification",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Verify response headers have expected values\", function () {",
-							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
-							"    pm.expect(pm.response.headers.get(\"Content-Length\")).to.exist;",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/get",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"get"
-					]
-				},
-				"description": "This request has a test asserting that certain response headers are present or have an expected value.\n\nYou can access details of the response, such as headers, on the `pm.response` object. See the [response object documentation](https://learning.postman.com/docs/writing-scripts/script-references/postman-sandbox-api-reference/#scripting-with-response-data) for other properties available."
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "https://postman-echo.com"
-		}
-	]
+  "info": {
+    "_postman_id": "3b31735c-bca8-43d7-9317-9ba15a36ca0d",
+    "name": "Regression Testing",
+    "description": "# About this collection\n\nThis collection helps ensure your API continues to work as expected after updates or changes. It contains sample requests for a series of tests that validate different aspects of an API, including:\n\n1. **Status code verification:** We'll check if the API returns the expected status codes for various requests, ensuring reliability and proper error handling.\n2. **JSON schema verification:** We'll make sure the JSON response conforms to a specified JSON Schema, ensuring API contracts are honored.\n3. **Response time verification:** We'll verify that the API's response time is within the acceptable range, providing a smooth user experience and optimizing performance.\n4. **Response body verification:** We'll validate the structure and content of the response body for accuracy, ensuring the integrity of the data and preventing potential issues downstream.\n5. **Header verification:** We'll confirm the presence and correct values of specific headers in the response, enabling secure and well-structured communication between your app and its users.\n    \n\n## **Using this collection**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n**Step 4:** Run the collection by selecting \"Run\".\n\n### Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1029983"
+  },
+  "item": [
+    {
+      "name": "Status code verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get",
+          "host": ["{{baseUrl}}"],
+          "path": ["get"]
+        },
+        "description": "The test on this request asserts that the reponse has a \"200 OK\" status.\n\nYou can check for any HTTP status code using the same mechanism, for example `pm.response.to.have.status(403)` if your API should return an \"Unauthorized\" response."
+      },
+      "response": []
+    },
+    {
+      "name": "JSON schema verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Describe the expected response shape with JSON Schema",
+              "// https://json-schema.org/",
+              "const expectedSchema = {",
+              "  \"type\": \"object\",",
+              "  \"properties\": {",
+              "    \"data\": {",
+              "      \"type\": \"array\",",
+              "      \"items\": {",
+              "        \"type\": \"object\",",
+              "        \"properties\": {",
+              "          \"title\": {",
+              "            \"type\": \"string\"",
+              "          },",
+              "          \"author\": {",
+              "            \"type\": \"string\"",
+              "          },",
+              "          \"published\": {",
+              "            \"type\": \"integer\"",
+              "          }",
+              "        },",
+              "        \"required\": [",
+              "          \"title\",",
+              "          \"author\",",
+              "          \"published\"",
+              "        ]",
+              "      }",
+              "    }",
+              "  }",
+              "};",
+              "",
+              "// Test that the response matches the expected schema using built-in schema verification",
+              "pm.test('response matches JSON schema', () => {",
+              "    pm.response.to.have.jsonSchema(expectedSchema);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "[{\n    \"title\": \"Sapiens\",\n    \"author\": \"Yuval Noah Harari\",\n    \"published\": 2011\n}, {\n    \"title\": \"Moneyball\",\n    \"author\": \"Michael Lewis\",\n    \"published\": 2010\n}, {\n    \"title\": \"Women & Power\",\n    \"author\": \"Mary Beard\",\n    \"published\": 2017\n}]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "This request has a test using Postman's built-in support for JSON Schema verification to ensure that the response data matches the expected shape.\n\nSchema validation can be used to verify your API returns data in the right format, without worrying about the exact values. This might be helpful when testing various inputs for a consistent output format.\n\nLearn more about JSON Schema at [https://json-schema.org](https://json-schema.org/.)."
+      },
+      "response": []
+    },
+    {
+      "name": "Response body verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const getData = () => pm.response.json().data;",
+              "",
+              "pm.test(\"Returns a book object\", () => {",
+              "    const data = getData();",
+              "",
+              "    // Check the expected properties exist",
+              "    pm.expect(data).to.have.property(\"title\");",
+              "    pm.expect(data).to.have.property(\"author\");",
+              "    pm.expect(data).to.have.property(\"published\");",
+              "",
+              "    // Check the values have the expected types",
+              "    pm.expect(data.title).to.be.a('string');",
+              "    pm.expect(data.author).to.be.a('string');",
+              "    pm.expect(data.published).to.be.a('number');",
+              "});",
+              "",
+              "pm.test(\"Return correct details for 'Sapiens' book\", () => {",
+              "    const data = getData();",
+              "",
+              "    // Check expected values are present",
+              "    pm.expect(data.title).to.equal(\"Sapiens\");",
+              "    pm.expect(data.author).to.equal(\"Yuval Noah Harari\");",
+              "    pm.expect(data.published).to.equal(2011);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Sapiens\",\n    \"author\": \"Yuval Noah Harari\",\n    \"published\": 2011\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "This request uses tests to verify both the structure (existence and type of individual properties) and exact values of the response data.\n\nUse `pm.expect(subject)` to wrap test subjects, and [Chai](https://www.chaijs.com/api/bdd/) for assertions."
+      },
+      "response": []
+    },
+    {
+      "name": "Response time verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Verify response time is less than 5 seconds\", function () {",
+              "    const fiveSecondsMs = 5_000; // 5 seconds in milliseconds",
+              "    pm.expect(pm.response.responseTime).to.be.below(fiveSecondsMs);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"foo\": \"bar\"\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/get",
+          "host": ["{{baseUrl}}"],
+          "path": ["get"]
+        },
+        "description": "This request has a test asserting that a response is received within a specific time limit (in this case 5 seconds). This is useful for ensuring consistent API performance.\n\nYou can access details of the response, such as response time, on the `pm.response` object. See the [response object documentation](https://learning.postman.com/docs/writing-scripts/script-references/postman-sandbox-api-reference/#scripting-with-response-data) for other properties available."
+      },
+      "response": []
+    },
+    {
+      "name": "Header verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Verify response headers have expected values\", function () {",
+              "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+              "    pm.expect(pm.response.headers.get(\"Content-Length\")).to.exist;",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/get",
+          "host": ["{{baseUrl}}"],
+          "path": ["get"]
+        },
+        "description": "This request has a test asserting that certain response headers are present or have an expected value.\n\nYou can access details of the response, such as headers, on the `pm.response` object. See the [response object documentation](https://learning.postman.com/docs/writing-scripts/script-references/postman-sandbox-api-reference/#scripting-with-response-data) for other properties available."
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://postman-echo.com"
+    }
+  ]
 }

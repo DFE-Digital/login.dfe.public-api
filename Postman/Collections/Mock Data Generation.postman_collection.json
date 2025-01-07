@@ -1,139 +1,123 @@
 {
-	"info": {
-		"_postman_id": "0ec1150d-192b-471b-9488-d621e6e0981a",
-		"name": "Mock Data Generation",
-		"description": "# About this collection\n\nPostman provides dynamic variables that use the [Faker library](https://www.npmjs.com/package/@faker-js/faker) to generate sample data, including random names, addresses, and email addresses.\n\nThis collection demonstrates the use of dynamic variables to create randomized mock data. The examples in this collection utilize various data types and showcase how dynamic variables can help simulate real-world data within your API testing environment.\n\n## Using this collection\n\n**Step 1: Send requests**\n\nSelect a request from the collection, review the request parameters and pre-request scripts, then hit \"Send\" to execute the request.\n\n**Step 2: Review the \"Body\" and \"Pre-request Script\"** **tabs**\n\nUnderstand how dynamic variables are used to generate mock data. Dynamic variables can be used in the request URL and Body, or even as part of a Pre-Request or Test script for more complex use cases (see \"Create mock blog post\" request).\n\n**Step 3: Customize (optional)**\n\nCustomize dynamic variables to better suit your specific use case. Save the changes, and execute the requests.\n\n**Step 4: Analyze responses**\n\nExamine the response body to see the generated mock data. Note that the responses will be different each time you send the request, as the dynamic variables ensure randomized data generation.\n\nEnjoy testing with diverse and dynamic data!\n\n## Resources\n\n[Dynamic variables](https://learning.postman.com/docs/writing-scripts/script-references/variables-list/)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1029983"
-	},
-	"item": [
-		{
-			"name": "Create mock user",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"createdAt\": \"{{$isoTimestamp}}\",\n    \"address\": {\n        \"line1\": \"{{$randomStreetAddress}}\",\n        \"line2\": \"{{$randomCity}}\",\n        \"country\": \"{{$randomCountryCode}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "This request shows an example of generating mock user data in the request body. You can use this to populate some users for testing your API or application, or to ensure that your API accepts a range of inputs within certain parameters."
-			},
-			"response": []
-		},
-		{
-			"name": "Create mock purchase",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"userId\": \"{{$guid}}\",\n    \"payment\": {\n        \"cardNumber\": \"{{$randomCreditCardMask}}\",\n        \"currency\": \"{{$randomCurrencyCode}}\",\n        \"amount\": {{$randomInt}},\n        \"confirmed\": \"{{$randomBoolean}}\",\n        \"confirmedAt\": \"{{$isoTimestamp}}\"\n    },\n    \"basket\": [\n        {\n            \"id\": \"{{$guid}}\",\n            \"quantity\": {{$randomInt}}\n        },\n        {\n            \"id\": \"{{$guid}}\",\n            \"quantity\": {{$randomInt}}\n        }\n    ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "This request shows an example of generating mock purchase details in the request body. It demonstrates a few finance-related dynamic variables, in addition to the ones for random ID, Integer, Boolean, and Timestamp."
-			},
-			"response": []
-		},
-		{
-			"name": "Create mock blog post",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"// Use a dynamic variable in script",
-							"// https://learning.postman.com/docs/writing-scripts/script-references/variables-list/",
-							"const loremParagraphs = pm.variables.replaceIn(\"{{$randomLoremParagraphs}}\");",
-							"",
-							"// $randomLoremParagraphs generates a string with multiple paragraphs separated by ",
-							"// newline control characters (\"\\n\"). Since we're using this in a JSON object, we ",
-							"// need to replace the newline control character with the JSON-safe string \"\\\\n\".",
-							"const blogPostContent = loremParagraphs.replace(/\\n/g, \"\\\\n\")",
-							"",
-							"// Make the result available as a variable for use in the request body",
-							"pm.variables.set('blogPostContent', blogPostContent)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"author\": \"{{$randomUserName}}\",\n    \"title\": \"{{$randomLoremWords}}\",\n    \"slug\": \"{{$randomLoremSlug}}\",\n    \"summary\": \"{{$randomLoremSentences}}\",\n    \"body\": \"{{blogPostContent}}\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "This request shows an example of generating longer-form content, in this case, a blog post, and transforming mock data as part of a pre-request script.\n\nIn the body, we use dynamic variables to generate a name, a short set of words as a title, a 'slug' (URL-safe textual identifier like \"dolores-est-iusto\"), and a post summary.\n\nIn the pre-request script, we generate some paragraphs of text using `pm.variables.replaceIn`. We then transform this text to make it JSON-safe by replacing newline characters with escaped newline characters and setting the result to a variable we can reference in the body."
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "https://postman-echo.com"
-		}
-	]
+  "info": {
+    "_postman_id": "0ec1150d-192b-471b-9488-d621e6e0981a",
+    "name": "Mock Data Generation",
+    "description": "# About this collection\n\nPostman provides dynamic variables that use the [Faker library](https://www.npmjs.com/package/@faker-js/faker) to generate sample data, including random names, addresses, and email addresses.\n\nThis collection demonstrates the use of dynamic variables to create randomized mock data. The examples in this collection utilize various data types and showcase how dynamic variables can help simulate real-world data within your API testing environment.\n\n## Using this collection\n\n**Step 1: Send requests**\n\nSelect a request from the collection, review the request parameters and pre-request scripts, then hit \"Send\" to execute the request.\n\n**Step 2: Review the \"Body\" and \"Pre-request Script\"** **tabs**\n\nUnderstand how dynamic variables are used to generate mock data. Dynamic variables can be used in the request URL and Body, or even as part of a Pre-Request or Test script for more complex use cases (see \"Create mock blog post\" request).\n\n**Step 3: Customize (optional)**\n\nCustomize dynamic variables to better suit your specific use case. Save the changes, and execute the requests.\n\n**Step 4: Analyze responses**\n\nExamine the response body to see the generated mock data. Note that the responses will be different each time you send the request, as the dynamic variables ensure randomized data generation.\n\nEnjoy testing with diverse and dynamic data!\n\n## Resources\n\n[Dynamic variables](https://learning.postman.com/docs/writing-scripts/script-references/variables-list/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1029983"
+  },
+  "item": [
+    {
+      "name": "Create mock user",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"firstName\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"createdAt\": \"{{$isoTimestamp}}\",\n    \"address\": {\n        \"line1\": \"{{$randomStreetAddress}}\",\n        \"line2\": \"{{$randomCity}}\",\n        \"country\": \"{{$randomCountryCode}}\"\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "This request shows an example of generating mock user data in the request body. You can use this to populate some users for testing your API or application, or to ensure that your API accepts a range of inputs within certain parameters."
+      },
+      "response": []
+    },
+    {
+      "name": "Create mock purchase",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": \"{{$guid}}\",\n    \"payment\": {\n        \"cardNumber\": \"{{$randomCreditCardMask}}\",\n        \"currency\": \"{{$randomCurrencyCode}}\",\n        \"amount\": {{$randomInt}},\n        \"confirmed\": \"{{$randomBoolean}}\",\n        \"confirmedAt\": \"{{$isoTimestamp}}\"\n    },\n    \"basket\": [\n        {\n            \"id\": \"{{$guid}}\",\n            \"quantity\": {{$randomInt}}\n        },\n        {\n            \"id\": \"{{$guid}}\",\n            \"quantity\": {{$randomInt}}\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "This request shows an example of generating mock purchase details in the request body. It demonstrates a few finance-related dynamic variables, in addition to the ones for random ID, Integer, Boolean, and Timestamp."
+      },
+      "response": []
+    },
+    {
+      "name": "Create mock blog post",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Use a dynamic variable in script",
+              "// https://learning.postman.com/docs/writing-scripts/script-references/variables-list/",
+              "const loremParagraphs = pm.variables.replaceIn(\"{{$randomLoremParagraphs}}\");",
+              "",
+              "// $randomLoremParagraphs generates a string with multiple paragraphs separated by ",
+              "// newline control characters (\"\\n\"). Since we're using this in a JSON object, we ",
+              "// need to replace the newline control character with the JSON-safe string \"\\\\n\".",
+              "const blogPostContent = loremParagraphs.replace(/\\n/g, \"\\\\n\")",
+              "",
+              "// Make the result available as a variable for use in the request body",
+              "pm.variables.set('blogPostContent', blogPostContent)"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"author\": \"{{$randomUserName}}\",\n    \"title\": \"{{$randomLoremWords}}\",\n    \"slug\": \"{{$randomLoremSlug}}\",\n    \"summary\": \"{{$randomLoremSentences}}\",\n    \"body\": \"{{blogPostContent}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "This request shows an example of generating longer-form content, in this case, a blog post, and transforming mock data as part of a pre-request script.\n\nIn the body, we use dynamic variables to generate a name, a short set of words as a title, a 'slug' (URL-safe textual identifier like \"dolores-est-iusto\"), and a post summary.\n\nIn the pre-request script, we generate some paragraphs of text using `pm.variables.replaceIn`. We then transform this text to make it JSON-safe by replacing newline characters with escaped newline characters and setting the result to a variable we can reference in the body."
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://postman-echo.com"
+    }
+  ]
 }

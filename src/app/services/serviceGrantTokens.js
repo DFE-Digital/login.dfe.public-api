@@ -1,5 +1,7 @@
-const { extractPageParam, extractPageSizeParam } = require('./../utils');
-const { listServiceGrantTokens } = require('./../../infrastructure/applications');
+const { extractPageParam, extractPageSizeParam } = require("./../utils");
+const {
+  listServiceGrantTokens,
+} = require("./../../infrastructure/applications");
 
 const listTokens = async (req, res) => {
   let page;
@@ -11,7 +13,13 @@ const listTokens = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfTokens = await listServiceGrantTokens(req.params.sid, req.params.grantId, page, pageSize, req.correlationId);
+  const pageOfTokens = await listServiceGrantTokens(
+    req.params.sid,
+    req.params.grantId,
+    page,
+    pageSize,
+    req.correlationId,
+  );
   return res.send({
     tokens: pageOfTokens.tokens,
     numberOfRecords: pageOfTokens.numberOfRecords,

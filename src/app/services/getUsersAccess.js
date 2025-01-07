@@ -1,31 +1,42 @@
-const logger = require('./../../infrastructure/logger');
-const { getUsersAccessToServiceAtOrganisation } = require('./../../infrastructure/access');
-const { getClientByServiceId } = require('./../../infrastructure/applications');
-const { getOrganisationById } = require('../../infrastructure/organisations');
-const { getUserOrganisation } = require('../../infrastructure/organisations');
-const { usersByIds } = require('../../infrastructure/directories');
-const { organisation } = require('login.dfe.dao');
+const logger = require("./../../infrastructure/logger");
+const {
+  getUsersAccessToServiceAtOrganisation,
+} = require("./../../infrastructure/access");
+const { getClientByServiceId } = require("./../../infrastructure/applications");
+const { getOrganisationById } = require("../../infrastructure/organisations");
+const { getUserOrganisation } = require("../../infrastructure/organisations");
+const { usersByIds } = require("../../infrastructure/directories");
+const { organisation } = require("login.dfe.dao");
 
 const getUsersAccess = async (req, res) => {
   const { uid, sid, oid } = req.params;
   const { correlationId, clientCorrelationId } = req;
 
   try {
-    logger.info(`Getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId})`, {
-      correlationId,
-      clientCorrelationId
-    });
+    logger.info(
+      `Getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId})`,
+      {
+        correlationId,
+        clientCorrelationId,
+      },
+    );
 
     const service = await getClientByServiceId(sid);
 
-    const access = await getUsersAccessToServiceAtOrganisation(uid, service.id, oid, correlationId);
+    const access = await getUsersAccessToServiceAtOrganisation(
+      uid,
+      service.id,
+      oid,
+      correlationId,
+    );
     if (!access) {
       return res.status(404).send();
     }
 
-    const userOrganisationIdentifer = await organisation.getUserOrganisationIdentifiers(uid, oid);
+    const userOrganisationIdentifer =
+      await organisation.getUserOrganisationIdentifiers(uid, oid);
     if (!userOrganisationIdentifer) {
-        return res.status(404).send();
+      return res.status(404).send();
     }
 
     const organisationDetails = await organisation.getOrganisation(oid);
@@ -46,13 +57,15 @@ const getUsersAccess = async (req, res) => {
     });
 
     return res.json(userOrganisation);
-
   } catch (e) {
-    logger.info(`Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`, {
-      correlationId,
-      clientCorrelationId,
-      stack: e.stack,
-    });
+    logger.info(
+      `Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`,
+      {
+        correlationId,
+        clientCorrelationId,
+        stack: e.stack,
+      },
+    );
     throw e;
   }
 };
