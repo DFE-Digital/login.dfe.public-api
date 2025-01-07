@@ -1,11 +1,13 @@
 const mockRequest = (customRequestData) => {
   const defaultRequest = {
-    correlationId: 'server-correlation-id',
-    clientCorrelationId: 'client-correlation-id',
+    correlationId: "server-correlation-id",
+    clientCorrelationId: "client-correlation-id",
     query: {},
     params: {},
   };
-  return customRequestData ? Object.assign(defaultRequest, customRequestData) : defaultRequest;
+  return customRequestData
+    ? Object.assign(defaultRequest, customRequestData)
+    : defaultRequest;
 };
 
 const mockResponse = () => {
@@ -25,29 +27,30 @@ const mockResponse = () => {
 
 const mockConfig = (customConfig) => {
   const defaultConfig = {
-    hostingEnvironment: {
-    },
+    hostingEnvironment: {},
     auth: {
-      type: 'secret',
-      secret: 'unit-tests',
+      type: "secret",
+      secret: "unit-tests",
     },
     queue: {
-      connectionString: 'redis-connection-string',
+      connectionString: "redis-connection-string",
     },
     applications: {
-      type: 'static',
+      type: "static",
     },
     access: {
-      type: 'static',
+      type: "static",
     },
     organisations: {
-      type: 'static',
+      type: "static",
     },
     directories: {
-      type: 'static',
+      type: "static",
     },
   };
-  return customConfig ? Object.assign(defaultConfig, customConfig) : defaultConfig;
+  return customConfig
+    ? Object.assign(defaultConfig, customConfig)
+    : defaultConfig;
 };
 
 const mockLogger = () => {

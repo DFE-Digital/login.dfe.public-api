@@ -1,4 +1,7 @@
-const { getClientByServiceId, destroyService } = require('./../../infrastructure/applications');
+const {
+  getClientByServiceId,
+  destroyService,
+} = require("./../../infrastructure/applications");
 
 const deleteService = async (req, res) => {
   const service = await getClientByServiceId(req.params.clientid);

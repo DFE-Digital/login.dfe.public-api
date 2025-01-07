@@ -1,509 +1,457 @@
 {
-	"info": {
-		"_postman_id": "185065aa-fcba-4c91-91d0-0f1f9ea2e953",
-		"name": "Public API - Preprod",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1029983"
-	},
-	"item": [
-		{
-			"name": "service Org User",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"services",
-						":sid",
-						"organisations",
-						":oid",
-						"users",
-						":uid"
-					],
-					"variable": [
-						{
-							"key": "sid",
-							"value": "EF3E84E7-950A-4CB2-B1B0-66417F3CD5CA"
-						},
-						{
-							"key": "oid",
-							"value": "23F20E54-79EA-4146-8E39-18197576F023"
-						},
-						{
-							"key": "uid",
-							"value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
-						}
-					]
-				},
-				"description": "Checks service access for a specific user org relationship"
-			},
-			"response": []
-		},
-		{
-			"name": "invite User",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"let date = Date.now();",
-							"pm.environment.set('date' , date);",
-							"",
-							"let email = 'eoin.corr+' + date + '@digital.education.gov.uk';",
-							"pm.environment.set('user-email' , email);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"sourceId\": \"{{date}}\",\n\t\"given_name\": \"Postman\",\n\t\"family_name\": \"Test\",\n\t\"email\": {{user-email}},\n    \"callback\": \"https://sit2-coursedirectory.nationalcareersservice.org.uk/auth/cb\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{public-api-url}}/services/:sid/invitations",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"services",
-						":sid",
-						"invitations"
-					],
-					"variable": [
-						{
-							"key": "sid",
-							"value": "CCE5DB23-7588-4B6B-9CD8-3665A4709484"
-						}
-					]
-				},
-				"description": "This invites a user to a service. Currently getting a 500."
-			},
-			"response": []
-		},
-		{
-			"name": "manage announcements",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
-							"});",
-							"",
-							"const response = JSON.parse(responseBody);",
-							"const messageId = response.originId;",
-							"pm.environment.set('message-id', messageId);"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"let date = Date.now();",
-							"pm.environment.set('date' , date);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"messageId\": \"{{$guid}}\",\n\t\"urn\": \"120063\",\n\t\"type\": 1,\n\t\"title\": \"Test announcement\",\n\t\"summary\": \"Announcement summary\",\n\t\"body\": \"Announcement body\",\n\t\"publishedAt\": {{date}},\n\t\"expiresAt\": {{future-epoch}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{public-api-url}}/organisations/announcements",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"organisations",
-						"announcements"
-					]
-				},
-				"description": "Stored in the organisation_announcement tables, can check this to verify"
-			},
-			"response": []
-		},
-		{
-			"name": "Create child applications",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Successful POST request\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"Public_api_test_app\",\n    \"description\": \"does nothing\",\n    \"clientId\": \"test-client-id\",\n    \"client\": \"child-application-clientsecret\",\n    \"redirectUris\": [\n\t    \"https://endpoint.one/auth/cb\",\n\t    \"https://endpoint.two/login/callback\"\n\t]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{public-api-url}}/services",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"services"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "orgs for user",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/users/:uid/organisations",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"users",
-						":uid",
-						"organisations"
-					],
-					"variable": [
-						{
-							"key": "uid",
-							"value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
-						}
-					]
-				},
-				"description": "Gives all orgs associated with a user."
-			},
-			"response": []
-		},
-		{
-			"name": "service Users",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/users?page=1&pageSize=25",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"users"
-					],
-					"query": [
-						{
-							"key": "page",
-							"value": "1"
-						},
-						{
-							"key": "pageSize",
-							"value": "25"
-						}
-					]
-				},
-				"description": "Get all users with a service"
-			},
-			"response": []
-		},
-		{
-			"name": "manage announcement",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/organisations/announcements/:mid",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"organisations",
-						"announcements",
-						":mid"
-					],
-					"variable": [
-						{
-							"key": "mid",
-							"value": "{{message-id}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "approvers for orgs",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/users/approvers?page=1&pageSize=25",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"users",
-						"approvers"
-					],
-					"query": [
-						{
-							"key": "page",
-							"value": "1"
-						},
-						{
-							"key": "pageSize",
-							"value": "25"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "org users by roles",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{course-directory-bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/organisations/:ukprn/users",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"organisations",
-						":ukprn",
-						"users"
-					],
-					"variable": [
-						{
-							"key": "ukprn",
-							"value": "10039896"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Roles for Service",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{bearer}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{public-api-url}}/services/:cid/roles",
-					"host": [
-						"{{public-api-url}}"
-					],
-					"path": [
-						"services",
-						":cid",
-						"roles"
-					],
-					"variable": [
-						{
-							"key": "cid",
-							"value": ""
-						}
-					]
-				},
-				"description": "Returns all roles associated with a service."
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "185065aa-fcba-4c91-91d0-0f1f9ea2e953",
+    "name": "Public API - Preprod",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1029983"
+  },
+  "item": [
+    {
+      "name": "service Org User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+          "host": ["{{public-api-url}}"],
+          "path": [
+            "services",
+            ":sid",
+            "organisations",
+            ":oid",
+            "users",
+            ":uid"
+          ],
+          "variable": [
+            {
+              "key": "sid",
+              "value": "EF3E84E7-950A-4CB2-B1B0-66417F3CD5CA"
+            },
+            {
+              "key": "oid",
+              "value": "23F20E54-79EA-4146-8E39-18197576F023"
+            },
+            {
+              "key": "uid",
+              "value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
+            }
+          ]
+        },
+        "description": "Checks service access for a specific user org relationship"
+      },
+      "response": []
+    },
+    {
+      "name": "invite User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let date = Date.now();",
+              "pm.environment.set('date' , date);",
+              "",
+              "let email = 'eoin.corr+' + date + '@digital.education.gov.uk';",
+              "pm.environment.set('user-email' , email);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"sourceId\": \"{{date}}\",\n\t\"given_name\": \"Postman\",\n\t\"family_name\": \"Test\",\n\t\"email\": {{user-email}},\n    \"callback\": \"https://sit2-coursedirectory.nationalcareersservice.org.uk/auth/cb\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{public-api-url}}/services/:sid/invitations",
+          "host": ["{{public-api-url}}"],
+          "path": ["services", ":sid", "invitations"],
+          "variable": [
+            {
+              "key": "sid",
+              "value": "CCE5DB23-7588-4B6B-9CD8-3665A4709484"
+            }
+          ]
+        },
+        "description": "This invites a user to a service. Currently getting a 500."
+      },
+      "response": []
+    },
+    {
+      "name": "manage announcements",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+              "});",
+              "",
+              "const response = JSON.parse(responseBody);",
+              "const messageId = response.originId;",
+              "pm.environment.set('message-id', messageId);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let date = Date.now();",
+              "pm.environment.set('date' , date);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"messageId\": \"{{$guid}}\",\n\t\"urn\": \"120063\",\n\t\"type\": 1,\n\t\"title\": \"Test announcement\",\n\t\"summary\": \"Announcement summary\",\n\t\"body\": \"Announcement body\",\n\t\"publishedAt\": {{date}},\n\t\"expiresAt\": {{future-epoch}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{public-api-url}}/organisations/announcements",
+          "host": ["{{public-api-url}}"],
+          "path": ["organisations", "announcements"]
+        },
+        "description": "Stored in the organisation_announcement tables, can check this to verify"
+      },
+      "response": []
+    },
+    {
+      "name": "Create child applications",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Public_api_test_app\",\n    \"description\": \"does nothing\",\n    \"clientId\": \"test-client-id\",\n    \"client\": \"child-application-clientsecret\",\n    \"redirectUris\": [\n\t    \"https://endpoint.one/auth/cb\",\n\t    \"https://endpoint.two/login/callback\"\n\t]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{public-api-url}}/services",
+          "host": ["{{public-api-url}}"],
+          "path": ["services"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "orgs for user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/:uid/organisations",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", ":uid", "organisations"],
+          "variable": [
+            {
+              "key": "uid",
+              "value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
+            }
+          ]
+        },
+        "description": "Gives all orgs associated with a user."
+      },
+      "response": []
+    },
+    {
+      "name": "service Users",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users?page=1&pageSize=25",
+          "host": ["{{public-api-url}}"],
+          "path": ["users"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "25"
+            }
+          ]
+        },
+        "description": "Get all users with a service"
+      },
+      "response": []
+    },
+    {
+      "name": "manage announcement",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/organisations/announcements/:mid",
+          "host": ["{{public-api-url}}"],
+          "path": ["organisations", "announcements", ":mid"],
+          "variable": [
+            {
+              "key": "mid",
+              "value": "{{message-id}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "approvers for orgs",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/approvers?page=1&pageSize=25",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", "approvers"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "org users by roles",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{course-directory-bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/organisations/:ukprn/users",
+          "host": ["{{public-api-url}}"],
+          "path": ["organisations", ":ukprn", "users"],
+          "variable": [
+            {
+              "key": "ukprn",
+              "value": "10039896"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Roles for Service",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/services/:cid/roles",
+          "host": ["{{public-api-url}}"],
+          "path": ["services", ":cid", "roles"],
+          "variable": [
+            {
+              "key": "cid",
+              "value": ""
+            }
+          ]
+        },
+        "description": "Returns all roles associated with a service."
+      },
+      "response": []
+    }
+  ]
 }

@@ -1,5 +1,7 @@
-const uuid = require('uuid');
-const { createService: createServiceInApi } = require('./../../infrastructure/applications');
+const uuid = require("uuid");
+const {
+  createService: createServiceInApi,
+} = require("./../../infrastructure/applications");
 
 const parseAndValidateModel = (req) => {
   const model = {
@@ -12,17 +14,20 @@ const parseAndValidateModel = (req) => {
   };
 
   if (!model.service.name) {
-    model.validationErrors.push('Must provide name');
+    model.validationErrors.push("Must provide name");
   }
 
   if (model.service.redirectUris.length < 1) {
-    model.validationErrors.push('Must provide at least 1 redirectUris');
+    model.validationErrors.push("Must provide at least 1 redirectUris");
   }
 
   return model;
 };
 const createService = async (req, res) => {
-  if (!req.client.relyingParty.params || req.client.relyingParty.params.canCreateChildApplications !== 'true') {
+  if (
+    !req.client.relyingParty.params ||
+    req.client.relyingParty.params.canCreateChildApplications !== "true"
+  ) {
     return res.status(403).send();
   }
 
@@ -38,14 +43,14 @@ const createService = async (req, res) => {
     parentId: req.client.id,
     isChildService: true,
     relyingParty: {
-      client_id: `c${uuid.v4().replace(/\-/g, '')}`,
+      client_id: `c${uuid.v4().replace(/\-/g, "")}`,
       client_secret: uuid.v4(),
       redirect_uris: model.service.redirectUris,
-      grant_types: ['authorization_code', 'refresh_token'],
+      grant_types: ["authorization_code", "refresh_token"],
       params: {
-        hideApprover: 'true',
-        hideSupport: 'true',
-        explicitConsent: 'true',
+        hideApprover: "true",
+        hideSupport: "true",
+        explicitConsent: "true",
         consentTitle: req.body.consentTitle || undefined,
         consentBody: req.body.consentBody || undefined,
       },

@@ -1,42 +1,42 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "appServicePlanName": {
-            "value": ""
-        },
-        "appServiceName": {
-            "value": ""
-        },
-        "appServicePlanSku": {
-            "value": {}
-        },
-        "appServicePlanRG": {
-            "value": ""
-        },
-        "nodeVersion": {
-            "value": ""
-        },
-        "customHostName": {
-            "value": ""
-        },
-        "certificateName": {
-            "value": ""
-        },
-        "keyVaultName": {
-            "value": ""
-        },
-        "keyVaultResourceGroup": {
-            "value": ""
-        },
-        "numberOfWorkers": {
-            "value": ""
-        },
-        "minTlsVersion": {
-            "value": ""
-        },
-        "appServiceConfigPath": {
-            "value": ""
-        }
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServicePlanName": {
+      "value": ""
+    },
+    "appServiceName": {
+      "value": ""
+    },
+    "appServicePlanSku": {
+      "value": {}
+    },
+    "appServicePlanRG": {
+      "value": ""
+    },
+    "nodeVersion": {
+      "value": ""
+    },
+    "customHostName": {
+      "value": ""
+    },
+    "certificateName": {
+      "value": ""
+    },
+    "keyVaultName": {
+      "value": ""
+    },
+    "keyVaultResourceGroup": {
+      "value": ""
+    },
+    "numberOfWorkers": {
+      "value": ""
+    },
+    "minTlsVersion": {
+      "value": ""
+    },
+    "appServiceConfigPath": {
+      "value": ""
     }
+  }
 }
