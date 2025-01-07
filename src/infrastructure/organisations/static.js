@@ -1,4 +1,4 @@
-const getOrganisationByTypeAndIdentifier = async (type, identifier) => {
+const getOrganisationByTypeAndIdentifier = async () => {
   return Promise.resolve({
     id: "1923215A-0CB7-4255-A602-000276541FB7",
     name: "North Thoresby Primary Academy",
@@ -36,26 +36,15 @@ const getOrganisationByTypeAndIdentifier = async (type, identifier) => {
   });
 };
 
-const searchForAnnouncements = async (messageId, correlationId) => {
+const searchForAnnouncements = async () => {
   return Promise.resolve(undefined);
 };
 
-const upsertOrganisationAnnouncement = async (
-  organisationId,
-  messageId,
-  type,
-  title,
-  summary,
-  body,
-  publishedAt,
-  expiresAt,
-  published,
-  correlationId,
-) => {
+const upsertOrganisationAnnouncement = async () => {
   return Promise.resolve();
 };
 
-const getOrganisationsAssociatedWithUser = async (userId) => {
+const getOrganisationsAssociatedWithUser = async () => {
   return Promise.resolve([
     {
       organisation: {
@@ -74,17 +63,11 @@ const getOrganisationsAssociatedWithUser = async (userId) => {
   ]);
 };
 
-const listOrganisationUsersV3 = async (
-  page,
-  pageSize,
-  roleId,
-  policies,
-  correlationId,
-) => {
+const listOrganisationUsersV3 = async () => {
   return Promise.resolve();
 };
 
-const getUsersForOrganisation = async (organisationId, correlationId) => {
+const getUsersForOrganisation = async () => {
   return Promise.resolve();
 };
 

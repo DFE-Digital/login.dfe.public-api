@@ -1,9 +1,4 @@
-const getUsersAccessToServiceAtOrganisation = async (
-  uid,
-  sid,
-  oid,
-  correlationId,
-) => {
+const getUsersAccessToServiceAtOrganisation = async (uid, sid, oid) => {
   return {
     userId: uid,
     serviceId: sid,
@@ -14,25 +9,18 @@ const getUsersAccessToServiceAtOrganisation = async (
   };
 };
 
-const getPoliciesOfService = async (sid, correlationId) => {
+const getPoliciesOfService = async () => {
   return Promise.resolve();
 };
-const getServiceUsers = async (sid, oid, correlationId) => {
-  return Promise.resolve();
-};
-
-const getRoles = async (sid, correlationId) => {
+const getServiceUsers = async () => {
   return Promise.resolve();
 };
 
-const getServiceUsersV2 = async (
-  sid,
-  oid,
-  roleIds,
-  page,
-  pageSize,
-  correlationId,
-) => {
+const getRoles = async () => {
+  return Promise.resolve();
+};
+
+const getServiceUsersV2 = async () => {
   return Promise.resolve();
 };
 module.exports = {
