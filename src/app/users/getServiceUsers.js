@@ -41,7 +41,6 @@ const listUsersWithOutFilters = async (req, res) => {
 
   let pageOfUserServices;
   let users;
-  let isWarning = false;
 
   pageOfUserServices = await listServiceUsers(
     req.client.id,
@@ -53,12 +52,7 @@ const listUsersWithOutFilters = async (req, res) => {
   const userIds = pageOfUserServices.users.map((user) => user.id);
   users = await usersByIds(userIds.join(","), req.correlationId);
 
-  const responseBody = prepareUserResponse(
-    pageOfUserServices,
-    users,
-    isWarning,
-    res,
-  );
+  const responseBody = prepareUserResponse(pageOfUserServices, users);
 
   return res.send(responseBody);
 };
@@ -157,12 +151,7 @@ const listUsersWithFilters = async (req, res) => {
       req.correlationId,
     );
 
-    const responseBody = prepareUserResponse(
-      pageOfUserServices,
-      users,
-      isWarning,
-      res,
-    );
+    const responseBody = prepareUserResponse(pageOfUserServices, users);
 
     addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
     return res.send(responseBody);
