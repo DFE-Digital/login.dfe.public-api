@@ -22,11 +22,11 @@ const createService = async (service) => {
   Promise.resolve(Object.assign({}, service, { id: uuid.v4() }));
 };
 
-const updateService = async (id, patchedProperties) => {
+const updateService = async () => {
   return Promise.resolve();
 };
 
-const listServices = async (parentId, page, pageSize, correlationId) => {
+const listServices = async (parentId, page) => {
   return Promise.resolve({
     services: [],
     numberOfRecords: 0,

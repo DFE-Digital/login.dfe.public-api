@@ -23,7 +23,6 @@ const page = 1;
 const pageSize = 10;
 const roleId = "role-1";
 const policies = ["policy-1"];
-const identifier = "identifier-1";
 const correlationId = "abc123";
 const apiResponse = [
   {

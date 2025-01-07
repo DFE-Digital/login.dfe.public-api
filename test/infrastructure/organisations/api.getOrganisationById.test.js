@@ -19,7 +19,6 @@ const {
   getOrganisationById,
 } = require("../../../src/infrastructure/organisations/api");
 
-const type = "type-1";
 const identifier = "identifier-1";
 const correlationId = "abc123";
 const apiResponse = [

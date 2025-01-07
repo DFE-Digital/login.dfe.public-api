@@ -55,8 +55,8 @@ const parseAndValidateRequest = async (req) => {
     result.errors.push("email is not a valid email address");
   }
 
-  if (!result.details.callbackUrl) {
-  } else if (
+  if (
+    !!result.details.callbackUrl &&
     !isHttpUri(result.details.callbackUrl) &&
     !isHttpsUri(result.details.callbackUrl)
   ) {

@@ -3,9 +3,6 @@ const {
   getUsersAccessToServiceAtOrganisation,
 } = require("./../../infrastructure/access");
 const { getClientByServiceId } = require("./../../infrastructure/applications");
-const { getOrganisationById } = require("../../infrastructure/organisations");
-const { getUserOrganisation } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
 const { organisation } = require("login.dfe.dao");
 
 const getUsersAccess = async (req, res) => {
@@ -55,8 +52,6 @@ const getUsersAccess = async (req, res) => {
       roles: access.roles,
       identifiers: access.identifiers,
     });
-
-    return res.json(userOrganisation);
   } catch (e) {
     logger.info(
       `Error getting user ${uid}'s access to ${sid} within organisation ${oid} (correlationId: ${correlationId}, client correlationId: ${clientCorrelationId}) - ${e.message}`,

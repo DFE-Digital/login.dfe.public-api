@@ -169,7 +169,7 @@ const listUsersWithFilters = async (req, res) => {
   }
 };
 
-const prepareUserResponse = (pageOfUserServices, users, isWarning, res) => {
+const prepareUserResponse = (pageOfUserServices, users) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
     const user = users.find((u) => u.sub === userService.id);
     let mappedUserService = {
