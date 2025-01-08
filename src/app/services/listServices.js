@@ -1,8 +1,13 @@
-const { extractPageParam, extractPageSizeParam } = require('./../utils');
-const { listServices: listChildServices } = require('./../../infrastructure/applications');
+const { extractPageParam, extractPageSizeParam } = require("./../utils");
+const {
+  listServices: listChildServices,
+} = require("./../../infrastructure/applications");
 
 const listServices = async (req, res) => {
-  if (!req.client.relyingParty.params || req.client.relyingParty.params.canCreateChildApplications !== 'true') {
+  if (
+    !req.client.relyingParty.params ||
+    req.client.relyingParty.params.canCreateChildApplications !== "true"
+  ) {
     return res.status(403).send();
   }
 
@@ -15,9 +20,14 @@ const listServices = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfServices = await listChildServices(req.client.id, page, pageSize, req.correlationId);
+  const pageOfServices = await listChildServices(
+    req.client.id,
+    page,
+    pageSize,
+    req.correlationId,
+  );
   return res.send({
-    services: pageOfServices.services.map(s => ({
+    services: pageOfServices.services.map((s) => ({
       name: s.name,
       description: s.description,
       clientId: s.relyingParty.client_id,

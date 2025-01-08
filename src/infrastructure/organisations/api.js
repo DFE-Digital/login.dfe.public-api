@@ -1,16 +1,18 @@
-const jwtStrategy = require('login.dfe.jwt-strategies');
-const config = require('./../config');
-const { fetchApi } = require('login.dfe.async-retry');
+const jwtStrategy = require("login.dfe.jwt-strategies");
+const config = require("./../config");
+const { fetchApi } = require("login.dfe.async-retry");
 
 const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
-  const token = await jwtStrategy(config.organisations.service).getBearerToken();
+  const token = await jwtStrategy(
+    config.organisations.service,
+  ).getBearerToken();
 
   try {
     return await fetchApi(`${config.organisations.service.url}/${endpoint}`, {
       method: method,
       headers: {
         authorization: `bearer ${token}`,
-        'x-correlation-id': correlationId,
+        "x-correlation-id": correlationId,
       },
       body: body,
     });
@@ -26,16 +28,22 @@ const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
   }
 };
 
-const listServiceUsers = async (serviceId, userIds, page, pageSize, correlationId) => {
+const listServiceUsers = async (
+  serviceId,
+  userIds,
+  page,
+  pageSize,
+  correlationId,
+) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const url = `${config.organisations.service.url}/services/${serviceId}/users`;
     const pageOfUsers = await fetchApi(url, {
-      method: 'POST',
+      method: "POST",
       body: { page, pageSize, userIds },
       headers: {
         authorization: `bearer ${token}`,
-        'x-correlation-id': correlationId,
+        "x-correlation-id": correlationId,
       },
     });
     return pageOfUsers;
@@ -47,19 +55,49 @@ const listServiceUsers = async (serviceId, userIds, page, pageSize, correlationI
   }
 };
 
-const getOrganisationByTypeAndIdentifier = async (type, identifier, correlationId) => {
-  return await callOrganisationsApi(`organisations/by-external-id/${type}/${identifier}`, 'GET', undefined, correlationId);
+const getOrganisationByTypeAndIdentifier = async (
+  type,
+  identifier,
+  correlationId,
+) => {
+  return await callOrganisationsApi(
+    `organisations/by-external-id/${type}/${identifier}`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
 const getOrganisationById = async (identifier, correlationId) => {
-  return await callOrganisationsApi(`organisations/${identifier}`, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(
+    `organisations/${identifier}`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
 const searchForAnnouncements = async (messageId, correlationId) => {
-  return await callOrganisationsApi(`organisations/announcements?messageid=${messageId}`, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(
+    `organisations/announcements?messageid=${messageId}`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
-const upsertOrganisationAnnouncement = async (organisationId, messageId, type, title, summary, body, publishedAt, expiresAt, published, correlationId) => {
+const upsertOrganisationAnnouncement = async (
+  organisationId,
+  messageId,
+  type,
+  title,
+  summary,
+  body,
+  publishedAt,
+  expiresAt,
+  published,
+  correlationId,
+) => {
   const requestBody = {
     originId: messageId,
     type,
@@ -68,28 +106,49 @@ const upsertOrganisationAnnouncement = async (organisationId, messageId, type, t
     body,
     publishedAt,
     expiresAt,
-    published
+    published,
   };
-  return await callOrganisationsApi(`organisations/${organisationId}/announcements`, 'POST', requestBody, correlationId);
+  return await callOrganisationsApi(
+    `organisations/${organisationId}/announcements`,
+    "POST",
+    requestBody,
+    correlationId,
+  );
 };
 
 const getOrganisationsAssociatedWithUser = async (userId, correlationId) => {
-  return await callOrganisationsApi(`organisations/v2/associated-with-user/${userId}`, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(
+    `organisations/v2/associated-with-user/${userId}`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
 const getOrganisationsAssociatedWithUserV2 = async (userId, correlationId) => {
-  return await callOrganisationsApi(`organisations/v3/associated-with-user/${userId}`, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(
+    `organisations/v3/associated-with-user/${userId}`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
-const listOrganisationUsersV3 = async (page, pageSize, roleId, policies, correlationId) => {
+const listOrganisationUsersV3 = async (
+  page,
+  pageSize,
+  roleId,
+  policies,
+  correlationId,
+) => {
   let uri = `organisations/v3/users`;
   const payload = {
     page: page,
     pageSize: pageSize,
     role: roleId,
-    policies: policies
-  }
-  return await callOrganisationsApi(uri, 'POST', payload, correlationId);
+    policies: policies,
+  };
+  return await callOrganisationsApi(uri, "POST", payload, correlationId);
 };
 
 const getUserOrganisation = async (userId, organisationId, correlationId) => {
@@ -100,11 +159,16 @@ const getUserOrganisation = async (userId, organisationId, correlationId) => {
     userId,
     organisationId,
   };
-  return await callOrganisationsApi(uri, 'POST', payload, correlationId);
+  return await callOrganisationsApi(uri, "POST", payload, correlationId);
 };
 
 const getUsersForOrganisation = async (organisationId, correlationId) => {
-  return await callOrganisationsApi(`/organisations/${organisationId}/users`, 'GET', undefined, correlationId);
+  return await callOrganisationsApi(
+    `/organisations/${organisationId}/users`,
+    "GET",
+    undefined,
+    correlationId,
+  );
 };
 
 module.exports = {

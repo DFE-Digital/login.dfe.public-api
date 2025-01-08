@@ -1,14 +1,14 @@
-const logger = require('../../infrastructure/logger');
+const logger = require("../../infrastructure/logger");
 const {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
-} = require('../../infrastructure/organisations');
-const { getServiceUsers } = require('../../infrastructure/access');
-const { usersByIds } = require('../../infrastructure/directories');
+} = require("../../infrastructure/organisations");
+const { getServiceUsers } = require("../../infrastructure/access");
+const { usersByIds } = require("../../infrastructure/directories");
 
 const getUsersByRolesV2 = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
-  const roles = req.query.roles?.split(',') || null;
+  const roles = req.query.roles?.split(",") || null;
   const email = req.query.email || null;
   const userId = req.query.userId || null;
   const ukprnOrUpin = req.params.id;
@@ -19,10 +19,15 @@ const getUsersByRolesV2 = async (req, res) => {
   }
 
   try {
-    logger.info(`Fetching users for ID ${ukprnOrUpin} (correlationId: ${correlationId}, clientCorrelationId: ${clientCorrelationId})`);
+    logger.info(
+      `Fetching users for ID ${ukprnOrUpin} (correlationId: ${correlationId}, clientCorrelationId: ${clientCorrelationId})`,
+    );
 
     // Fetch organisations by UKPRN or UPIN
-    const { organisations, isUPIN } = await fetchOrganisationsByIdentifier(ukprnOrUpin, correlationId);
+    const { organisations, isUPIN } = await fetchOrganisationsByIdentifier(
+      ukprnOrUpin,
+      correlationId,
+    );
 
     if (!organisations || organisations.length === 0) {
       return res.status(404).send();
@@ -31,7 +36,14 @@ const getUsersByRolesV2 = async (req, res) => {
     // Collect and process users across organisations
     const allUsers = [];
     for (const organisation of organisations) {
-      const orgUsers = await processOrganisationUsers(clientId, organisation.id, correlationId, roles, email, userId);
+      const orgUsers = await processOrganisationUsers(
+        clientId,
+        organisation.id,
+        correlationId,
+        roles,
+        email,
+        userId,
+      );
       allUsers.push(...orgUsers);
     }
 
@@ -39,14 +51,17 @@ const getUsersByRolesV2 = async (req, res) => {
     const deduplicatedUsers = deduplicateUsersByEmail(allUsers);
 
     if (deduplicatedUsers.length > 0) {
-      return res.json({ [isUPIN ? 'upin' : 'ukprn']: ukprnOrUpin, users: deduplicatedUsers });
+      return res.json({
+        [isUPIN ? "upin" : "ukprn"]: ukprnOrUpin,
+        users: deduplicatedUsers,
+      });
     }
 
     return res.status(404).send();
   } catch (e) {
     logger.error(
       `Error fetching users for ID ${ukprnOrUpin} (correlationId: ${correlationId}, clientCorrelationId: ${clientCorrelationId}) - ${e.message}`,
-      { correlationId, clientCorrelationId, stack: e.stack }
+      { correlationId, clientCorrelationId, stack: e.stack },
     );
     res.status(500).send();
   }
@@ -54,11 +69,19 @@ const getUsersByRolesV2 = async (req, res) => {
 
 // Helper function to fetch organisations by UKPRN or UPIN
 const fetchOrganisationsByIdentifier = async (id, correlationId) => {
-  let organisations = await getOrganisationByTypeAndIdentifier('UKPRN-multi', id, correlationId);
+  let organisations = await getOrganisationByTypeAndIdentifier(
+    "UKPRN-multi",
+    id,
+    correlationId,
+  );
   let isUPIN = false;
 
   if (!organisations || organisations.length === 0) {
-    organisations = await getOrganisationByTypeAndIdentifier('UPIN-multi', id, correlationId);
+    organisations = await getOrganisationByTypeAndIdentifier(
+      "UPIN-multi",
+      id,
+      correlationId,
+    );
     isUPIN = true;
   }
 
@@ -66,8 +89,19 @@ const fetchOrganisationsByIdentifier = async (id, correlationId) => {
 };
 
 // Helper function to process users for a single organisation
-const processOrganisationUsers = async (clientId, organisationId, correlationId, roles, email, userId) => {
-  const serviceUsers = await getServiceUsers(clientId, organisationId, correlationId);
+const processOrganisationUsers = async (
+  clientId,
+  organisationId,
+  correlationId,
+  roles,
+  email,
+  userId,
+) => {
+  const serviceUsers = await getServiceUsers(
+    clientId,
+    organisationId,
+    correlationId,
+  );
 
   if (!serviceUsers || !serviceUsers.services) {
     return [];
@@ -75,22 +109,36 @@ const processOrganisationUsers = async (clientId, organisationId, correlationId,
 
   // Filter users based on roles
   const filteredUsers = roles
-    ? serviceUsers.services.filter((user) => user.roles.some((role) => roles.includes(role.code)))
+    ? serviceUsers.services.filter((user) =>
+        user.roles.some((role) => roles.includes(role.code)),
+      )
     : serviceUsers.services;
 
   const userIds = filteredUsers.map((user) => user.userId);
-  const userDetails = await usersByIds(userIds.join(','), correlationId);
+  const userDetails = await usersByIds(userIds.join(","), correlationId);
 
   // Apply email and userId filters
   const filteredDetails = userDetails
-    .filter((user) => (email ? user.email.toLowerCase() === email.toLowerCase() : true))
-    .filter((user) => (userId ? user.sub.toLowerCase() === userId.toLowerCase() : true));
+    .filter((user) =>
+      email ? user.email.toLowerCase() === email.toLowerCase() : true,
+    )
+    .filter((user) =>
+      userId ? user.sub.toLowerCase() === userId.toLowerCase() : true,
+    );
 
-  const organisationUsers = await getUsersForOrganisation(organisationId, correlationId);
+  const organisationUsers = await getUsersForOrganisation(
+    organisationId,
+    correlationId,
+  );
 
   return filteredDetails.map((user) => {
-    const userRoles = filteredUsers.find((u) => u.userId === user.sub)?.roles.map((role) => role.code) || [];
-    const orgUser = organisationUsers.find((orgUser) => orgUser.id === user.sub);
+    const userRoles =
+      filteredUsers
+        .find((u) => u.userId === user.sub)
+        ?.roles.map((role) => role.code) || [];
+    const orgUser = organisationUsers.find(
+      (orgUser) => orgUser.id === user.sub,
+    );
     return {
       email: user.email,
       firstName: user.given_name,

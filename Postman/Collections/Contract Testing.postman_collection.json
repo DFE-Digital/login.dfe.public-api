@@ -1,197 +1,184 @@
 {
-	"info": {
-		"_postman_id": "f8313a24-b7be-49ea-8030-294ea7c94e39",
-		"name": "Contract Testing",
-		"description": "# About this collection\n\nThis collection helps you set up contract tests to ensure that two separate systems are compatible and can communicate with one another.\n\n## **Using the collection**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n### Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)\n\n[  \n](https://postman.postman.co/documentation/24552533-5bead607-0197-4e1d-87d4-3160bc7631c1?entity=&branch=&version=)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1029983"
-	},
-	"item": [
-		{
-			"name": "Test Response",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"// Validate that the response code should be 200",
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"// Validate that the response is json object",
-							"pm.test(\"Response is a json object\", function () {",
-							"    pm.expect(pm.response.json()).to.be.an('object');",
-							"});",
-							"",
-							"// Validate that the response has an arg object",
-							"pm.test(\"Response to have 'arg' object\", function () {",
-							"    pm.expect(pm.response.json()).to.have.property('args');",
-							"});",
-							"",
-							"// Validate that the response has headers object",
-							"pm.test(\"Response to have 'headers' object\", function () {",
-							"    pm.expect(pm.response.json()).to.have.property('headers');",
-							"});",
-							"",
-							"// Validate that the response has url property",
-							"pm.test(\"Response to have 'url' property\", function () {",
-							"    pm.expect(pm.response.json()).to.have.property('url');",
-							"});",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://postman-echo.com/get?foo1=bar1&foo2=bar2",
-					"protocol": "https",
-					"host": [
-						"postman-echo",
-						"com"
-					],
-					"path": [
-						"get"
-					],
-					"query": [
-						{
-							"key": "foo1",
-							"value": "bar1"
-						},
-						{
-							"key": "foo2",
-							"value": "bar2"
-						}
-					]
-				},
-				"description": "The tests in this request validate that:\n\n- the response code is 200\n- the response is a JSON object\n- the response has an 'arg' object\n- the response has 'headers' object\n- the response has a 'URL' property"
-			},
-			"response": []
-		},
-		{
-			"name": "Check for Valid Query Params",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"// Validate that the response code should be 200\r",
-							"pm.test(\"Response Code should be 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"// Run validations on response headers like Content-Type\r",
-							"pm.test(\"Content-Type should be JSON\", function () {\r",
-							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
-							"});\r",
-							"\r",
-							"const json = pm.response.json();\r",
-							"\r",
-							"// The response body, including individual attributes can be evaluated for correctness\r",
-							"pm.test(\"`args` should contain the correct query params\", function () {\r",
-							"    pm.expect(json.args).to.be.an('object');\r",
-							"    pm.expect(json.args.foo).to.eql('bar');\r",
-							"    pm.expect(json.args.baz).to.eql('value');\r",
-							"});\r",
-							"\r",
-							"// Non-trivial data types like Dates can also be tested against\r",
-							"pm.test(\"Date in the header should be valid\", function () {\r",
-							"    const parsedDate = new Date(pm.response.headers.get('Date'));\r",
-							"    pm.expect(parsedDate).to.be.a('date');\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/get?foo=bar&baz=value",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"get"
-					],
-					"query": [
-						{
-							"key": "foo",
-							"value": "bar"
-						},
-						{
-							"key": "baz",
-							"value": "value"
-						}
-					]
-				},
-				"description": "The tests in the request validate the response code and the data returned in the response is the same as the one being sent."
-			},
-			"response": []
-		},
-		{
-			"name": "Check for Valid Form Data",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"const json = pm.response.json();\r",
-							"\r",
-							"// Validate raw body sent in the request, be it form-data or JSON\r",
-							"pm.test(\"`form` should contain the correct form data\", function () {\r",
-							"    pm.expect(json.form).to.be.an('object');\r",
-							"    pm.expect(json.form.foo1).to.eql('bar1');\r",
-							"    pm.expect(json.form.foo2).to.eql('bar2');\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "foo1",
-							"value": "bar1",
-							"type": "text"
-						},
-						{
-							"key": "foo2",
-							"value": "bar2",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "{{baseUrl}}/post",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"post"
-					]
-				},
-				"description": "The tests in this request validate that the request body sent as form-data is valid."
-			},
-			"response": []
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "https://postman-echo.com"
-		}
-	]
+  "info": {
+    "_postman_id": "f8313a24-b7be-49ea-8030-294ea7c94e39",
+    "name": "Contract Testing",
+    "description": "# About this collection\n\nThis collection helps you set up contract tests to ensure that two separate systems are compatible and can communicate with one another.\n\n## **Using the collection**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n### Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)\n\n[  \n](https://postman.postman.co/documentation/24552533-5bead607-0197-4e1d-87d4-3160bc7631c1?entity=&branch=&version=)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1029983"
+  },
+  "item": [
+    {
+      "name": "Test Response",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Validate that the response code should be 200",
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Validate that the response is json object",
+              "pm.test(\"Response is a json object\", function () {",
+              "    pm.expect(pm.response.json()).to.be.an('object');",
+              "});",
+              "",
+              "// Validate that the response has an arg object",
+              "pm.test(\"Response to have 'arg' object\", function () {",
+              "    pm.expect(pm.response.json()).to.have.property('args');",
+              "});",
+              "",
+              "// Validate that the response has headers object",
+              "pm.test(\"Response to have 'headers' object\", function () {",
+              "    pm.expect(pm.response.json()).to.have.property('headers');",
+              "});",
+              "",
+              "// Validate that the response has url property",
+              "pm.test(\"Response to have 'url' property\", function () {",
+              "    pm.expect(pm.response.json()).to.have.property('url');",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://postman-echo.com/get?foo1=bar1&foo2=bar2",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["get"],
+          "query": [
+            {
+              "key": "foo1",
+              "value": "bar1"
+            },
+            {
+              "key": "foo2",
+              "value": "bar2"
+            }
+          ]
+        },
+        "description": "The tests in this request validate that:\n\n- the response code is 200\n- the response is a JSON object\n- the response has an 'arg' object\n- the response has 'headers' object\n- the response has a 'URL' property"
+      },
+      "response": []
+    },
+    {
+      "name": "Check for Valid Query Params",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Validate that the response code should be 200\r",
+              "pm.test(\"Response Code should be 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Run validations on response headers like Content-Type\r",
+              "pm.test(\"Content-Type should be JSON\", function () {\r",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "// The response body, including individual attributes can be evaluated for correctness\r",
+              "pm.test(\"`args` should contain the correct query params\", function () {\r",
+              "    pm.expect(json.args).to.be.an('object');\r",
+              "    pm.expect(json.args.foo).to.eql('bar');\r",
+              "    pm.expect(json.args.baz).to.eql('value');\r",
+              "});\r",
+              "\r",
+              "// Non-trivial data types like Dates can also be tested against\r",
+              "pm.test(\"Date in the header should be valid\", function () {\r",
+              "    const parsedDate = new Date(pm.response.headers.get('Date'));\r",
+              "    pm.expect(parsedDate).to.be.a('date');\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get?foo=bar&baz=value",
+          "host": ["{{baseUrl}}"],
+          "path": ["get"],
+          "query": [
+            {
+              "key": "foo",
+              "value": "bar"
+            },
+            {
+              "key": "baz",
+              "value": "value"
+            }
+          ]
+        },
+        "description": "The tests in the request validate the response code and the data returned in the response is the same as the one being sent."
+      },
+      "response": []
+    },
+    {
+      "name": "Check for Valid Form Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();\r",
+              "\r",
+              "// Validate raw body sent in the request, be it form-data or JSON\r",
+              "pm.test(\"`form` should contain the correct form data\", function () {\r",
+              "    pm.expect(json.form).to.be.an('object');\r",
+              "    pm.expect(json.form.foo1).to.eql('bar1');\r",
+              "    pm.expect(json.form.foo2).to.eql('bar2');\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "foo1",
+              "value": "bar1",
+              "type": "text"
+            },
+            {
+              "key": "foo2",
+              "value": "bar2",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/post",
+          "host": ["{{baseUrl}}"],
+          "path": ["post"]
+        },
+        "description": "The tests in this request validate that the request body sent as form-data is valid."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://postman-echo.com"
+    }
+  ]
 }
