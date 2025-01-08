@@ -1,24 +1,33 @@
-const { getClientByServiceId, updateService: updateServiceDetails } = require('./../../infrastructure/applications');
+const {
+  getClientByServiceId,
+  updateService: updateServiceDetails,
+} = require("./../../infrastructure/applications");
 
-const patchableProperties = ['name', 'description', 'redirectUris', 'consentTitle', 'consentBody'];
+const patchableProperties = [
+  "name",
+  "description",
+  "redirectUris",
+  "consentTitle",
+  "consentBody",
+];
 
 const validate = (req) => {
   const keys = Object.keys(req.body);
 
   if (keys.length === 0) {
-    return `Must specify at least one property. Patchable properties ${patchableProperties}`
+    return `Must specify at least one property. Patchable properties ${patchableProperties}`;
   }
   const error = keys.map((key) => {
     const value = req.body[key];
-    if (!patchableProperties.find(x => x === key)) {
-      return `${key} is not a patchable property. Patchable properties ${patchableProperties}`
+    if (!patchableProperties.find((x) => x === key)) {
+      return `${key} is not a patchable property. Patchable properties ${patchableProperties}`;
     }
-    if (key === 'redirectUris' && !(value instanceof Array)) {
-      return `${key} must be an array`
+    if (key === "redirectUris" && !(value instanceof Array)) {
+      return `${key} must be an array`;
     }
     return null;
   });
-  return error.find(x => x !== null);
+  return error.find((x) => x !== null);
 };
 
 const updateService = async (req, res) => {

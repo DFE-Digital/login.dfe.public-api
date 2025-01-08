@@ -1,5 +1,8 @@
-const { getClientByServiceId, updateService } = require('./../../infrastructure/applications');
-const uuid = require('uuid');
+const {
+  getClientByServiceId,
+  updateService,
+} = require("./../../infrastructure/applications");
+const uuid = require("uuid");
 
 const regenerateSecret = async (req, res) => {
   const service = await getClientByServiceId(req.params.clientid);

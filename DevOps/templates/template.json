@@ -1,182 +1,181 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "templatesBaseUri": {
-            "type": "string"
-        },
-        "AccessToken": {
-            "type": "string",
-            "metadata": {
-                "description": "Token that will acces the private repo from the logic app"
-            }
-        },
-        "branch": {
-            "type": "string",
-            "defaultValue": "main",
-            "metadata": {
-                "description": "Branch that use for the ARM templateLinks"
-            }
-        },
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the App Service"
-            }
-        },
-        "appServicePlanName": {
-            "type": "string",
-            "metadata": {
-                "description": "The sku of the App Service"
-            }
-        },
-        "appServicePlanRG": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Group where the ASP lives"
-            }
-        },
-        "nodeVersion": {
-            "type": "string",
-            "defaultValue": "NODE|14-lts",
-            "metadata": {
-                "description": "The default NodeJS version that the App Service will run"
-            }
-        },
-        "minTlsVersion": {
-            "type": "string",
-            "defaultValue": "1.2",
-            "metadata": {
-                "description": "The minimum tls version for the service"
-            }
-        },
-        "numberOfWorkers": {
-            "type": "int",
-            "defaultValue": 1,
-            "metadata": {
-                "description": "The number of workers to assign to the app service within the app service plan"
-            }
-        },
-        "appServiceConfigPath": {
-            "type": "string",
-            "metadata": {
-                "description": "JSON string containing app config"
-            }
-        },
-        "virtualNetworkResourceGroupName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Resource group of the virtual network"
-            }
-        },
-        "virtualNetworkName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Name of the virtual network"
-            }
-        },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "svc-sn",
-            "metadata": {
-                "description": "Prefix of the subnet to integrate the app service with"
-            }
-        },
-        "enablePrivateEndpoint": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Add app settings to support virtual network private endpoints"
-            }
-        },
-        "includeDeploymentSlot": {
-            "type": "bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Whether or not to include a staging deployment slot"
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templatesBaseUri": {
+      "type": "string"
     },
-    "variables": {
-        "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
-        "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
-        "frontDoorRg": "[if(contains(parameters('virtualNetworkResourceGroupName'),'neu'), replace(parameters('virtualNetworkResourceGroupName'), 'neu-shd', 'fd') ,replace(parameters('virtualNetworkResourceGroupName'), 'shd', 'fd'))]",
-        "frontDoorName": "[replace(variables('frontDoorRg'), '-', '-signin-')]"
+    "AccessToken": {
+      "type": "string",
+      "metadata": {
+        "description": "Token that will acces the private repo from the logic app"
+      }
     },
-    "resources": [
-        {
-            "apiVersion": "2019-05-01",
-            "name": "[parameters('appServiceName')]",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(parameters('templatesBaseUri'),'&repo=DFE-Digital/login.dfe.devops&ref=',parameters('branch'),'&token=', parameters('AccessToken'),'&file=templates/app-service-azure-config.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServiceName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "appServicePlanRG": {
-                        "value": "[parameters('appServicePlanRG')]"
-                    },
-                    "nodeVersion": {
-                        "value": "[parameters('nodeVersion')]"
-                    },
-                    "numberOfWorkers": {
-                        "value": "[parameters('numberOfWorkers')]"
-                    },
-                    "appServiceConfigPath": {
-                        "value": "[parameters('appServiceConfigPath')]"
-                    },
-                    "minTlsVersion": {
-                        "value": "[parameters('minTlsVersion')]"
-                    },
-                    "additionalAppSettings": {
-                        "value": {
-                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4"
-                        }
-                    },
-                     "healthCheckPath": {
-                        "value": "/healthCheck"
-                    },
-                    "subnetResourceId": {
-                        "value": "[variables('serviceSubnetResourceId')]"
-                    },
-                    "enablePrivateEndpointSupport": {
-                        "value": "[parameters('enablePrivateEndpoint')]"
-                    },
-                    "http20Enabled": {
-                        "value": true
-                    },
-                    "includeDeploymentSlot": {
-                        "value": "[parameters('includeDeploymentSlot')]"
-                    },
-                    "ipSecurityRestrictions": {
-                        "value": [
-                            {
-                                "ipAddress": "AzureFrontDoor.Backend",
-                                "action": "Allow",
-                                "tag": "ServiceTag",
-                                "name": "AzureFrontDoor",
-                                "priority": 10,
-                                "headers": {
-                                    "x-azure-fdid": [
-                                            "[reference(resourceId(variables('frontDoorRg'),'Microsoft.Cdn/profiles', variables('frontDoorName')), '2022-11-01-preview').frontDoorId]"
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-
+    "branch": {
+      "type": "string",
+      "defaultValue": "main",
+      "metadata": {
+        "description": "Branch that use for the ARM templateLinks"
+      }
+    },
+    "appServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the App Service"
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "The sku of the App Service"
+      }
+    },
+    "appServicePlanRG": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group where the ASP lives"
+      }
+    },
+    "nodeVersion": {
+      "type": "string",
+      "defaultValue": "NODE|14-lts",
+      "metadata": {
+        "description": "The default NodeJS version that the App Service will run"
+      }
+    },
+    "minTlsVersion": {
+      "type": "string",
+      "defaultValue": "1.2",
+      "metadata": {
+        "description": "The minimum tls version for the service"
+      }
+    },
+    "numberOfWorkers": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of workers to assign to the app service within the app service plan"
+      }
+    },
+    "appServiceConfigPath": {
+      "type": "string",
+      "metadata": {
+        "description": "JSON string containing app config"
+      }
+    },
+    "virtualNetworkResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Resource group of the virtual network"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name of the virtual network"
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "svc-sn",
+      "metadata": {
+        "description": "Prefix of the subnet to integrate the app service with"
+      }
+    },
+    "enablePrivateEndpoint": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Add app settings to support virtual network private endpoints"
+      }
+    },
+    "includeDeploymentSlot": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Whether or not to include a staging deployment slot"
+      }
+    }
+  },
+  "variables": {
+    "enableVirtualNetworkIntegration": "[and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName'))))]",
+    "serviceSubnetResourceId": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'))), '')]",
+    "frontDoorRg": "[if(contains(parameters('virtualNetworkResourceGroupName'),'neu'), replace(parameters('virtualNetworkResourceGroupName'), 'neu-shd', 'fd') ,replace(parameters('virtualNetworkResourceGroupName'), 'shd', 'fd'))]",
+    "frontDoorName": "[replace(variables('frontDoorRg'), '-', '-signin-')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('appServiceName')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templatesBaseUri'),'&repo=DFE-Digital/login.dfe.devops&ref=',parameters('branch'),'&token=', parameters('AccessToken'),'&file=templates/app-service-azure-config.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appServiceName": {
+            "value": "[parameters('appServiceName')]"
+          },
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "appServicePlanRG": {
+            "value": "[parameters('appServicePlanRG')]"
+          },
+          "nodeVersion": {
+            "value": "[parameters('nodeVersion')]"
+          },
+          "numberOfWorkers": {
+            "value": "[parameters('numberOfWorkers')]"
+          },
+          "appServiceConfigPath": {
+            "value": "[parameters('appServiceConfigPath')]"
+          },
+          "minTlsVersion": {
+            "value": "[parameters('minTlsVersion')]"
+          },
+          "additionalAppSettings": {
+            "value": {
+              "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4"
+            }
+          },
+          "healthCheckPath": {
+            "value": "/healthCheck"
+          },
+          "subnetResourceId": {
+            "value": "[variables('serviceSubnetResourceId')]"
+          },
+          "enablePrivateEndpointSupport": {
+            "value": "[parameters('enablePrivateEndpoint')]"
+          },
+          "http20Enabled": {
+            "value": true
+          },
+          "includeDeploymentSlot": {
+            "value": "[parameters('includeDeploymentSlot')]"
+          },
+          "ipSecurityRestrictions": {
+            "value": [
+              {
+                "ipAddress": "AzureFrontDoor.Backend",
+                "action": "Allow",
+                "tag": "ServiceTag",
+                "name": "AzureFrontDoor",
+                "priority": 10,
+                "headers": {
+                  "x-azure-fdid": [
+                    "[reference(resourceId(variables('frontDoorRg'),'Microsoft.Cdn/profiles', variables('frontDoorName')), '2022-11-01-preview').frontDoorId]"
+                  ]
                 }
-            }
+              }
+            ]
+          }
         }
-    ]
+      }
+    }
+  ]
 }

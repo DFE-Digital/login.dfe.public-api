@@ -1,16 +1,18 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.post('/users/signed-up', (req, res) => {
+app.post("/users/signed-up", (req, res) => {
   const sub = req.body.sub;
   const sourceId = req.body.sourceId;
-  const token = req.get('authorization');
+  const token = req.get("authorization");
 
-  console.info(`Received callback\n  sub: ${sub}\n  sourceId: ${sourceId}\n  token: ${token ? 'received' : 'not provided'}`);
+  console.info(
+    `Received callback\n  sub: ${sub}\n  sourceId: ${sourceId}\n  token: ${token ? "received" : "not provided"}`,
+  );
 
   res.status(202).send();
 });
