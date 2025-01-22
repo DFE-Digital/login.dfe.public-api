@@ -3,7 +3,7 @@ const { isHttpUri, isHttpsUri } = require("valid-url");
 const config = require("./../../infrastructure/config");
 const logger = require("./../../infrastructure/logger");
 const { getClientByServiceId } = require("./../../infrastructure/applications");
-const PublicApiClient = require("login.dfe.public-api.jobs.client");
+const { PublicApiClient } = require("login.dfe.jobs-client");
 
 const jobsClient = new PublicApiClient(config.queue);
 

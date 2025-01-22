@@ -6,18 +6,19 @@ jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
 jest.mock("./../../../src/infrastructure/applications");
-jest.mock("login.dfe.public-api.jobs.client");
+jest.mock("login.dfe.jobs-client");
 
 const { mockRequest, mockResponse } = require("./../../utils");
 const {
   getClientByServiceId,
 } = require("./../../../src/infrastructure/applications");
-const sendInvitationRequest = jest.fn();
-require("login.dfe.public-api.jobs.client").mockImplementation(() => {
-  return {
-    sendInvitationRequest,
-  };
-});
+
+const sendInvitationRequestStub = jest.fn();
+const publicApiClient = require("login.dfe.jobs-client").PublicApiClient;
+publicApiClient.mockImplementation(() => ({
+  sendInvitationRequest: sendInvitationRequestStub,
+}));
+
 const inviteUser = require("./../../../src/app/services/inviteUser");
 
 const res = mockResponse();
@@ -38,8 +39,6 @@ describe("When inviting a user", () => {
         serviceId: "da03ea7a-6c5b-4864-be53-2eaccf63bec4",
       },
     });
-
-    sendInvitationRequest.mockReset();
 
     req = mockRequest({
       params: {
@@ -201,8 +200,8 @@ describe("When inviting a user", () => {
   it("then it should queue an invitation request with invitation details", async () => {
     await inviteUser(req, res);
 
-    expect(sendInvitationRequest).toHaveBeenCalledTimes(1);
-    expect(sendInvitationRequest).toHaveBeenCalledWith(
+    expect(sendInvitationRequestStub).toHaveBeenCalledTimes(1);
+    expect(sendInvitationRequestStub).toHaveBeenCalledWith(
       req.body.given_name,
       req.body.family_name,
       req.body.email,
@@ -221,8 +220,8 @@ describe("When inviting a user", () => {
     req.body.inviteBodyOverride = "BODY";
     await inviteUser(req, res);
 
-    expect(sendInvitationRequest).toHaveBeenCalledTimes(1);
-    expect(sendInvitationRequest).toHaveBeenCalledWith(
+    expect(sendInvitationRequestStub).toHaveBeenCalledTimes(1);
+    expect(sendInvitationRequestStub).toHaveBeenCalledWith(
       req.body.given_name,
       req.body.family_name,
       req.body.email,
@@ -240,7 +239,7 @@ describe("When inviting a user", () => {
     req.body.userRedirect.redirect_uris = undefined;
 
     await inviteUser(req, res);
-    expect(sendInvitationRequest.mock.calls[0][6]).toBe(
+    expect(sendInvitationRequestStub.mock.calls[0][6]).toBe(
       "https://another.url/signup/complete",
     );
   });
