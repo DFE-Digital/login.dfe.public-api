@@ -23,10 +23,15 @@ const getRoles = async () => {
 const getServiceUsersV2 = async () => {
   return Promise.resolve();
 };
+
+const getServicesForUser = async () => {
+  return Promise.resolve();
+};
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
   getServiceUsers,
   getRoles,
   getServiceUsersV2,
+  getServicesForUser,
 };
