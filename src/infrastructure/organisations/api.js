@@ -180,6 +180,24 @@ const getServiceById = async (serviceId, correlationId) => {
   );
 };
 
+const getOrganisationCategories = async (correlationId) => {
+  return await callOrganisationsApi(
+    `organisations/categories`,
+    "GET",
+    undefined,
+    correlationId,
+  );
+};
+
+const getOrganisationStatuses = async (correlationId) => {
+  return await callOrganisationsApi(
+    `organisations/states`,
+    "GET",
+    undefined,
+    correlationId,
+  );
+};
+
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   getOrganisationById,
@@ -188,6 +206,8 @@ module.exports = {
   getOrganisationsAssociatedWithUser,
   getOrganisationsAssociatedWithUserV2,
   getUsersForOrganisation,
+  getOrganisationCategories,
+  getOrganisationStatuses,
   listServiceUsers,
   listOrganisationUsersV3,
   getUserOrganisation,
