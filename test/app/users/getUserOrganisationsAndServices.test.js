@@ -74,8 +74,6 @@ describe("when getting users organisations and services", () => {
       },
     ]);
 
-    console.log(listServiceUsers);
-
     listServiceUsers.mockReset().mockReturnValue({
       users: [
         {
@@ -136,8 +134,23 @@ describe("when getting users organisations and services", () => {
       {
         userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
         serviceId: "4FD40032-61A6-4BEB-A6C4-6B39A3AF81C1",
-        organisationId: "05E12438-5278-40F8-BD83-937D2CC7489F",
-        roles: [],
+        organisationId: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
+        roles: [
+          {
+            id: "0B8625A7-43CB-433C-9991-00331879251B",
+            name: "School Experience - Service Configuration",
+            code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+            numericId: "21871",
+            status: [],
+          },
+          {
+            id: "797B1672-6718-40E7-A4E9-003ABBFCCEE2",
+            name: "Apprenticeship service for training providers - Service Banner",
+            code: "DFBA978F-4E45-496F-8AC4-E27F18D0CE9D_serviceBanner",
+            numericId: "22032",
+            status: [],
+          },
+        ],
         identifiers: [],
         accessGrantedOn: "2024-10-04T15:49:02Z",
       },
@@ -159,10 +172,10 @@ describe("when getting users organisations and services", () => {
 
     getRoles.mockReset().mockReturnValue([
       {
-        id: "256A61E4-B40E-47E1-962E-0CFF774C89A8",
-        name: "Academy Budget Forecast Return - Service Access Management",
-        code: "49FFFA46-BB7A-439A-B7A1-7CA00FF77456_accessManage",
-        numericId: "22439",
+        id: "0B8625A7-43CB-433C-9991-00331879251B",
+        name: "School Experience - Service Configuration",
+        code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+        numericId: "21871",
         status: { id: 1 },
       },
       {
@@ -220,7 +233,12 @@ describe("when getting users organisations and services", () => {
           services: {
             description: "DfE Sign-in Manage",
             name: "DfE Sign-in manage",
-            roles: [],
+            roles: [
+              {
+                code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+                name: "School Experience - Service Configuration",
+              },
+            ],
           },
           status: { id: 1, name: "Open" },
           statutoryHighAge: null,
@@ -234,5 +252,20 @@ describe("when getting users organisations and services", () => {
       userId: undefined,
       userStatus: undefined,
     });
+  });
+
+  it("then it raise an exception if an exception is raised on any api call", async () => {
+    usersByIds.mockReset().mockImplementation(() => {
+      const error = new Error("Client Error");
+      error.statusCode = 400;
+      throw error;
+    });
+
+    try {
+      await getUsersOrganisationsAndServices(req, res);
+    } catch (e) {
+      expect(e.statusCode).toEqual(400);
+      expect(e.message).toEqual("Client Error");
+    }
   });
 });

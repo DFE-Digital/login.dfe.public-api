@@ -173,7 +173,7 @@ const getUsersForOrganisation = async (organisationId, correlationId) => {
 
 const getServiceById = async (serviceId, correlationId) => {
   return await callOrganisationsApi(
-    `/services/${serviceId}`,
+    `services/${serviceId}`,
     "GET",
     undefined,
     correlationId,

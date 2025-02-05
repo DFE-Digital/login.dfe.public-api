@@ -36,12 +36,6 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       200,
       req.correlationId,
     );
-    console.log(pageOfUserServices.users[0]);
-
-    // Get list of ALL services for the user.  We need this because it has all the the service specific roles
-    // for the user against each service for each organisationId.
-    // We need this because that role information isn't provided in the listServiceUsers call.
-    const servicesForAUser = await getServicesForUser(uid, correlationId);
 
     let response = {
       userId: userDetails[0].id,
@@ -105,12 +99,16 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     });
     response.organisations = mappedOrgs;
 
+    // Get list of ALL services for the user.  We need this because it has all the the service specific roles
+    // for the user against each service for each organisationId.
+    // We need this because that role information isn't provided in the listServiceUsers call.
+    const servicesForAUser = await getServicesForUser(uid, correlationId);
+
     // A user can have multiple organisations for the same service, so we loop over them all.
     for (const organisation of response.organisations) {
       organisation.orgRoleId = pageOfUserServices.users[0].role.id;
       organisation.orgRoleName = pageOfUserServices.users[0].role.name;
 
-      // TODO, can this find more than 1 record?
       const orgServiceData = servicesForAUser.find(
         (service) => service.organisationId === organisation.id,
       );
@@ -118,9 +116,6 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       // Resolve all the serviceIds and roleIds into names for the response
       const serviceDetails = await getServiceById(orgServiceData.serviceId);
       const roleDataForService = await getRoles(orgServiceData.serviceId);
-
-      console.log(serviceDetails);
-      console.log(roleDataForService);
 
       const tidiedServiceDetails = {
         name: serviceDetails.name,
