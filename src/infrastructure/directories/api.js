@@ -27,6 +27,31 @@ const usersByIds = async (ids) => {
   }
 };
 
+const userById = async (id) => {
+  if (!id) {
+    return undefined;
+  }
+  const token = await jwtStrategy(config.directories.service).getBearerToken();
+  try {
+    const users = await fetchApi(
+      `${config.directories.service.url}/users/${id}`,
+      {
+        method: "GET",
+        headers: {
+          authorization: `bearer ${token}`,
+        },
+      },
+    );
+    return users;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return undefined;
+    }
+    throw e;
+  }
+};
+
 module.exports = {
+  userById,
   usersByIds,
 };

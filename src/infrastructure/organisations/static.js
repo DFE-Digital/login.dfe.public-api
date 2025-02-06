@@ -71,6 +71,22 @@ const getUsersForOrganisation = async () => {
   return Promise.resolve();
 };
 
+const listServiceUsers = async () => {
+  return Promise.resolve();
+};
+
+const getServiceById = async () => {
+  return Promise.resolve();
+};
+
+const getOrganisationCategories = async () => {
+  return Promise.resolve();
+};
+
+const getOrganisationStatuses = async () => {
+  return Promise.resolve();
+};
+
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
@@ -78,4 +94,8 @@ module.exports = {
   upsertOrganisationAnnouncement,
   getOrganisationsAssociatedWithUser,
   listOrganisationUsersV3,
+  listServiceUsers,
+  getServiceById,
+  getOrganisationCategories,
+  getOrganisationStatuses,
 };
