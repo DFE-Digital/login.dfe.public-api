@@ -5,7 +5,7 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
+const { userById } = require("../../infrastructure/directories");
 const { getServicesForUser, getRoles } = require("../../infrastructure/access");
 
 const getUsersOrganisationsAndServices = async (req, res) => {
@@ -21,7 +21,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     );
 
     // Get the details for the user (name, email, etc)
-    const userDetails = await usersByIds(uid, correlationId);
+    const userDetails = await userById(uid, correlationId);
     if (!userDetails) {
       return res.status(404).send();
     }
@@ -38,12 +38,17 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     );
 
     let response = {
-      userId: userDetails[0].id,
-      userStatus: userDetails[0].status,
-      email: userDetails[0].email,
-      familyName: userDetails[0].family_name,
-      givenName: userDetails[0].given_name,
+      userId: userDetails.sub,
+      userStatus: userDetails.status,
+      email: userDetails.email,
+      familyName: userDetails.family_name,
+      givenName: userDetails.given_name,
+      organisations: [],
     };
+
+    if (pageOfUserServices.users.length === 0) {
+      return res.send(response);
+    }
 
     // Need to do 2 calls so we can translate the organisation category and status
     // ids into their human readable names
@@ -95,6 +100,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
         ProviderTypeName: x.organisation.ProviderTypeName,
         GIASProviderType: x.organisation.GIASProviderType,
         PIMSProviderTypeCode: x.organisation.PIMSProviderTypeCode,
+        services: [],
       };
     });
     response.organisations = mappedOrgs;
@@ -109,35 +115,35 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       organisation.orgRoleId = pageOfUserServices.users[0].role.id;
       organisation.orgRoleName = pageOfUserServices.users[0].role.name;
 
-      const orgServiceData = servicesForAUser.find(
+      // Find all the services the user has for this organisation so we can put it in the response
+      const services = servicesForAUser.filter(
         (service) => service.organisationId === organisation.id,
       );
 
-      // Resolve all the serviceIds and roleIds into names for the response
-      const serviceDetails = await getServiceById(orgServiceData.serviceId);
-      const roleDataForService = await getRoles(orgServiceData.serviceId);
+      for (const service of services) {
+        // Resolve all the serviceIds and roleIds into human readable names for the response
+        const serviceDetails = await getServiceById(service.serviceId);
+        const roleDataForService = await getRoles(service.serviceId);
 
-      const tidiedServiceDetails = {
-        name: serviceDetails.name,
-        description: serviceDetails.description,
-        roles: [],
-      };
-
-      // For all the roles in the service, loop over them so we have a list of names instead
-      // of a list of just ids.
-      const roles = [];
-      for (const role of orgServiceData.roles) {
-        const roleData = roleDataForService.find((r) => r.id === role.id);
-        if (roleData) {
-          const tidiedRoleData = {
-            name: roleData.name,
-            code: roleData.code,
-          };
-          roles.push(tidiedRoleData);
+        // For all the roles in the service, loop over them so we have a list of names instead
+        // of a list of just ids.
+        const serviceRoles = [];
+        for (const role of service.roles) {
+          const serviceRole = roleDataForService.find((r) => r.id === role.id);
+          if (serviceRole) {
+            serviceRoles.push({
+              name: serviceRole.name,
+              code: serviceRole.code,
+            });
+          }
         }
+
+        organisation.services.push({
+          name: serviceDetails.name,
+          description: serviceDetails.description,
+          roles: serviceRoles,
+        });
       }
-      tidiedServiceDetails.roles = roles;
-      organisation.services = tidiedServiceDetails;
     }
     return res.send(response);
   } catch (e) {

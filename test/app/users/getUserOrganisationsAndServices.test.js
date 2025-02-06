@@ -19,7 +19,7 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../../src/infrastructure/organisations");
-const { usersByIds } = require("../../../src/infrastructure/directories");
+const { userById } = require("../../../src/infrastructure/directories");
 const getUsersOrganisationsAndServices = require("../../../src/app/users/getUsersOrganisationsAndServices");
 
 const res = mockResponse();
@@ -68,11 +68,15 @@ describe("when getting users organisations and services", () => {
     });
     res.mockResetAll();
 
-    usersByIds.mockReset().mockReturnValue([
-      {
-        email: "test@example.com",
-      },
-    ]);
+    userById.mockReset().mockReturnValue({
+      sub: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+      given_name: "Test",
+      family_name: "User",
+      email: "test@example.com",
+      job_title: null,
+      status: 1,
+      phone_number: null,
+    });
 
     listServiceUsers.mockReset().mockReturnValue({
       users: [
@@ -194,10 +198,30 @@ describe("when getting users organisations and services", () => {
   });
 
   it("then it should return 404 if the user isn't found", async () => {
-    usersByIds.mockReset().mockReturnValue(undefined);
+    userById.mockReset().mockReturnValue(undefined);
     await getUsersOrganisationsAndServices(req, res);
 
     expect(res.status.mock.calls[0][0]).toBe(404);
+  });
+
+  it("then it should return 200 with empty organisations if listServiceUsers is empty", async () => {
+    listServiceUsers.mockReset().mockReturnValue({
+      users: [],
+      page: 1,
+      totalNumberOfPages: 0,
+      totalNumberOfRecords: 0,
+    });
+    await getUsersOrganisationsAndServices(req, res);
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send.mock.calls[0][0]).toMatchObject({
+      userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+      userStatus: 1,
+      email: "test@example.com",
+      familyName: "User",
+      givenName: "Test",
+      organisations: [],
+    });
   });
 
   it("then it should return 200 if the user is found", async () => {
@@ -205,9 +229,11 @@ describe("when getting users organisations and services", () => {
 
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send.mock.calls[0][0]).toMatchObject({
+      userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+      userStatus: 1,
       email: "test@example.com",
-      familyName: undefined,
-      givenName: undefined,
+      familyName: "User",
+      givenName: "Test",
       organisations: [
         {
           DistrictAdministrativeName: null,
@@ -230,16 +256,23 @@ describe("when getting users organisations and services", () => {
           name: "Department for Education",
           orgRoleId: 10000,
           orgRoleName: "Approver",
-          services: {
-            description: "DfE Sign-in Manage",
-            name: "DfE Sign-in manage",
-            roles: [
-              {
-                code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
-                name: "School Experience - Service Configuration",
-              },
-            ],
-          },
+          services: [
+            {
+              description: "DfE Sign-in Manage",
+              name: "DfE Sign-in manage",
+              roles: [
+                {
+                  code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+                  name: "School Experience - Service Configuration",
+                },
+              ],
+            },
+            {
+              description: "DfE Sign-in Manage",
+              name: "DfE Sign-in manage",
+              roles: [],
+            },
+          ],
           status: { id: 1, name: "Open" },
           statutoryHighAge: null,
           statutoryLowAge: null,
@@ -249,13 +282,11 @@ describe("when getting users organisations and services", () => {
           urn: null,
         },
       ],
-      userId: undefined,
-      userStatus: undefined,
     });
   });
 
   it("then it raise an exception if an exception is raised on any api call", async () => {
-    usersByIds.mockReset().mockImplementation(() => {
+    userById.mockReset().mockImplementation(() => {
       const error = new Error("Client Error");
       error.statusCode = 400;
       throw error;
