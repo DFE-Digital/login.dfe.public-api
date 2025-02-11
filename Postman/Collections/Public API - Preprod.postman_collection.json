@@ -266,6 +266,46 @@
       "response": []
     },
     {
+      "name": "Organisations and Services for User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/:uid/organisationservices",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", ":uid", "organisationservices"],
+          "variable": [
+            {
+              "key": "uid",
+              "value": "0707240D-5811-4A9B-8AA9-C3EBC8483ECC"
+            }
+          ]
+        },
+        "description": "Gives all orgs and services associated with a user based on the clientId."
+      },
+      "response": []
+    },
+    {
       "name": "service Users",
       "event": [
         {

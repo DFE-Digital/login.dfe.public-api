@@ -488,6 +488,103 @@ This will return a response in the following format
 ]
 ```
 
+### Get organisations and services for user
+
+You can use this API to get the organisations associated with a user
+The request looks like
+
+```
+GET https://environment-url/users/{user-id}/organisationservices
+Authorization: bearer {jwt-token}
+```
+
+The variable data items are:
+
+| Name      | Location | Required | Description                                                                                           |
+| --------- | -------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| user-id   | URL      | Y        | The DfE Sign-in identifier for the user                                                               |
+| jwt-token | Header   | Y        | The JWT token for authorization should be signed using your API secret, which will be provided to you |
+
+This will return a response in the following format
+
+```
+{
+    "userId": "user-1",
+    "userStatus": 1,
+    "email": "test-user@education.gov.uk",
+    "familyName": "User",
+    "givenName": "Test",
+    "organisations": [
+        {
+            "id": "org-1",
+            "name": "Test org name",
+            "category": {
+                "id": "002",
+                "name": "Local Authority"
+            },
+            "urn": null,
+            "uid": "123",
+            "ukprn": null,
+            "establishmentNumber": "001",
+            "status": {
+                "id": 1,
+                "name": "Open"
+            },
+            "closedOn": null,
+            "address": null,
+            "telephone": null,
+            "statutoryLowAge": null,
+            "statutoryHighAge": null,
+            "legacyId": "1234567",
+            "companyRegistrationNumber": null,
+            "ProviderProfileID": null,
+            "UPIN": null,
+            "PIMSProviderType": null,
+            "PIMSStatus": null,
+            "DistrictAdministrativeName": null,
+            "OpenedOn": null,
+            "SourceSystem": null,
+            "ProviderTypeName": null,
+            "GIASProviderType": null,
+            "PIMSProviderTypeCode": null,
+            "services": [
+                {
+                    "name": "DfE Sign-in test service",
+                    "description": "DfE Sign-in test service",
+                    "roles": [
+                        {
+                            "name": "Role 1 name",
+                            "code": "role-1-code"
+                        },
+                        {
+                            "name": "Role 2 name",
+                            "code": "role-2-code"
+                        },
+                    ]
+                },
+                {
+                    "name": "Another service",
+                    "description": "Another service description",
+                    "roles": [
+                        {
+                            "name": "Service role 1",
+                            "code": "service_role_2"
+                        }
+                    ]
+                },
+                {
+                    "name": "DfE Sign-in",
+                    "description": "DfE Sign-in Services",
+                    "roles": []
+                }
+            ],
+            "orgRoleId": 10000,
+            "orgRoleName": "Approver"
+        }
+    ]
+}
+```
+
 ### Service Users without filters
 
 You can get a list of users without filters as defined in the Authorization token (iss attribute)  
