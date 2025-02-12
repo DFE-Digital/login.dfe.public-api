@@ -4,6 +4,7 @@ const getServiceUsers = require("./getServiceUsers");
 
 const getUserOrganisations = require("./getUsersOrganisations");
 const getUserOrganisationsV2 = require("./getUsersOrganisationsV2");
+const getUserOrganisationsAndServices = require("./getUsersOrganisationsAndServices");
 
 const getApprovers = require("./getApprovers");
 
@@ -12,6 +13,10 @@ const area = () => {
 
   router.get("/:id/organisations", asyncWrapper(getUserOrganisations));
   router.get("/:id/v2/organisations", asyncWrapper(getUserOrganisationsV2));
+  router.get(
+    "/:id/organisationservices",
+    asyncWrapper(getUserOrganisationsAndServices),
+  );
   router.get("/", asyncWrapper(getServiceUsers));
   router.get("/approvers", asyncWrapper(getApprovers));
 
