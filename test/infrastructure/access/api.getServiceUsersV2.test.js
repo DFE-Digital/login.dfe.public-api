@@ -2,10 +2,10 @@ jest.mock("login.dfe.async-retry");
 jest.mock("login.dfe.jwt-strategies");
 jest.mock("./../../../src/infrastructure/config", () =>
   require("../../utils").mockConfig({
-    applications: {
+    access: {
       type: "api",
       service: {
-        url: "http://applications.test",
+        url: "http://access.test",
         retryFactor: 0,
         numberOfRetries: 2,
       },
@@ -15,28 +15,17 @@ jest.mock("./../../../src/infrastructure/config", () =>
 
 const { fetchApi } = require("login.dfe.async-retry");
 const jwtStrategy = require("login.dfe.jwt-strategies");
-const {
-  getClientByServiceId,
-} = require("../../../src/infrastructure/applications/api");
+const { getServiceUsersV2 } = require("../../../src/infrastructure/access/api");
 
 const serviceId = "service-1";
+const organisationId = "org-1";
+const roleIds = ["role-1", "role-2"];
+const page = 1;
+const pageSize = 10;
 const correlationId = "abc123";
-const apiResponse = [
-  {
-    userId: "user-1",
-    serviceId: "service1Id",
-    organisationId: "organisation-1",
-    roles: [],
-  },
-  {
-    userId: "user-1",
-    serviceId: "service2Id",
-    organisationId: "organisation-1",
-    roles: [],
-  },
-];
+const apiResponse = {};
 
-describe("when getting a users services mapping from api", () => {
+describe("when calling the getServiceUsersV2 function", () => {
   beforeEach(() => {
     fetchApi.mockReset();
     fetchApi.mockImplementation(() => {
@@ -51,12 +40,19 @@ describe("when getting a users services mapping from api", () => {
     });
   });
 
-  it("then it should call users resource with user id", async () => {
-    await getClientByServiceId(serviceId, correlationId);
+  it("then it should call service resource with the provided parameters", async () => {
+    await getServiceUsersV2(
+      serviceId,
+      organisationId,
+      roleIds,
+      page,
+      pageSize,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls).toHaveLength(1);
     expect(fetchApi.mock.calls[0][0]).toBe(
-      "http://applications.test/services/service-1",
+      "http://access.test/services/service-1/organisations/org-1/users?version=v2&page=1&pageSize=10&roleIds=role-1,role-2",
     );
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       method: "GET",
@@ -64,7 +60,14 @@ describe("when getting a users services mapping from api", () => {
   });
 
   it("should use the token from jwt strategy as bearer token", async () => {
-    await getClientByServiceId(serviceId, correlationId);
+    await getServiceUsersV2(
+      serviceId,
+      organisationId,
+      roleIds,
+      page,
+      pageSize,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -74,18 +77,20 @@ describe("when getting a users services mapping from api", () => {
   });
 
   it("should include the correlation id", async () => {
-    await getClientByServiceId(serviceId, correlationId);
+    await getServiceUsersV2(
+      serviceId,
+      organisationId,
+      roleIds,
+      page,
+      pageSize,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
         "x-correlation-id": correlationId,
       },
     });
-  });
-
-  it("should return undefined if there is no service id provided", async () => {
-    const result = await getClientByServiceId("", correlationId);
-    expect(result).toBe(undefined);
   });
 
   it("should return false on a 404 response", async () => {
@@ -95,7 +100,14 @@ describe("when getting a users services mapping from api", () => {
       throw error;
     });
 
-    const result = await getClientByServiceId(serviceId, correlationId);
+    const result = await getServiceUsersV2(
+      serviceId,
+      organisationId,
+      roleIds,
+      page,
+      pageSize,
+      correlationId,
+    );
     expect(result).toEqual(undefined);
   });
 
@@ -107,7 +119,14 @@ describe("when getting a users services mapping from api", () => {
     });
 
     try {
-      await getClientByServiceId(serviceId, correlationId);
+      await getServiceUsersV2(
+        serviceId,
+        organisationId,
+        roleIds,
+        page,
+        pageSize,
+        correlationId,
+      );
     } catch (e) {
       expect(e.statusCode).toEqual(400);
       expect(e.message).toEqual("Client Error");
