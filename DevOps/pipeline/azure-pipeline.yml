@@ -112,7 +112,7 @@ stages:
                 - ${{ if eq(variables.pr, 'true') }}:
                     - pr
               pm2ProcessFileName: process.json
-              nodeVersionSpec: "18.17.0"
+              nodeVersionSpec: "22.11.0"
               useRevisedLinting: true
 
   - ${{ each location in parameters.location }}:
@@ -156,7 +156,7 @@ stages:
                       releaseArtifactName: ${{variables.applicationShortName}}-${{env}}-$(Build.BuildId)-release
                       InfrDeploy: ${{parameters.InfrDeploy}}
                       deploymentLocation: ${{location}}
-                      runtimeStack: NODE|18-lts
+                      runtimeStack: NODE|22-lts
                       pm2ProcessFileName: process.json
                       gitCheck: ${{parameters.gitCheck}}
 
