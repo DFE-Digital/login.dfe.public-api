@@ -12,7 +12,7 @@ const config = {
   hostingEnvironment: {
     env: process.env.LOCAL_ENV || "azure",
     host: process.env.LOCAL_HOST || process.env.STANDALONE_PUBLIC_API_HOST_NAME,
-    port: process.env.LOCAL_PORT_PUBLIC-API || 443,
+    port: process.env.LOCAL_PORT_PUBLIC_API || 443,
     sslCert: process.env.LOCAL_SSL_CERT || "",
     sslKey: process.env.LOCAL_SSL_KEY || "",
     protocol: "https",
