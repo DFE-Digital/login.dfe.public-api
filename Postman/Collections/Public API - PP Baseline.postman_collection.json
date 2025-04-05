@@ -1,0 +1,525 @@
+{
+  "info": {
+    "_postman_id": "2f783ea8-824d-47e5-9a78-c9de53e58d6e",
+    "name": "Public API - PP Baseline",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1029983"
+  },
+  "item": [
+    {
+      "name": "Service Org User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+          "host": ["{{public-api-url}}"],
+          "path": [
+            "services",
+            ":sid",
+            "organisations",
+            ":oid",
+            "users",
+            ":uid"
+          ],
+          "variable": [
+            {
+              "key": "sid",
+              "value": "6f7a7b2b-9c51-45f5-b7b6-b48c4381fb7a"
+            },
+            {
+              "key": "oid",
+              "value": "4b8ed4bf-633c-41e2-b8bf-e74184d1d95b"
+            },
+            {
+              "key": "uid",
+              "value": "0903e142-3d3b-4cac-99d7-19515529486b"
+            }
+          ]
+        },
+        "description": "Checks service access for a specific user org relationship"
+      },
+      "response": [
+        {
+          "name": "Service Org User - Organisation",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{bearer}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{public-api-url}}/services/:sid/organisations/:oid/users/:uid",
+              "host": ["{{public-api-url}}"],
+              "path": [
+                "services",
+                ":sid",
+                "organisations",
+                ":oid",
+                "users",
+                ":uid"
+              ],
+              "variable": [
+                {
+                  "key": "sid",
+                  "value": "2354CB2E-F559-4BF4-9981-4F6C6890AA5E"
+                },
+                {
+                  "key": "oid",
+                  "value": "FD0E5C93-FA9C-43F8-8967-000A36832AA0"
+                },
+                {
+                  "key": "uid",
+                  "value": "7E5C41FC-3397-4EF7-B5A9-0003FFB00A6B"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Length",
+              "value": "306"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 21 Jun 2022 23:22:28 GMT"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"132-eB+Nelq6UmM2CLgAYNxELcYMAX8\""
+            },
+            {
+              "key": "request-context",
+              "value": "appId=cid-v1:7b1320c9-9bd7-44de-9079-9e5aed5c2e16"
+            },
+            {
+              "key": "Content-Security-Policy",
+              "value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "Expect-CT",
+              "value": "max-age=0"
+            },
+            {
+              "key": "X-Frame-Options",
+              "value": "DENY"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=86400; includeSubDomains; preload"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"id\": \"FD0E5C93-FA9C-43F8-8967-000A36832AA0\",\n    \"name\": \"Kingskerswell Church of England Primary School\",\n    \"Category\": \"001\",\n    \"Type\": \"03\",\n    \"URN\": \"113398\",\n    \"UID\": null,\n    \"UKPRN\": \"10073838\",\n    \"EstablishmentNumber\": \"3112\",\n    \"Status\": 1,\n    \"ClosedOn\": null,\n    \"Address\": \"Coffinswell Lane, Kingskerswell, Newton Abbot, Devon, TQ12 5HN\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Manage Announcements",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+              "});",
+              "",
+              "const response = JSON.parse(responseBody);",
+              "const messageId = response.originId;",
+              "pm.environment.set('message-id', messageId);"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let date = Date.now();",
+              "pm.environment.set('date' , date);"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"messageId\": \"{{$guid}}\",\n\t\"urn\": \"142385\",\n\t\"type\": 1,\n\t\"title\": \"Test announcement\",\n\t\"summary\": \"Announcement summary\",\n\t\"body\": \"Announcement body\",\n\t\"publishedAt\": {{date}},\n\t\"expiresAt\": {{future-epoch}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{public-api-url}}/organisations/announcements",
+          "host": ["{{public-api-url}}"],
+          "path": ["organisations", "announcements"]
+        },
+        "description": "Stored in the organisation_announcement tables, can check this to verify"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Child Applications",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Public_api_test_app\",\n    \"description\": \"does nothing\",\n    \"clientId\": \"test-client-id\",\n    \"client\": \"child-application-clientsecret\",\n    \"redirectUris\": [\n\t    \"https://endpoint.one/auth/cb\",\n\t    \"https://endpoint.two/login/callback\"\n\t]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{public-api-url}}/services",
+          "host": ["{{public-api-url}}"],
+          "path": ["services"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Organisations for User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/:uid/organisations",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", ":uid", "organisations"],
+          "variable": [
+            {
+              "key": "uid",
+              "value": "cbb1a2fc-da09-4b3b-abdc-2e254c9607a4"
+            }
+          ]
+        },
+        "description": "Gives all orgs associated with a user."
+      },
+      "response": []
+    },
+    {
+      "name": "Organisations and Services for User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/:uid/organisationservices",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", ":uid", "organisationservices"],
+          "variable": [
+            {
+              "key": "uid",
+              "value": "0903e142-3d3b-4cac-99d7-19515529486b"
+            }
+          ]
+        },
+        "description": "Gives all orgs and services associated with a user based on the clientId."
+      },
+      "response": []
+    },
+    {
+      "name": "List Service Users",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users?page=1&pageSize=25",
+          "host": ["{{public-api-url}}"],
+          "path": ["users"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "25"
+            }
+          ]
+        },
+        "description": "Get all users with a service"
+      },
+      "response": []
+    },
+    {
+      "name": "Approvers for Organisations",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/users/approvers?page=1&pageSize=25",
+          "host": ["{{public-api-url}}"],
+          "path": ["users", "approvers"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Organisation Users by Roles",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/organisations/:ukprn/users",
+          "host": ["{{public-api-url}}"],
+          "path": ["organisations", ":ukprn", "users"],
+          "variable": [
+            {
+              "key": "ukprn",
+              "value": "10057831"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Roles for Service",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{public-api-url}}/services/:cid/roles",
+          "host": ["{{public-api-url}}"],
+          "path": ["services", ":cid", "roles"],
+          "variable": [
+            {
+              "key": "cid",
+              "value": "MYESF"
+            }
+          ]
+        },
+        "description": "Returns all roles associated with a service."
+      },
+      "response": []
+    }
+  ]
+}
