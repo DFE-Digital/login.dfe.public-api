@@ -28,29 +28,6 @@ const getClientByServiceId = async (id, correlationId) => {
   }
 };
 
-const createService = async (service, correlationId) => {
-  const token = await jwtStrategy(config.applications.service).getBearerToken();
-  try {
-    const client = await fetchApi(
-      `${config.applications.service.url}/services`,
-      {
-        method: "POST",
-        headers: {
-          authorization: `bearer ${token}`,
-          "x-correlation-id": correlationId,
-        },
-        body: service,
-      },
-    );
-    return client;
-  } catch (e) {
-    if (e.statusCode === 404) {
-      return undefined;
-    }
-    throw e;
-  }
-};
-
 const updateService = async (id, patchedProperties, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
@@ -170,7 +147,6 @@ const listServiceGrantTokens = async (
 
 module.exports = {
   getClientByServiceId,
-  createService,
   updateService,
   listServices,
   destroyService,

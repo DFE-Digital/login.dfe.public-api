@@ -18,10 +18,6 @@ const getClientByServiceId = async (id) => {
   );
 };
 
-const createService = async (service) => {
-  Promise.resolve(Object.assign({}, service, { id: uuid.v4() }));
-};
-
 const destroyService = async () => {
   return Promise.resolve();
 };
@@ -41,7 +37,6 @@ const listServices = async (parentId, page) => {
 
 module.exports = {
   getClientByServiceId,
-  createService,
   destroyService,
   updateService,
   listServices,
