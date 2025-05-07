@@ -8,8 +8,6 @@ const regenerateSecret = require("./regenerateSecret");
 const inviteUser = require("./inviteUser");
 const getUsersAccess = require("./getUsersAccess");
 const deleteService = require("./deleteService");
-const serviceGrants = require("./serviceGrants");
-const serviceGrantTokens = require("./serviceGrantTokens");
 const getServiceRoles = require("./getServiceRoles");
 
 const area = () => {
@@ -28,9 +26,6 @@ const area = () => {
     asyncWrapper(getUsersAccess),
   );
   // router.get('/:sid/users/:uid', asyncWrapper(getUsersAccess)); // TODO: Allow this once users can be mapped without organisation
-
-  router.get("/:sid/grants", asyncWrapper(serviceGrants));
-  router.get("/:sid/grants/:grantId/tokens", asyncWrapper(serviceGrantTokens));
 
   return router;
 };
