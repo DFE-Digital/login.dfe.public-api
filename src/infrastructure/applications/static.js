@@ -1,5 +1,3 @@
-const uuid = require("uuid");
-
 const clients = [
   {
     client_id: "client1",
@@ -16,10 +14,6 @@ const getClientByServiceId = async (id) => {
   return Promise.resolve(
     clients.find((c) => c.client_id.toLowerCase() === id.toLowerCase()),
   );
-};
-
-const createService = async (service) => {
-  Promise.resolve(Object.assign({}, service, { id: uuid.v4() }));
 };
 
 const destroyService = async () => {
@@ -41,7 +35,6 @@ const listServices = async (parentId, page) => {
 
 module.exports = {
   getClientByServiceId,
-  createService,
   destroyService,
   updateService,
   listServices,

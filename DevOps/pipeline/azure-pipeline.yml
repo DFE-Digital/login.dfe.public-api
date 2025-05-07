@@ -96,7 +96,6 @@ variables:
     value: "tran,dev,test,pp,pr"
 
 stages:
-
   - ${{ if eq(parameters.existTag, ' ') }}:
       # Code Scans & Build the artifact for deployment
       - stage: scanBuildApp
@@ -108,17 +107,17 @@ stages:
               custRegAuth: $(custRegAuth)
 
           - ${{ if  and(not(parameters.InfrDeploy), eq(variables.buildNotNeeded, 'false')) }}:
-            - template:  pipeline/components/build/buildAppServicesNodeJs.yml@devopsTemplates
-              parameters:
-                applicationName: ${{variables.applicationFullName}}
-                custRegAuth: $(custRegAuth)
-                ContRegServers:
-                  - ${{ if eq(variables.ContRegServerTran, 'true') }}:
-                    - name: '$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io'
-                      servCon: $(devServiceConnection)
-                  - name: '$(platformGlobalIdentifier)$(prShaCode)$(platformGlobalName)shdcr.azurecr.io'
-                    servCon: $(prodServiceConnection)
-                nodeVersionSpec: "22.11.0"
+              - template: pipeline/components/build/buildAppServicesNodeJs.yml@devopsTemplates
+                parameters:
+                  applicationName: ${{variables.applicationFullName}}
+                  custRegAuth: $(custRegAuth)
+                  ContRegServers:
+                    - ${{ if eq(variables.ContRegServerTran, 'true') }}:
+                        - name: "$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr.azurecr.io"
+                          servCon: $(devServiceConnection)
+                    - name: "$(platformGlobalIdentifier)$(prShaCode)$(platformGlobalName)shdcr.azurecr.io"
+                      servCon: $(prodServiceConnection)
+                  nodeVersionSpec: "22.11.0"
 
   - ${{ each location in parameters.location }}:
       - ${{each env in split(variables[location],',') }}:
@@ -126,12 +125,12 @@ stages:
               - stage: Deployment_${{env}}_${{location}}
                 displayName: "Deployment [${{env}}] ${{location}}"
                 ${{ if eq(env, 'pr') }}:
-                  dependsOn: 
-                  - Deployment_pp_westeurope
+                  dependsOn:
+                    - Deployment_pp_westeurope
                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
                 ${{ elseif eq(parameters.existTag, ' ') }}:
-                  dependsOn: 
-                  - scanBuildApp
+                  dependsOn:
+                    - scanBuildApp
                   condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
                 variables:
                   - name: secRegionId
