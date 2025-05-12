@@ -113,49 +113,51 @@ const listUsersWithFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  let pageOfUserServices;
   let users;
+  let pageOfUserServices;
   let isWarning = false;
 
-  if (status || from || to) {
-    ({ toDate, fromDate, isWarning } = findDateRange(
-      toDate,
-      fromDate,
-      duration,
-      isWarning,
-    ));
+  ({ toDate, fromDate, isWarning } = findDateRange(
+    toDate,
+    fromDate,
+    duration,
+    isWarning,
+  ));
 
-    users = await directories.getUserWithFilters(
-      status,
-      fromDate,
-      toDate,
-      req.correlationId,
-    );
-    if (!users) {
-      const responseBody = {
-        users: [],
-        numberOfRecords: 0,
-        page: 0,
-        numberOfPages: 0,
-      };
-      addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
-
-      return res.send(responseBody);
-    }
-    const userIds = users.map((user) => user.sub);
-    pageOfUserServices = await listServiceUsers(
-      req.client.id,
-      userIds,
-      page,
-      pageSize,
-      req.correlationId,
-    );
-
-    const responseBody = prepareUserResponse(pageOfUserServices, users);
-
+  pageOfUserServices = await listServiceUsers(
+    req.client.id,
+    status,
+    fromDate,
+    toDate,
+    page,
+    pageSize,
+    req.correlationId,
+  );
+  const userIds = pageOfUserServices.users.map((user) => user.id);
+  users = await usersByIds(userIds.join(","), req.correlationId);
+  if (!users) {
+    const responseBody = {
+      users: [],
+      numberOfRecords: 0,
+      page: 0,
+      numberOfPages: 0,
+    };
     addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+
     return res.send(responseBody);
   }
+  pageOfUserServices = await listServiceUsers(
+    req.client.id,
+    userIds,
+    page,
+    pageSize,
+    req.correlationId,
+  );
+
+  const responseBody = prepareUserResponse(pageOfUserServices, users);
+
+  addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+  return res.send(responseBody);
 };
 
 const prepareUserResponse = (pageOfUserServices, users) => {
