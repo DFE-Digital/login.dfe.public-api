@@ -37,15 +37,30 @@ const mockConfig = (customConfig) => {
     },
     applications: {
       type: "static",
+      service: {
+        url: "fake-applications-url",
+      },
     },
     access: {
       type: "static",
+      service: {
+        url: "fake-access-url",
+      },
     },
     organisations: {
       type: "static",
+      service: {
+        url: "fake-organisations-url",
+      },
     },
     directories: {
       type: "static",
+      service: {
+        url: "fake-organisations-url",
+        auth: {
+          tenant: "fakeTenant",
+        },
+      },
     },
   };
   return customConfig
