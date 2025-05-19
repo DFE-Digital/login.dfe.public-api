@@ -4,12 +4,6 @@ const usersByIds = async (ids) => {
   }
   return [];
 };
-
-const userById = async () => {
-  return Promise.resolve();
-};
-
 module.exports = {
-  userById,
   usersByIds,
 };
