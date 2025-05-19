@@ -38,20 +38,20 @@
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "login.dfe.api-client": "^1.0.10-alpha.1",
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
     "login.dfe.audit.transporter": "^4.0.2",
+    "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.dao": "^5.0.6",
     "login.dfe.express-error-handling": "^3.0.3",
     "login.dfe.healthcheck": "^3.0.3",
     "login.dfe.jobs-client": "^6.1.2",
     "login.dfe.jwt-strategies": "^4.1.2",
     "login.dfe.sanitization": "^3.0.4",
-    "login.dfe.winston-appinsights": "github:DFE-Digital/login.dfe.winston-appinsights#v5.0.3",
     "niceware": "^4.0.0",
     "uuid": "^11.1.0",
-    "valid-url": "^1.0.9",
-    "winston": "^3.15.0"
+    "valid-url": "^1.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
