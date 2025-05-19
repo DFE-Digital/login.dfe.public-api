@@ -7,6 +7,7 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 jest.mock("../../../src/infrastructure/access");
 jest.mock("../../../src/infrastructure/directories");
 jest.mock("../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/users");
 
 const { mockResponse, mockRequest } = require("../../utils");
 const {
@@ -19,7 +20,7 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../../src/infrastructure/organisations");
-const { userById } = require("../../../src/infrastructure/directories");
+const { getUserRaw } = require("login.dfe.api-client/users");
 const getUsersOrganisationsAndServices = require("../../../src/app/users/getUsersOrganisationsAndServices");
 
 const res = mockResponse();
@@ -68,7 +69,7 @@ describe("when getting users organisations and services", () => {
     });
     res.mockResetAll();
 
-    userById.mockReset().mockReturnValue({
+    getUserRaw.mockReset().mockReturnValue({
       sub: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
       given_name: "Test",
       family_name: "User",
@@ -198,7 +199,7 @@ describe("when getting users organisations and services", () => {
   });
 
   it("then it should return 404 if the user isn't found", async () => {
-    userById.mockReset().mockReturnValue(undefined);
+    getUserRaw.mockReset().mockReturnValue(undefined);
     await getUsersOrganisationsAndServices(req, res);
 
     expect(res.status.mock.calls[0][0]).toBe(404);
@@ -286,7 +287,7 @@ describe("when getting users organisations and services", () => {
   });
 
   it("then it raise an exception if an exception is raised on any api call", async () => {
-    userById.mockReset().mockImplementation(() => {
+    getUserRaw.mockReset().mockImplementation(() => {
       const error = new Error("Client Error");
       error.statusCode = 400;
       throw error;

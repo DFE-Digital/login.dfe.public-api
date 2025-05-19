@@ -5,7 +5,7 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../infrastructure/organisations");
-const { userById } = require("../../infrastructure/directories");
+const { getUserRaw } = require("login.dfe.api-client/users");
 const { getServicesForUser, getRoles } = require("../../infrastructure/access");
 
 const getUsersOrganisationsAndServices = async (req, res) => {
@@ -21,7 +21,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     );
 
     // Get the details for the user (name, email, etc)
-    const userDetails = await userById(uid, correlationId);
+    const userDetails = await getUserRaw({ by: { id: uid } });
     if (!userDetails) {
       return res.status(404).send();
     }
