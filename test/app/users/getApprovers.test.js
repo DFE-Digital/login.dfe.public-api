@@ -6,7 +6,7 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 );
 jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
+jest.mock("login.dfe.api-client/users");
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
@@ -15,7 +15,7 @@ const {
 const {
   getPoliciesOfService,
 } = require("./../../../src/infrastructure/access");
-const { usersByIds } = require("./../../../src/infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getApprovers = require("./../../../src/app/users/getApprovers");
 
@@ -74,7 +74,7 @@ describe("when getting approver organisations", () => {
       totalNumberOfRecords: 20,
     });
     getPoliciesOfService.mockReset().mockReturnValue([]);
-    usersByIds.mockReset().mockReturnValue([
+    getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "userId",
         given_name: "User",
@@ -217,8 +217,8 @@ describe("when getting approver organisations", () => {
   it("then it should call directories with the userIds", async () => {
     await getApprovers(req, res);
 
-    expect(usersByIds).toHaveBeenCalledTimes(1);
-    expect(usersByIds).toHaveBeenCalledWith("userId", req.correlationId);
+    expect(getUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getUsersRaw).toHaveBeenCalledWith({ by: { userIds: ["userId"] } });
   });
 
   it("then it should return mapped approvers", async () => {

@@ -6,7 +6,7 @@ const {
   extractToParam,
 } = require("../utils");
 const { listServiceUsers } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 const { directories } = require("login.dfe.dao");
 
 const listUsers = async (req, res) => {
@@ -50,7 +50,7 @@ const listUsersWithOutFilters = async (req, res) => {
     req.correlationId,
   );
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  users = await usersByIds(userIds.join(","), req.correlationId);
+  users = await getUsersRaw({ by: { userIds: userIds } });
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 
