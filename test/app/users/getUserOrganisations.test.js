@@ -5,11 +5,10 @@ jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
 jest.mock("./../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/users");
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  getOrganisationsAssociatedWithUser,
-} = require("./../../../src/infrastructure/organisations");
+const { getUserOrganisationsRaw } = require("login.dfe.api-client/users");
 const getUserOrganisations = require("./../../../src/app/users/getUsersOrganisations");
 
 const res = mockResponse();
@@ -25,7 +24,7 @@ describe("when getting users organisations", () => {
     });
     res.mockResetAll();
 
-    getOrganisationsAssociatedWithUser.mockReset().mockReturnValue([
+    getUserOrganisationsRaw.mockReset().mockReturnValue([
       {
         organisation: {
           id: "83f00ace-f1a0-4338-8784-fa14f5943e5a",
@@ -46,11 +45,10 @@ describe("when getting users organisations", () => {
   it("then it should call organisation api with userId", async () => {
     await getUserOrganisations(req, res);
 
-    expect(getOrganisationsAssociatedWithUser).toHaveBeenCalledTimes(1);
-    expect(getOrganisationsAssociatedWithUser).toHaveBeenCalledWith(
-      req.params.id,
-      req.correlationId,
-    );
+    expect(getUserOrganisationsRaw).toHaveBeenCalledTimes(1);
+    expect(getUserOrganisationsRaw).toHaveBeenCalledWith({
+      userId: req.params.id,
+    });
   });
 
   it("then it should return mapped users organisations", async () => {

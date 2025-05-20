@@ -1,7 +1,5 @@
 const logger = require("./../../infrastructure/logger");
-const {
-  getOrganisationsAssociatedWithUser,
-} = require("../../infrastructure/organisations");
+const { getUserOrganisationsRaw } = require("login.dfe.api-client/users");
 
 const getUserOrganisations = async (req, res) => {
   const uid = req.params.id;
@@ -15,10 +13,7 @@ const getUserOrganisations = async (req, res) => {
       },
     );
 
-    const userOrganisations = await getOrganisationsAssociatedWithUser(
-      uid,
-      correlationId,
-    );
+    const userOrganisations = await getUserOrganisationsRaw({ userId: uid });
     if (!userOrganisations) {
       return res.status(404).send();
     }
