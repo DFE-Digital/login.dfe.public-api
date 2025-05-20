@@ -116,15 +116,6 @@ const upsertOrganisationAnnouncement = async (
   );
 };
 
-const getOrganisationsAssociatedWithUser = async (userId, correlationId) => {
-  return await callOrganisationsApi(
-    `organisations/v2/associated-with-user/${userId}`,
-    "GET",
-    undefined,
-    correlationId,
-  );
-};
-
 const getOrganisationsAssociatedWithUserV2 = async (userId, correlationId) => {
   return await callOrganisationsApi(
     `organisations/v3/associated-with-user/${userId}`,
@@ -203,7 +194,6 @@ module.exports = {
   getOrganisationById,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
-  getOrganisationsAssociatedWithUser,
   getOrganisationsAssociatedWithUserV2,
   getUsersForOrganisation,
   getOrganisationCategories,

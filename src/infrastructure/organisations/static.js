@@ -44,25 +44,6 @@ const upsertOrganisationAnnouncement = async () => {
   return Promise.resolve();
 };
 
-const getOrganisationsAssociatedWithUser = async () => {
-  return Promise.resolve([
-    {
-      organisation: {
-        id: "83f00ace-f1a0-4338-8784-fa14f5943e5a",
-        name: "Some org",
-        status: {
-          id: 1,
-          name: "Open",
-        },
-      },
-      role: {
-        id: 0,
-        name: "End user",
-      },
-    },
-  ]);
-};
-
 const listOrganisationUsersV3 = async () => {
   return Promise.resolve();
 };
@@ -92,7 +73,6 @@ module.exports = {
   getUsersForOrganisation,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
-  getOrganisationsAssociatedWithUser,
   listOrganisationUsersV3,
   listServiceUsers,
   getServiceById,
