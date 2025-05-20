@@ -1,13 +1,11 @@
 const { organisation } = require("login.dfe.dao");
+const { getUserServiceRaw } = require("login.dfe.api-client/users");
 const {
   mockRequest,
   mockResponse,
   mockConfig,
   mockLogger,
 } = require("../../utils");
-const {
-  getUsersAccessToServiceAtOrganisation,
-} = require("../../../src/infrastructure/access");
 const getUsersAccess = require("../../../src/app/services/getUsersAccess");
 const {
   getClientByServiceId,
@@ -23,6 +21,7 @@ jest.mock("login.dfe.dao", () => ({
 }));
 jest.mock("./../../../src/infrastructure/access");
 jest.mock("./../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/users");
 
 const uid = "b5d58c18-a13c-4ecc-a7cd-0003350447e1";
 const sid = "e191b83e-233c-4142-9d4c-df0454fed8ab";
@@ -55,7 +54,7 @@ describe("when getting users access to service", () => {
       },
     });
 
-    getUsersAccessToServiceAtOrganisation.mockReset().mockReturnValue({
+    getUserServiceRaw.mockReset().mockReturnValue({
       userId: uid,
       serviceId: sid,
       organisationId: oid,
@@ -78,13 +77,12 @@ describe("when getting users access to service", () => {
   it("then it should call access api with client params", async () => {
     await getUsersAccess(req, res);
 
-    expect(getUsersAccessToServiceAtOrganisation).toHaveBeenCalledTimes(1);
-    expect(getUsersAccessToServiceAtOrganisation).toHaveBeenCalledWith(
-      uid,
-      sid,
-      oid,
-      req.correlationId,
-    );
+    expect(getUserServiceRaw).toHaveBeenCalledTimes(1);
+    expect(getUserServiceRaw).toHaveBeenCalledWith({
+      organisationId: "446cb040-6f4d-4051-a3b8-004a997bb991",
+      serviceId: "e191b83e-233c-4142-9d4c-df0454fed8ab",
+      userId: "b5d58c18-a13c-4ecc-a7cd-0003350447e1",
+    });
   });
 
   it("then it should return users roles", async () => {
@@ -117,7 +115,7 @@ describe("when getting users access to service", () => {
   });
 
   it("then it should return 404 if user has no access", async () => {
-    getUsersAccessToServiceAtOrganisation.mockReturnValue(undefined);
+    getUserServiceRaw.mockReturnValue(undefined);
 
     await getUsersAccess(req, res);
 
