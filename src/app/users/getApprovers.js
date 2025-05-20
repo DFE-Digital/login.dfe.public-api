@@ -2,7 +2,7 @@ const { extractPageParam, extractPageSizeParam } = require("../utils");
 const {
   listOrganisationUsersV3,
 } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 const { getPoliciesOfService } = require("../../infrastructure/access");
 
 const listApprovers = async (req, res) => {
@@ -35,7 +35,7 @@ const listApprovers = async (req, res) => {
     req.correlationId,
   );
   const userIds = pageOfApprovers.users.map((user) => user.userId);
-  const releventUsers = await usersByIds(userIds.join(","), req.correlationId);
+  const releventUsers = await getUsersRaw({ by: { userIds: userIds } });
   const mappedRecords = pageOfApprovers.users.map((userOrg) => {
     const user = releventUsers.find((u) => u.sub === userOrg.userId);
     let mappedUserOrg = {
