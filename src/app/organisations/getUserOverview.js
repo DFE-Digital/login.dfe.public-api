@@ -7,7 +7,7 @@ const {
   getRoles,
   getServiceUsersV2,
 } = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getPageNumber = (req) => {
   const pageValue = req.query.page;
@@ -129,7 +129,8 @@ const getUserOverview = async (req, res) => {
 };
 
 const getUserDetails = async (req, userIds) => {
-  const usersDetails = await usersByIds(userIds, req.correlationId);
+  const userIdList = userIds.split(",");
+  const usersDetails = await getUsersRaw({ by: { userIds: userIdList } });
   if (usersDetails && usersDetails.length > 0) {
     return usersDetails.map((user) => {
       return {

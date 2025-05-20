@@ -6,7 +6,7 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 );
 jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
+jest.mock("login.dfe.api-client/users");
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
@@ -17,7 +17,7 @@ const {
   getRoles,
   getServiceUsersV2,
 } = require("./../../../src/infrastructure/access");
-const { usersByIds } = require("./../../../src/infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUserOverview = require("./../../../src/app/organisations/getUserOverview");
 
@@ -119,7 +119,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       totalNumberOfPages: 1,
       totalNumberOfRecords: 2,
     });
-    usersByIds.mockReset().mockReturnValue([
+    getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "userId",
         given_name: "User",

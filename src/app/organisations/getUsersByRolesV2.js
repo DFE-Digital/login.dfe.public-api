@@ -4,7 +4,7 @@ const {
   getUsersForOrganisation,
 } = require("../../infrastructure/organisations");
 const { getServiceUsers } = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRolesV2 = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -115,7 +115,7 @@ const processOrganisationUsers = async (
     : serviceUsers.services;
 
   const userIds = filteredUsers.map((user) => user.userId);
-  const userDetails = await usersByIds(userIds.join(","), correlationId);
+  const userDetails = await getUsersRaw({ by: { userIds: userIds } });
 
   // Apply email and userId filters
   const filteredDetails = userDetails

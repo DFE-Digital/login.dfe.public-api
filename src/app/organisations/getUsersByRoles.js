@@ -3,7 +3,7 @@ const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../infrastructure/organisations");
 const { getServiceUsers } = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -74,7 +74,7 @@ const getUsersByRoles = async (req, res) => {
         // Get user details by user ids
         if (userIdNRoles && userIdNRoles.length) {
           const userIds = userIdNRoles.map((ids) => ids.id);
-          usersDetails = await usersByIds(userIds.join(","), req.correlationId);
+          usersDetails = await getUsersRaw({ by: { userIds: userIds } });
           if (email !== null && email.length > 1) {
             usersDetails = usersDetails.filter(
               (user) => user.email.toLowerCase() === email.toLowerCase(),
