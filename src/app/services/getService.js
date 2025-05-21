@@ -1,7 +1,8 @@
-const { getClientByServiceId } = require("./../../infrastructure/applications");
-
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const getService = async (req, res) => {
-  const service = await getClientByServiceId(req.params.clientid);
+  const service = await getServiceRaw({
+    by: { clientId: req.params.clientid },
+  });
   if (!service) {
     return res.status(404).send();
   }
