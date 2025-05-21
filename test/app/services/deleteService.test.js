@@ -2,12 +2,10 @@ jest.mock("./../../../src/infrastructure/config", () =>
   require("../../utils").mockConfig(),
 );
 jest.mock("./../../../src/infrastructure/applications");
-
+jest.mock("login.dfe.api-client/services");
 const { mockResponse, mockRequest } = require("../../utils");
-const {
-  destroyService,
-  getClientByServiceId,
-} = require("../../../src/infrastructure/applications");
+const { destroyService } = require("../../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const deleteService = require("../../../src/app/services/deleteService");
 
 const res = mockResponse();
@@ -31,7 +29,7 @@ describe("when getting specific child service", () => {
     // Returns 202 on success
     destroyService.mockReset();
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "service-1",
       name: "Service One",
       description: "First service",
@@ -53,7 +51,7 @@ describe("when getting specific child service", () => {
   });
 
   it("should return 404 not found if client does not exist", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await deleteService(req, res);
 

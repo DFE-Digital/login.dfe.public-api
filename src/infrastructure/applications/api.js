@@ -3,31 +3,6 @@ const jwtStrategy = require("login.dfe.jwt-strategies");
 
 const config = require("../config");
 
-const getClientByServiceId = async (id, correlationId) => {
-  if (!id) {
-    return undefined;
-  }
-  const token = await jwtStrategy(config.applications.service).getBearerToken();
-  try {
-    const client = await fetchApi(
-      `${config.applications.service.url}/services/${id}`,
-      {
-        method: "GET",
-        headers: {
-          authorization: `bearer ${token}`,
-          "x-correlation-id": correlationId,
-        },
-      },
-    );
-    return client;
-  } catch (e) {
-    if (e.statusCode === 404) {
-      return undefined;
-    }
-    throw e;
-  }
-};
-
 const updateService = async (id, patchedProperties, correlationId) => {
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
@@ -96,7 +71,6 @@ const listServices = async (parentId, page, pageSize, correlationId) => {
 };
 
 module.exports = {
-  getClientByServiceId,
   updateService,
   listServices,
   destroyService,
