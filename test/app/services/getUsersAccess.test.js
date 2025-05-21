@@ -7,9 +7,7 @@ const {
   mockLogger,
 } = require("../../utils");
 const getUsersAccess = require("../../../src/app/services/getUsersAccess");
-const {
-  getClientByServiceId,
-} = require("../../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 
 jest.mock("./../../../src/infrastructure/config", () => mockConfig());
 jest.mock("./../../../src/infrastructure/logger", () => mockLogger());
@@ -20,7 +18,7 @@ jest.mock("login.dfe.dao", () => ({
   },
 }));
 jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services");
 jest.mock("login.dfe.api-client/users");
 
 const uid = "b5d58c18-a13c-4ecc-a7cd-0003350447e1";
@@ -42,7 +40,7 @@ describe("when getting users access to service", () => {
 
     res.mockResetAll();
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "e191b83e-233c-4142-9d4c-df0454fed8ab",
       name: "Service One",
       description: "First service",

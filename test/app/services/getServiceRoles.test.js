@@ -5,12 +5,10 @@ const mockLogger = mockUtils.mockLogger();
 
 jest.mock("../../../src/infrastructure/config", () => mockUtils.mockConfig());
 jest.mock("../../../src/infrastructure/logger", () => mockLogger);
-jest.mock("../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services");
 jest.mock("../../../src/infrastructure/access");
 
-const {
-  getClientByServiceId,
-} = require("../../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const { getRoles } = require("../../../src/infrastructure/access");
 const getServiceRoles = require("../../../src/app/services/getServiceRoles");
 
@@ -33,7 +31,7 @@ describe("When getting the roles for a service", () => {
     res.mockResetAll();
     mockLogger.mockResetAll();
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "service-1",
       parentId: "parent-1",
       relyingParty: {
@@ -79,7 +77,7 @@ describe("When getting the roles for a service", () => {
   });
 
   it("then it should return 404 if the requested service does not exist", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await getServiceRoles(req, res);
 
