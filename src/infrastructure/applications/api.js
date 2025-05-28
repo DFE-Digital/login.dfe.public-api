@@ -48,30 +48,7 @@ const destroyService = async (id, correlationId) => {
   }
 };
 
-const listServices = async (parentId, page, pageSize, correlationId) => {
-  const token = await jwtStrategy(config.applications.service).getBearerToken();
-  try {
-    const pageOfServices = await fetchApi(
-      `${config.applications.service.url}/services?page=${page}&pageSize=${pageSize}&parent=${parentId}`,
-      {
-        method: "GET",
-        headers: {
-          authorization: `bearer ${token}`,
-          "x-correlation-id": correlationId,
-        },
-      },
-    );
-    return pageOfServices;
-  } catch (e) {
-    if (e.statusCode === 404) {
-      return undefined;
-    }
-    throw e;
-  }
-};
-
 module.exports = {
   updateService,
-  listServices,
   destroyService,
 };
