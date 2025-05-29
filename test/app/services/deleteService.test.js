@@ -1,11 +1,12 @@
 jest.mock("./../../../src/infrastructure/config", () =>
   require("../../utils").mockConfig(),
 );
-jest.mock("./../../../src/infrastructure/applications");
 jest.mock("login.dfe.api-client/services");
 const { mockResponse, mockRequest } = require("../../utils");
-const { destroyService } = require("../../../src/infrastructure/applications");
-const { getServiceRaw } = require("login.dfe.api-client/services");
+const {
+  getServiceRaw,
+  deleteService: destroyService,
+} = require("login.dfe.api-client/services");
 const deleteService = require("../../../src/app/services/deleteService");
 
 const res = mockResponse();

@@ -1,7 +1,4 @@
 jest.mock("niceware");
-jest.mock("./../../../src/infrastructure/applications", () => ({
-  updateService: jest.fn(),
-}));
 jest.mock("login.dfe.api-client/services");
 
 jest.mock("uuid");
