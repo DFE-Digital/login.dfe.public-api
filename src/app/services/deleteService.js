@@ -1,5 +1,7 @@
-const { destroyService } = require("./../../infrastructure/applications");
-const { getServiceRaw } = require("login.dfe.api-client/services");
+const {
+  getServiceRaw,
+  deleteService: destroyService,
+} = require("login.dfe.api-client/services");
 
 const deleteService = async (req, res) => {
   const service = await getServiceRaw({
@@ -12,7 +14,7 @@ const deleteService = async (req, res) => {
     return res.status(403).send();
   }
 
-  await destroyService(service.id, req.correlationId);
+  await destroyService({ serviceId: service.id });
   return res.status(202).send();
 };
 module.exports = deleteService;

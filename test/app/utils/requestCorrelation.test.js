@@ -2,7 +2,6 @@ jest.mock("uuid");
 jest.mock("./../../../src/infrastructure/config", () =>
   require("./../../utils").mockConfig(),
 );
-jest.mock("./../../../src/infrastructure/applications");
 
 const uuid = require("uuid");
 const { requestCorrelation } = require("./../../../src/app/utils");
