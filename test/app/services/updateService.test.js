@@ -5,11 +5,11 @@ jest.mock("./../../../src/infrastructure/applications");
 jest.mock("login.dfe.api-client/services");
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  updateService: updateServiceDetails,
-} = require("./../../../src/infrastructure/applications");
 const updateService = require("./../../../src/app/services/updateService");
-const { getServiceRaw } = require("login.dfe.api-client/services");
+const {
+  getServiceRaw,
+  updateService: updateServiceDetails,
+} = require("login.dfe.api-client/services");
 const res = mockResponse();
 
 describe("when updating child service", () => {
@@ -59,15 +59,14 @@ describe("when updating child service", () => {
     await updateService(req, res);
 
     expect(updateServiceDetails).toHaveBeenCalledTimes(1);
-    expect(updateServiceDetails).toHaveBeenCalledWith(
-      "service-1",
-      {
+    expect(updateServiceDetails).toHaveBeenCalledWith({
+      serviceId: "service-1",
+      update: {
         name: "updated name",
         description: "updated description",
-        redirect_uris: ["https://updated.uri/auth/cb"],
+        redirectUris: ["https://updated.uri/auth/cb"],
       },
-      req.correlationId,
-    );
+    });
   });
 
   it("then it should return not found if client does not exist", async () => {
