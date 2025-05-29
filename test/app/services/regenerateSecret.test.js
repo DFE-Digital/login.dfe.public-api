@@ -8,8 +8,10 @@ jest.mock("uuid");
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const uuid = require("uuid");
-const { updateService } = require("./../../../src/infrastructure/applications");
-const { getServiceRaw } = require("login.dfe.api-client/services");
+const {
+  getServiceRaw,
+  updateService,
+} = require("login.dfe.api-client/services");
 const regenerateSecret = require("./../../../src/app/services/regenerateSecret");
 
 const res = mockResponse();
@@ -58,11 +60,10 @@ describe("when creating a sub-application", () => {
     await regenerateSecret(req, res);
 
     expect(updateService).toHaveBeenCalledTimes(1);
-    expect(updateService).toHaveBeenCalledWith(
-      "service-1",
-      { clientSecret: "428fd7d3-b6d5-4cc0-8645-57cc22164fca" },
-      req.correlationId,
-    );
+    expect(updateService).toHaveBeenCalledWith({
+      serviceId: "service-1",
+      update: { clientSecret: "428fd7d3-b6d5-4cc0-8645-57cc22164fca" },
+    });
   });
 
   it("then it should return new client secret", async () => {
