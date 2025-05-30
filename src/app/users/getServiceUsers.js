@@ -7,7 +7,6 @@ const {
 } = require("../utils");
 const { listServiceUsers } = require("../../infrastructure/organisations");
 const { usersByIds } = require("../../infrastructure/directories");
-const { directories } = require("login.dfe.dao");
 
 const listUsers = async (req, res) => {
   let status;
@@ -115,28 +114,6 @@ const listUsersWithFilters = async (req, res) => {
 
   let users;
   let pageOfUserServices;
-
-  // let isWarning = false;
-
-  // ({ toDate, fromDate, isWarning } = findDateRange(
-  //   toDate,
-  //   fromDate,
-  //   duration,
-  //   isWarning,
-  // ));
-
-  // const pageOfUserServices = await listServiceUsers(
-  //   req.client.id,
-  //   status,
-  //   fromDate,
-  //   toDate,
-  //   page,
-  //   pageSize,
-  //   req.correlationId,
-  // );
-  // const userIds = pageOfUserServices.users.map((user) => user.id);
-  // users = await usersByIds(userIds.join(","), req.correlationId);
-
   let isWarning = false;
 
   ({ toDate, fromDate, isWarning } = findDateRange(
