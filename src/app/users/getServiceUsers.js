@@ -74,26 +74,31 @@ const listUsersWithFilters = async (req, res) => {
     to = extractToParam(req);
     from = extractFromParam(req);
 
-    if (status && status !== "0") {
-      return res.status(400).send("status should only be 0");
+    if (status !== undefined && status !== null) {
+      // Check if status is provided at all
+      if (status !== "0" && status !== "1") {
+        return res
+          .status(400)
+          .send("Status is not valid. Should be either 0 or 1.");
+      }
     }
 
     if (to && isNaN(Date.parse(to))) {
-      return res.status(400).send("to date is not a valid date");
+      return res.status(400).send("To date is not a valid date.");
     } else if (to) {
       toDate = new Date(to);
     }
     if (from && isNaN(Date.parse(from))) {
-      return res.status(400).send("from date is not a valid date");
+      return res.status(400).send("From date is not a valid date.");
     } else if (from) {
       fromDate = new Date(from);
     }
 
     if (fromDate && toDate) {
       if (isFutureDate(fromDate) && isFutureDate(toDate)) {
-        return res.status(400).send("date range should not be in the future");
+        return res.status(400).send("Date range should not be in the future");
       } else if (fromDate.getTime() > toDate.getTime()) {
-        return res.status(400).send("from date greater than to date");
+        return res.status(400).send("From date greater than to date");
       }
 
       const time_difference = toDate.getTime() - fromDate.getTime();
@@ -106,7 +111,7 @@ const listUsersWithFilters = async (req, res) => {
     } else if (fromDate || toDate) {
       const selectedDate = fromDate ? fromDate : toDate;
       if (isFutureDate(selectedDate)) {
-        return res.status(400).send("date range should not be in the future");
+        return res.status(400).send("Date range should not be in the future");
       }
     }
   } catch (e) {
@@ -115,27 +120,6 @@ const listUsersWithFilters = async (req, res) => {
 
   let users;
   let pageOfUserServices;
-
-  // let isWarning = false;
-
-  // ({ toDate, fromDate, isWarning } = findDateRange(
-  //   toDate,
-  //   fromDate,
-  //   duration,
-  //   isWarning,
-  // ));
-
-  // const pageOfUserServices = await listServiceUsers(
-  //   req.client.id,
-  //   status,
-  //   fromDate,
-  //   toDate,
-  //   page,
-  //   pageSize,
-  //   req.correlationId,
-  // );
-  // const userIds = pageOfUserServices.users.map((user) => user.id);
-  // users = await usersByIds(userIds.join(","), req.correlationId);
 
   let isWarning = false;
 
