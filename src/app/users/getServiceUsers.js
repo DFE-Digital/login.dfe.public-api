@@ -143,7 +143,7 @@ const listUsersWithFilters = async (req, res) => {
       page: 0,
       numberOfPages: 0,
     };
-    addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+    addAdditionalMessage(responseBody, fromDate, toDate, duration, isWarning);
 
     return res.send(responseBody);
   }
@@ -157,7 +157,7 @@ const listUsersWithFilters = async (req, res) => {
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 
-  addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+  addAdditionalMessage(responseBody, fromDate, toDate, duration, isWarning);
   return res.send(responseBody);
 };
 
@@ -203,7 +203,7 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   return responseBody;
 };
 
-const addAddionalMessage = (
+const addAdditionalMessage = (
   responseBody,
   fromDate,
   toDate,

@@ -8,7 +8,7 @@ export const findDateRange = jest.fn();
 export const listServiceUsers = jest.fn();
 export const usersByIds = jest.fn();
 export const prepareUserResponse = jest.fn();
-export const addAddionalMessage = jest.fn();
+export const addAdditionalMessage = jest.fn();
 
 // Helper to reset all mocks before each test
 export const resetAllMocks = () => {
@@ -22,5 +22,5 @@ export const resetAllMocks = () => {
   listServiceUsers.mockReset();
   usersByIds.mockReset();
   prepareUserResponse.mockReset();
-  addAddionalMessage.mockReset();
+  addAdditionalMessage.mockReset();
 };
