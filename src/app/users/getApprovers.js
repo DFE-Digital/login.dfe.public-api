@@ -3,7 +3,7 @@ const {
   listOrganisationUsersV3,
 } = require("../../infrastructure/organisations");
 const { getUsersRaw } = require("login.dfe.api-client/users");
-const { getPoliciesOfService } = require("../../infrastructure/access");
+const { getServicePoliciesRaw } = require("login.dfe.api-client/services");
 
 const listApprovers = async (req, res) => {
   if (
@@ -23,10 +23,9 @@ const listApprovers = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const policiesForService = await getPoliciesOfService(
-    req.client.id,
-    req.correlationId,
-  );
+  const policiesForService = await getServicePoliciesRaw({
+    serviceId: req.client.id,
+  });
   const pageOfApprovers = await listOrganisationUsersV3(
     page,
     pageSize,

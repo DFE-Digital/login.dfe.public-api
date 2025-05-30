@@ -5,19 +5,20 @@ jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
 jest.mock("./../../../src/infrastructure/organisations");
-jest.mock("./../../../src/infrastructure/access");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServicePoliciesRaw: jest.fn(),
+}));
 jest.mock("login.dfe.api-client/users");
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
   listOrganisationUsersV3,
 } = require("./../../../src/infrastructure/organisations");
-const {
-  getPoliciesOfService,
-} = require("./../../../src/infrastructure/access");
+
 const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getApprovers = require("./../../../src/app/users/getApprovers");
+const { getServicePoliciesRaw } = require("login.dfe.api-client/services");
 
 const res = mockResponse();
 
@@ -73,7 +74,7 @@ describe("when getting approver organisations", () => {
       totalNumberOfPages: 2,
       totalNumberOfRecords: 20,
     });
-    getPoliciesOfService.mockReset().mockReturnValue([]);
+    getServicePoliciesRaw.mockReset().mockReturnValue([]);
     getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "userId",
@@ -168,11 +169,10 @@ describe("when getting approver organisations", () => {
   it("then it should call access to get policies for serviceId", async () => {
     await getApprovers(req, res);
 
-    expect(getPoliciesOfService).toHaveBeenCalledTimes(1);
-    expect(getPoliciesOfService).toHaveBeenCalledWith(
-      req.client.id,
-      req.correlationId,
-    );
+    expect(getServicePoliciesRaw).toHaveBeenCalledTimes(1);
+    expect(getServicePoliciesRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+    });
   });
 
   it("then it should call organisations to get page of org approvers with defaults", async () => {
@@ -201,7 +201,7 @@ describe("when getting approver organisations", () => {
         ],
       },
     ];
-    getPoliciesOfService.mockReset().mockReturnValue(mockPolicies);
+    getServicePoliciesRaw.mockReset().mockReturnValue(mockPolicies);
     await getApprovers(req, res);
 
     expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
