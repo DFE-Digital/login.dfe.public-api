@@ -33,10 +33,6 @@ const callApi = async (
   }
 };
 
-const getPoliciesOfService = async (sid, correlationId) => {
-  return await callApi(`/services/${sid}/policies`, correlationId);
-};
-
 const getServiceUsers = async (sid, oid, correlationId) => {
   return await callApi(
     `/services/${sid}/organisations/${oid}/users`,
@@ -71,7 +67,6 @@ const getServiceUsersV2 = async (
 };
 
 module.exports = {
-  getPoliciesOfService,
   getServiceUsers,
   getServices,
   getServicesForUser,
