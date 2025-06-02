@@ -12,11 +12,12 @@ const {
   isFutureDate,
   findDateRange,
   listServiceUsers,
-  usersByIds,
-  prepareUserResponse: mockPrepareUserResponse, // This is already a mock
-  addAddionalMessage,
-  resetAllMocks,
-} = require("./__mocks__/helperFunctions");
+} = require("./../../../src/infrastructure/organisations");
+const { usersByIds } = require("./../../../src/infrastructure/directories");
+
+const listUsers = require("./../../../src/app/users/getServiceUsers");
+
+jest.useFakeTimers().setSystemTime(new Date("2024-01-01"));
 
 describe("listUsersWithFilters", () => {
   let mockReq;
@@ -73,15 +74,6 @@ describe("listUsersWithFilters", () => {
         status: "Active",
       },
     ]);
-    mockPrepareUserResponse.mockImplementation(
-      (pageOfUserServicesData, usersData) => ({
-        users: usersData.map((u) => ({ userId: u.sub, email: u.email })),
-        numberOfRecords: pageOfUserServicesData.totalNumberOfRecords,
-        page: pageOfUserServicesData.page,
-        numberOfPages: pageOfUserServicesData.totalNumberOfPages,
-      }),
-    );
-    addAddionalMessage.mockImplementation((body) => body);
   });
 
   it('should return 400 if status is not "0"', async () => {
@@ -253,27 +245,12 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: mockPage,
       numberOfPages: 1,
+      dateRange:
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
-    mockPrepareUserResponse.mockReturnValue(expectedResponseBody);
 
-    await listUsersWithFilters(mockReq, mockRes);
+    await listUsers(mockReq, mockRes);
 
-    expect(extractPageParam).toHaveBeenCalledWith(mockReq);
-    expect(extractPageSizeParam).toHaveBeenCalledWith(mockReq);
-    expect(extractStatusParam).toHaveBeenCalledWith(mockReq);
-    expect(extractToParam).toHaveBeenCalledWith(mockReq);
-    expect(extractFromParam).toHaveBeenCalledWith(mockReq);
-
-    // isFutureDate(fromDate) is called (returns false via beforeEach mock), short-circuits the &&
-    expect(isFutureDate).toHaveBeenCalledTimes(1);
-    expect(isFutureDate).toHaveBeenCalledWith(fromDateObj);
-
-    expect(findDateRange).toHaveBeenCalledWith(
-      toDateObj,
-      fromDateObj,
-      DURATION,
-      false,
-    );
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
       "0",
@@ -331,40 +308,52 @@ describe("listUsersWithFilters", () => {
   });
 
   it("should successfully list users when no date parameters are provided", async () => {
-    extractFromParam.mockReturnValue(null);
-    extractToParam.mockReturnValue(null);
-    // isFutureDate will not be called by the validation block as fromDate & toDate are undefined
+    mockReq.query = {
+      status: "0",
+      page: 1,
+      pageSize: 25,
+    };
 
-    // Default findDateRange mock from beforeEach will return toDate: undefined, fromDate: undefined
-    // Let's rely on that default, or be explicit if findDateRange has complex default logic
-    findDateRange.mockReturnValue({
-      fromDate: undefined,
-      toDate: undefined,
-      isWarning: false, // Or true if findDateRange defaults to setting a warning for no dates
-    });
+    const expectedResponseBody = {
+      users: [
+        {
+          userId: "user1",
+          email: "test@education.gov.uk",
+          approvedAt: "2023-01-01",
+          familyName: "Test",
+          givenName: "User",
+          organisation: "OrgA",
+          roleId: "role1",
+          roleName: "Admin",
+          updatedAt: "2023-01-02",
+          userStatus: "Active",
+        },
+      ],
+      numberOfRecords: 1,
+      page: 1,
+      numberOfPages: 1,
+      dateRange:
+        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+      warning: "Only 7 days of data can be fetched",
+    };
 
-    await listUsersWithFilters(mockReq, mockRes);
+    await listUsers(mockReq, mockRes);
 
-    expect(mockRes.status).not.toHaveBeenCalledWith(400);
-    // isFutureDate is not called within the date validation block if fromDate and toDate are undefined
-    expect(isFutureDate).not.toHaveBeenCalled();
+    //TODO need to figure out how to make date static
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 7);
 
-    expect(findDateRange).toHaveBeenCalledWith(
-      undefined,
-      undefined,
-      DURATION,
-      false,
-    );
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
-      "0", // Default status from beforeEach
-      undefined, // fromDate from findDateRange
-      undefined, // toDate from findDateRange
-      1, // default page
-      10, // default pageSize
+      "0",
+      pastDate,
+      new Date(),
+      1,
+      25,
       mockReq.correlationId,
     );
     expect(mockRes.send).toHaveBeenCalled();
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
   it("should return empty users array if usersByIds returns null", async () => {
@@ -397,19 +386,13 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 0,
       page: 0,
       numberOfPages: 0,
+      dateRange:
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
 
     await listUsersWithFilters(mockReq, mockRes);
 
     expect(mockRes.send).toHaveBeenCalledWith(expectedBody);
-    expect(addAddionalMessage).toHaveBeenCalledWith(
-      expectedBody,
-      fromDateObj,
-      toDateObj,
-      DURATION,
-      false,
-    );
-    expect(mockPrepareUserResponse).not.toHaveBeenCalled();
   });
 
   it("should handle empty user list from listServiceUsers and subsequently empty from usersByIds", async () => {
@@ -440,6 +423,8 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 0,
       page: 1,
       numberOfPages: 0,
+      dateRange:
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
     mockPrepareUserResponse.mockReturnValue(expectedResponseBody); // Mock will be called with users: []
 
@@ -447,17 +432,6 @@ describe("listUsersWithFilters", () => {
 
     expect(listServiceUsers).toHaveBeenCalled();
     expect(usersByIds).toHaveBeenCalledWith("", mockReq.correlationId);
-    expect(mockPrepareUserResponse).toHaveBeenCalledWith(
-      pageOfServiceUsersEmpty,
-      [],
-    );
-    expect(addAddionalMessage).toHaveBeenCalledWith(
-      expectedResponseBody,
-      fromDateObj,
-      toDateObj,
-      DURATION,
-      false,
-    );
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
@@ -490,6 +464,9 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: 1,
       numberOfPages: 1,
+      warning: "Only 7 days of data can be fetched",
+      dateRange:
+        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sun, 12 Mar 2023 00:00:00 GMT",
     };
     mockPrepareUserResponse.mockReturnValue(preparedResponse);
 
@@ -536,29 +513,152 @@ describe("listUsersWithFilters", () => {
     const usersData = [{ sub: "s2", email: "e2" }];
     usersByIds.mockResolvedValue(usersData);
     const preparedResponse = {
-      users: [{ userId: "s2" }],
+      users: [
+        {
+          userId: "s2",
+          approvedAt: undefined,
+          email: "e2",
+          familyName: undefined,
+          givenName: undefined,
+          organisation: undefined,
+          roleId: undefined,
+          roleName: undefined,
+          updatedAt: undefined,
+          userStatus: undefined,
+        },
+      ],
       numberOfRecords: 1,
-      page: 1,
+      page: 2,
       numberOfPages: 1,
+      warning: "Only 7 days of data can be fetched",
+      dateRange:
+        "Users between Mon, 13 Mar 2023 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
     };
-    mockPrepareUserResponse.mockReturnValue(preparedResponse);
 
-    await listUsersWithFilters(mockReq, mockRes);
+    await listUsers(mockReq, mockRes);
 
+    expect(listServiceUsers).toHaveBeenCalledWith(
+      mockReq.client.id,
+      null,
+      1,
+      25,
+      mockReq.correlationId,
+    );
+    expect(usersByIds).toHaveBeenCalledWith("user123", mockReq.correlationId);
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+    // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
-    // isFutureDate(toDateObj) would be called and return false.
-    expect(isFutureDate).toHaveBeenCalledTimes(1);
-    expect(isFutureDate).toHaveBeenCalledWith(toDateObj);
 
     expect(listServiceUsers).toHaveBeenCalled();
-    expect(addAddionalMessage).toHaveBeenCalledWith(
-      preparedResponse,
-      undefined,
-      toDateObj,
-      DURATION,
-      true,
-    );
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
+  });
+});
+
+describe("listUsersWithoutFilters", () => {
+  // listUsersWithoutFilters called when status, from OR to are NOT provided as query parameters
+  let mockReq;
+  let mockRes;
+
+  beforeEach(() => {
+    mockReq = {
+      client: { id: "client123" },
+      correlationId: "corrId123",
+      query: {},
+    };
+    mockRes = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    };
+
+    listServiceUsers.mockResolvedValue({
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: "OrgA",
+          role: { name: "Admin", id: "role1" },
+        },
+      ],
+      totalNumberOfRecords: 1,
+      page: 1,
+      totalNumberOfPages: 1,
+    });
+    usersByIds.mockResolvedValue([
+      {
+        sub: "user1",
+        email: "test@education.gov.uk",
+        family_name: "Test",
+        given_name: "User",
+        status: "Active",
+      },
+    ]);
+  });
+
+  it("should return 400 if pageSize is not a number", async () => {
+    mockReq.query = {
+      pageSize: "not-a-number",
+    };
+    await listUsers(mockReq, mockRes);
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.send).toHaveBeenCalledWith(
+      "not-a-number is not a valid value for pageSize. Expected a number",
+    );
+  });
+
+  it("should successfully list users with valid parameters", async () => {
+    mockReq.query = {
+      page: 1,
+      pageSize: 25,
+    };
+
+    const serviceUsersData = {
+      users: [{ id: "user123", data: "serviceData" }],
+      totalNumberOfRecords: 1,
+      page: 2,
+      totalNumberOfPages: 1,
+    };
+    listServiceUsers.mockResolvedValue(serviceUsersData);
+
+    const usersData = [
+      { sub: "user123", email: "user@education.gov.uk", moreData: "userData" },
+    ];
+    usersByIds.mockResolvedValue(usersData);
+
+    // TODO fix all these undefined
+    const expectedResponseBody = {
+      users: [
+        {
+          userId: "user123",
+          email: "user@education.gov.uk",
+          approvedAt: undefined,
+          familyName: undefined,
+          givenName: undefined,
+          organisation: undefined,
+          roleId: undefined,
+          roleName: undefined,
+          updatedAt: undefined,
+          userStatus: undefined,
+        },
+      ],
+      numberOfRecords: 1,
+      page: 2,
+      numberOfPages: 1,
+    };
+
+    await listUsers(mockReq, mockRes);
+
+    expect(listServiceUsers).toHaveBeenCalledWith(
+      mockReq.client.id,
+      null,
+      1,
+      25,
+      mockReq.correlationId,
+    );
+    expect(usersByIds).toHaveBeenCalledWith("user123", mockReq.correlationId);
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+    // Have to do a negative test because code implicitly will set the status to 200 on success
+    expect(mockRes.status).not.toHaveBeenCalledWith(400);
   });
 });
 
