@@ -6,18 +6,25 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 );
 jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("./../../../src/infrastructure/access");
-jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUsersRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceUsersForOrganisationRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("./../../../src/infrastructure/organisations");
 const {
-  getServiceUsers,
   getRoles,
   getServiceUsersV2,
 } = require("./../../../src/infrastructure/access");
 const { getUsersRaw } = require("login.dfe.api-client/users");
+const {
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
 
 const getUserOverview = require("./../../../src/app/organisations/getUserOverview");
 
@@ -66,7 +73,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       legacyId: "155",
       companyRegistrationNumber: null,
     });
-    getServiceUsers.mockReset().mockReturnValue([]);
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue([]);
     getRoles.mockReset().mockReturnValue([
       {
         id: "E53644D0-4B4A-43BD-92A9-F019EC63F978",
