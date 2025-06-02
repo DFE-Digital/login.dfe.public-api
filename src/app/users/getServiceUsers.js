@@ -217,7 +217,7 @@ const addAdditionalMessage = (
   isWarning,
 ) => {
   if (fromDate && toDate) {
-    responseBody.dateRange = `Users between ${fromDate} and ${toDate}`;
+    responseBody.dateRange = `Users between ${fromDate.toUTCString()} and ${toDate.toUTCString()}`;
   }
 
   if (isWarning) {
