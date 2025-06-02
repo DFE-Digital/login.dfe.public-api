@@ -3,7 +3,9 @@ const {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
 } = require("../../infrastructure/organisations");
-const { getServiceUsers } = require("../../infrastructure/access");
+const {
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRolesV2 = async (req, res) => {
@@ -97,11 +99,10 @@ const processOrganisationUsers = async (
   email,
   userId,
 ) => {
-  const serviceUsers = await getServiceUsers(
-    clientId,
-    organisationId,
-    correlationId,
-  );
+  const serviceUsers = await getServiceUsersForOrganisationRaw({
+    organisationId: organisationId,
+    serviceId: clientId,
+  });
 
   if (!serviceUsers || !serviceUsers.services) {
     return [];

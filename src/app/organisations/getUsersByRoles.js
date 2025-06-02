@@ -2,7 +2,9 @@ const logger = require("../../infrastructure/logger");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../infrastructure/organisations");
-const { getServiceUsers } = require("../../infrastructure/access");
+const {
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRoles = async (req, res) => {
@@ -49,11 +51,11 @@ const getUsersByRoles = async (req, res) => {
 
     for (const organisation of organisations) {
       // Get all users associated with that service
-      const serviceUsers = await getServiceUsers(
-        req.client.id,
-        organisation.id,
-        correlationId,
-      );
+      const serviceUsers = await getServiceUsersForOrganisationRaw({
+        organisationId: organisation.id,
+        serviceId: req.client.id,
+      });
+
       let userIdNRoles;
       let usersDetails;
 

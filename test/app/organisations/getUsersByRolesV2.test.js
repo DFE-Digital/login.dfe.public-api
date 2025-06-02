@@ -6,14 +6,21 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 );
 jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("./../../../src/infrastructure/access");
-jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUsersRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceUsersForOrganisationRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
 } = require("../../../src/infrastructure/organisations");
-const { getServiceUsers } = require("../../../src/infrastructure/access");
+const {
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRolesV2 = require("../../../src/app/organisations/getUsersByRolesV2");
@@ -68,7 +75,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       },
     ]);
 
-    getServiceUsers.mockReset().mockReturnValue({
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -187,8 +194,8 @@ describe("when getting organisations users with roles by ukprn", () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it("should return 404 when no users are returned from getServiceUsers", async () => {
-    getServiceUsers.mockReset().mockReturnValue([]);
+  it("should return 404 when no users are returned from getServiceUsersForOrganisationRaw", async () => {
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue([]);
     await getUsersByRolesV2(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
