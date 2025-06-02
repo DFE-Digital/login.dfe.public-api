@@ -41,9 +41,17 @@ const listServiceUsers = async (
   const token = await jwtStrategy(config.applications.service).getBearerToken();
   try {
     const url = `${config.organisations.service.url}/services/${serviceId}/users`;
+
     const pageOfUsers = await fetchApi(url, {
       method: "POST",
-      body: { status, fromDate, toDate, page, pageSize, userIds },
+      body: {
+        status: status,
+        from: fromDate,
+        to: toDate,
+        page,
+        pageSize,
+        userIds,
+      },
       headers: {
         authorization: `bearer ${token}`,
         "x-correlation-id": correlationId,

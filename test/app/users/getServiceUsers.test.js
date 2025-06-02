@@ -210,7 +210,7 @@ describe("listUsersWithFilters", () => {
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
       undefined,
-      "0",
+      0,
       new Date("2023-01-01T00:00:00.000Z"),
       new Date("2023-01-05T00:00:00.000Z"),
       2,
@@ -286,7 +286,7 @@ describe("listUsersWithFilters", () => {
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
       undefined,
-      "0",
+      0,
       pastDate,
       new Date(),
       1,

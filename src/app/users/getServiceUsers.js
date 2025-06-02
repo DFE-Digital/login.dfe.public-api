@@ -31,10 +31,7 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  let pageOfUserServices;
-  let users;
-
-  pageOfUserServices = await listServiceUsers(
+  const pageOfUserServices = await listServiceUsers(
     req.client.id,
     null,
     undefined,
@@ -45,7 +42,7 @@ const listUsersWithOutFilters = async (req, res) => {
     req.correlationId,
   );
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  users = await usersByIds(userIds.join(","), req.correlationId);
+  const users = await usersByIds(userIds.join(","), req.correlationId);
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 
@@ -76,6 +73,8 @@ const listUsersWithFilters = async (req, res) => {
           .status(400)
           .send("Status is not valid. Should be either 0 or 1.");
       }
+      // TODO handle turning status into a number (as opposed to a string of that number)
+      status = Number(status);
     }
 
     if (to && isNaN(Date.parse(to))) {
@@ -113,11 +112,7 @@ const listUsersWithFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  let users;
-  let pageOfUserServices;
-
   let isWarning = false;
-
   ({ toDate, fromDate, isWarning } = findDateRange(
     toDate,
     fromDate,
@@ -125,41 +120,34 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
-  try {
-    pageOfUserServices = await listServiceUsers(
-      req.client.id,
-      undefined,
-      status,
-      fromDate,
-      toDate,
-      page,
-      pageSize,
-      req.correlationId,
-    );
-  } catch (e) {
-    // TODO change console.log for logger.error
-    console.log(e);
-    return res.status(400).send("Something went wrong getting service users");
-  }
+  const pageOfUserServices = await listServiceUsers(
+    req.client.id,
+    undefined,
+    status,
+    fromDate,
+    toDate,
+    page,
+    pageSize,
+    req.correlationId,
+  );
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  users = await usersByIds(userIds.join(","), req.correlationId);
+  const users = await usersByIds(userIds.join(","), req.correlationId);
+  let responseBody;
 
   if (!users) {
-    const responseBody = {
+    responseBody = {
       users: [],
       numberOfRecords: 0,
       page: 0,
       numberOfPages: 0,
     };
-    addAdditionalMessage(responseBody, fromDate, toDate, duration, isWarning);
-
-    return res.send(responseBody);
+  } else {
+    responseBody = prepareUserResponse(pageOfUserServices, users);
   }
 
-  const responseBody = prepareUserResponse(pageOfUserServices, users);
-
-  addAdditionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+  addDateRangeValue(responseBody, fromDate, toDate);
+  addWarningValue(responseBody, duration, isWarning);
   return res.send(responseBody);
 };
 
@@ -205,17 +193,13 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   return responseBody;
 };
 
-const addAdditionalMessage = (
-  responseBody,
-  fromDate,
-  toDate,
-  duration,
-  isWarning,
-) => {
+const addDateRangeValue = (responseBody, fromDate, toDate) => {
   if (fromDate && toDate) {
     responseBody.dateRange = `Users between ${fromDate.toUTCString()} and ${toDate.toUTCString()}`;
   }
+};
 
+const addWarningValue = (responseBody, duration, isWarning) => {
   if (isWarning) {
     responseBody.warning = `Only ${duration} days of data can be fetched`;
   }
