@@ -8,8 +8,6 @@ const { usersByIds } = require("./../../../src/infrastructure/directories");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
-process.env.TZ = "Europe/London";
-
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
@@ -200,7 +198,7 @@ describe("listUsersWithFilters", () => {
       page: 2,
       numberOfPages: 1,
       dateRange:
-        "Users between Sun Jan 01 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Thu Jan 05 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -314,7 +312,7 @@ describe("listUsersWithFilters", () => {
       page: 0,
       numberOfPages: 0,
       dateRange:
-        "Users between Sun Jan 01 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Thu Jan 05 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -343,7 +341,7 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 0,
       dateRange:
-        "Users between Sun Jan 01 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Thu Jan 05 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -388,7 +386,7 @@ describe("listUsersWithFilters", () => {
       numberOfPages: 1,
       warning: "Only 7 days of data can be fetched",
       dateRange:
-        "Users between Sun Mar 05 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Sun Mar 12 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
+        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sun, 12 Mar 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -434,7 +432,7 @@ describe("listUsersWithFilters", () => {
       numberOfPages: 1,
       warning: "Only 7 days of data can be fetched",
       dateRange:
-        "Users between Mon Mar 13 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Mon Mar 20 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
+        "Users between Mon, 13 Mar 2023 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
