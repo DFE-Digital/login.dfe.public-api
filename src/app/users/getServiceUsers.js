@@ -9,17 +9,10 @@ const { listServiceUsers } = require("../../infrastructure/organisations");
 const { usersByIds } = require("../../infrastructure/directories");
 
 const listUsers = async (req, res) => {
-  let status;
-  let to;
-  let from;
+  const status = extractStatusParam(req);
+  const to = extractToParam(req);
+  const from = extractFromParam(req);
 
-  try {
-    status = extractStatusParam(req);
-    to = extractToParam(req);
-    from = extractFromParam(req);
-  } catch (e) {
-    return res.status(400).send(e.message);
-  }
   if (status || from || to) {
     return listUsersWithFilters(req, res);
   } else {
@@ -44,6 +37,9 @@ const listUsersWithOutFilters = async (req, res) => {
   pageOfUserServices = await listServiceUsers(
     req.client.id,
     null,
+    undefined,
+    undefined,
+    undefined,
     page,
     pageSize,
     req.correlationId,
@@ -129,15 +125,22 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
-  pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    status,
-    fromDate,
-    toDate,
-    page,
-    pageSize,
-    req.correlationId,
-  );
+  try {
+    pageOfUserServices = await listServiceUsers(
+      req.client.id,
+      undefined,
+      status,
+      fromDate,
+      toDate,
+      page,
+      pageSize,
+      req.correlationId,
+    );
+  } catch (e) {
+    // TODO change console.log for logger.error
+    console.log(e);
+    return res.status(400).send("Something went wrong getting service users");
+  }
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
   users = await usersByIds(userIds.join(","), req.correlationId);
@@ -153,13 +156,6 @@ const listUsersWithFilters = async (req, res) => {
 
     return res.send(responseBody);
   }
-  pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    userIds,
-    page,
-    pageSize,
-    req.correlationId,
-  );
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 

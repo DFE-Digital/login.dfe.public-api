@@ -209,6 +209,7 @@ describe("listUsersWithFilters", () => {
 
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
+      undefined,
       "0",
       new Date("2023-01-01T00:00:00.000Z"),
       new Date("2023-01-05T00:00:00.000Z"),
@@ -235,6 +236,7 @@ describe("listUsersWithFilters", () => {
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
+      undefined,
       undefined,
       new Date("2023-01-01T00:00:00.000Z"),
       new Date("2023-01-05T00:00:00.000Z"),
@@ -283,6 +285,7 @@ describe("listUsersWithFilters", () => {
 
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
+      undefined,
       "0",
       pastDate,
       new Date(),
@@ -546,6 +549,9 @@ describe("listUsersWithoutFilters", () => {
     expect(listServiceUsers).toHaveBeenCalledWith(
       mockReq.client.id,
       null,
+      undefined,
+      undefined,
+      undefined,
       1,
       25,
       mockReq.correlationId,
