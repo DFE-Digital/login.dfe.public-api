@@ -8,6 +8,8 @@ const { usersByIds } = require("./../../../src/infrastructure/directories");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
+jest.useFakeTimers().setSystemTime(new Date("2024-01-01"));
+
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
@@ -248,45 +250,46 @@ describe("listUsersWithFilters", () => {
       pageSize: 25,
     };
 
-    // const expectedResponseBody = {
-    //   users: [
-    //     {
-    //       userId: "user1",
-    //       email: "test@education.gov.uk",
-    //       approvedAt: "2023-01-01",
-    //       familyName: "Test",
-    //       givenName: "User",
-    //       organisation: "OrgA",
-    //       roleId: "role1",
-    //       roleName: "Admin",
-    //       updatedAt: "2023-01-02",
-    //       userStatus: "Active",
-    //     },
-    //   ],
-    //   numberOfRecords: 1,
-    //   page: 1,
-    //   numberOfPages: 1,
-    //   dateRange:
-    //     "Users between Sun Jan 01 2023 00:00:00 GMT+0000 (Greenwich Mean Time) and Thu Jan 05 2023 00:00:00 GMT+0000 (Greenwich Mean Time)",
-    // };
+    const expectedResponseBody = {
+      users: [
+        {
+          userId: "user1",
+          email: "test@education.gov.uk",
+          approvedAt: "2023-01-01",
+          familyName: "Test",
+          givenName: "User",
+          organisation: "OrgA",
+          roleId: "role1",
+          roleName: "Admin",
+          updatedAt: "2023-01-02",
+          userStatus: "Active",
+        },
+      ],
+      numberOfRecords: 1,
+      page: 1,
+      numberOfPages: 1,
+      dateRange:
+        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+      warning: "Only 7 days of data can be fetched",
+    };
 
     await listUsers(mockReq, mockRes);
 
     //TODO need to figure out how to make date static
-    // const futureDate = new Date();
-    // futureDate.setDate(futureDate.getDate() + 7);
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 7);
 
-    // expect(listServiceUsers).toHaveBeenCalledWith(
-    //   mockReq.client.id,
-    //   "0",
-    //   new Date(),
-    //   futureDate,
-    //   1,
-    //   25,
-    //   mockReq.correlationId,
-    // );
+    expect(listServiceUsers).toHaveBeenCalledWith(
+      mockReq.client.id,
+      "0",
+      pastDate,
+      new Date(),
+      1,
+      25,
+      mockReq.correlationId,
+    );
     expect(mockRes.send).toHaveBeenCalled();
-    // expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
   it("should return empty users array if usersByIds returns null", async () => {
@@ -444,11 +447,10 @@ describe("listUsersWithFilters", () => {
   });
 });
 
-describe("listUsersWithFilters", () => {
-  // listUsersWithFilters called when status, from OR to are provided as query parameters
+describe("listUsersWithoutFilters", () => {
+  // listUsersWithoutFilters called when status, from OR to are NOT provided as query parameters
   let mockReq;
   let mockRes;
-  //const DURATION = 7; // Consistent duration
 
   beforeEach(() => {
     mockReq = {
@@ -497,7 +499,7 @@ describe("listUsersWithFilters", () => {
     );
   });
 
-  it("should successfully list users with valid parameters (from and to dates provided)", async () => {
+  it("should successfully list users with valid parameters", async () => {
     mockReq.query = {
       page: 1,
       pageSize: 25,
