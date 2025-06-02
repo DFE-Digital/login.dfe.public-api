@@ -9,17 +9,10 @@ const { listServiceUsers } = require("../../infrastructure/organisations");
 const { usersByIds } = require("../../infrastructure/directories");
 
 const listUsers = async (req, res) => {
-  let status;
-  let to;
-  let from;
+  const status = extractStatusParam(req);
+  const to = extractToParam(req);
+  const from = extractFromParam(req);
 
-  try {
-    status = extractStatusParam(req);
-    to = extractToParam(req);
-    from = extractFromParam(req);
-  } catch (e) {
-    return res.status(400).send(e.message);
-  }
   if (status || from || to) {
     return listUsersWithFilters(req, res);
   } else {

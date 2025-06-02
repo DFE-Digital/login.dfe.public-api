@@ -48,15 +48,6 @@ describe("listUsersWithFilters", () => {
         status: "Active",
       },
     ]);
-    // mockPrepareUserResponse.mockImplementation(
-    //   (pageOfUserServicesData, usersData) => ({
-    //     users: usersData.map((u) => ({ userId: u.sub, email: u.email })),
-    //     numberOfRecords: pageOfUserServicesData.totalNumberOfRecords,
-    //     page: pageOfUserServicesData.page,
-    //     numberOfPages: pageOfUserServicesData.totalNumberOfPages,
-    //   }),
-    // );
-    // addAddionalMessage.mockImplementation((body) => body);
   });
 
   it('should return 400 if status is not "0"', async () => {
@@ -327,13 +318,6 @@ describe("listUsersWithFilters", () => {
     await listUsers(mockReq, mockRes);
 
     expect(mockRes.send).toHaveBeenCalledWith(expectedBody);
-    // expect(addAddionalMessage).toHaveBeenCalledWith(
-    //   expectedBody,
-    //   fromDateObj,
-    //   toDateObj,
-    //   DURATION,
-    //   false,
-    // );
   });
 
   it("should handle empty user list from listServiceUsers and subsequently empty from usersByIds", async () => {
@@ -364,13 +348,6 @@ describe("listUsersWithFilters", () => {
 
     expect(listServiceUsers).toHaveBeenCalled();
     expect(usersByIds).toHaveBeenCalledWith("", mockReq.correlationId);
-    // expect(addAddionalMessage).toHaveBeenCalledWith(
-    //   expectedResponseBody,
-    //   fromDateObj,
-    //   toDateObj,
-    //   DURATION,
-    //   false,
-    // );
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
@@ -464,6 +441,115 @@ describe("listUsersWithFilters", () => {
 
     expect(listServiceUsers).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
+  });
+});
+
+describe("listUsersWithFilters", () => {
+  // listUsersWithFilters called when status, from OR to are provided as query parameters
+  let mockReq;
+  let mockRes;
+  //const DURATION = 7; // Consistent duration
+
+  beforeEach(() => {
+    mockReq = {
+      client: { id: "client123" },
+      correlationId: "corrId123",
+      query: {},
+    };
+    mockRes = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    };
+
+    listServiceUsers.mockResolvedValue({
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: "OrgA",
+          role: { name: "Admin", id: "role1" },
+        },
+      ],
+      totalNumberOfRecords: 1,
+      page: 1,
+      totalNumberOfPages: 1,
+    });
+    usersByIds.mockResolvedValue([
+      {
+        sub: "user1",
+        email: "test@education.gov.uk",
+        family_name: "Test",
+        given_name: "User",
+        status: "Active",
+      },
+    ]);
+  });
+
+  it("should return 400 if pageSize is not a number", async () => {
+    mockReq.query = {
+      pageSize: "not-a-number",
+    };
+    await listUsers(mockReq, mockRes);
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.send).toHaveBeenCalledWith(
+      "not-a-number is not a valid value for pageSize. Expected a number",
+    );
+  });
+
+  it("should successfully list users with valid parameters (from and to dates provided)", async () => {
+    mockReq.query = {
+      page: 1,
+      pageSize: 25,
+    };
+
+    const serviceUsersData = {
+      users: [{ id: "user123", data: "serviceData" }],
+      totalNumberOfRecords: 1,
+      page: 2,
+      totalNumberOfPages: 1,
+    };
+    listServiceUsers.mockResolvedValue(serviceUsersData);
+
+    const usersData = [
+      { sub: "user123", email: "user@education.gov.uk", moreData: "userData" },
+    ];
+    usersByIds.mockResolvedValue(usersData);
+
+    // TODO fix all these undefined
+    const expectedResponseBody = {
+      users: [
+        {
+          userId: "user123",
+          email: "user@education.gov.uk",
+          approvedAt: undefined,
+          familyName: undefined,
+          givenName: undefined,
+          organisation: undefined,
+          roleId: undefined,
+          roleName: undefined,
+          updatedAt: undefined,
+          userStatus: undefined,
+        },
+      ],
+      numberOfRecords: 1,
+      page: 2,
+      numberOfPages: 1,
+    };
+
+    await listUsers(mockReq, mockRes);
+
+    expect(listServiceUsers).toHaveBeenCalledWith(
+      mockReq.client.id,
+      null,
+      1,
+      25,
+      mockReq.correlationId,
+    );
+    expect(usersByIds).toHaveBeenCalledWith("user123", mockReq.correlationId);
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+    // Have to do a negative test because code implicitly will set the status to 200 on success
+    expect(mockRes.status).not.toHaveBeenCalledWith(400);
   });
 });
 
