@@ -8,6 +8,8 @@ const { usersByIds } = require("./../../../src/infrastructure/directories");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
+process.env.TZ = "Europe/London";
+
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
