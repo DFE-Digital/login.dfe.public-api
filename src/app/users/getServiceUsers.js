@@ -73,8 +73,6 @@ const listUsersWithFilters = async (req, res) => {
           .status(400)
           .send("Status is not valid. Should be either 0 or 1.");
       }
-      // TODO handle turning status into a number (as opposed to a string of that number)
-      status = Number(status);
     }
 
     if (to && isNaN(Date.parse(to))) {
