@@ -2,10 +2,11 @@ const logger = require("./../../infrastructure/logger");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../infrastructure/organisations");
-const { getRoles, getServiceUsersV2 } = require("../../infrastructure/access");
+const { getRoles } = require("../../infrastructure/access");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getServiceUsersForOrganisationRaw,
+  getServiceUsersWithRolesForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 
 const getPageNumber = (req) => {
@@ -86,14 +87,13 @@ const getUserOverview = async (req, res) => {
         })
         .map((m) => m.id);
       if (serviceRoleIds && serviceRoleIds.length > 0) {
-        serviceUsers = await getServiceUsersV2(
-          req.client.id,
-          organisation.id,
-          serviceRoleIds,
-          page,
-          pageSize,
-          correlationId,
-        );
+        serviceUsers = await getServiceUsersWithRolesForOrganisationRaw({
+          organisationId: organisation.id,
+          serviceId: req.client.id,
+          serviceRoleIds: serviceRoleIds,
+          page: page,
+          pageSize: pageSize,
+        });
       }
     } else {
       serviceUsers = await getServiceUsersForOrganisationRaw({
