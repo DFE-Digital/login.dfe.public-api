@@ -11,19 +11,18 @@ jest.mock("login.dfe.api-client/users", () => ({
 }));
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceUsersForOrganisationRaw: jest.fn(),
+  getServiceUsersWithRolesForOrganisationRaw: jest.fn(),
 }));
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("./../../../src/infrastructure/organisations");
-const {
-  getRoles,
-  getServiceUsersV2,
-} = require("./../../../src/infrastructure/access");
+const { getRoles } = require("./../../../src/infrastructure/access");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getServiceUsersForOrganisationRaw,
+  getServiceUsersWithRolesForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 
 const getUserOverview = require("./../../../src/app/organisations/getUserOverview");
@@ -85,7 +84,7 @@ describe("when getting organisations users with roles by ukprn", () => {
         },
       },
     ]);
-    getServiceUsersV2.mockReset().mockReturnValue({
+    getServiceUsersWithRolesForOrganisationRaw.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -154,15 +153,14 @@ describe("when getting organisations users with roles by ukprn", () => {
 
   it("then it should call service users with roles api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getServiceUsersV2).toHaveBeenCalledTimes(1);
-    expect(getServiceUsersV2).toHaveBeenCalledWith(
-      req.client.id,
-      "966B98F1-80F7-4BEB-B886-C9742F7A087F",
-      ["E53644D0-4B4A-43BD-92A9-F019EC63F978"],
-      req.query.page,
-      req.query.pageSize,
-      req.correlationId,
-    );
+    expect(getServiceUsersWithRolesForOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getServiceUsersWithRolesForOrganisationRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+      organisationId: "966B98F1-80F7-4BEB-B886-C9742F7A087F",
+      serviceRoleIds: ["E53644D0-4B4A-43BD-92A9-F019EC63F978"],
+      page: req.query.page,
+      pageSize: req.query.pageSize,
+    });
   });
 
   it("then it should return users", async () => {
