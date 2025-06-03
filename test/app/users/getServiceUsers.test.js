@@ -170,36 +170,93 @@ describe("listUsersWithFilters", () => {
     };
 
     const serviceUsersData = {
-      users: [{ id: "user123", data: "serviceData" }],
-      totalNumberOfRecords: 1,
-      page: 2,
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: { name: "Org It" },
+          role: { name: "Tester", id: "role1" },
+        },
+        {
+          id: "user2",
+          createdAt: "2023-02-01",
+          updatedAt: "2023-02-02",
+          organisation: { name: "Org Dev" },
+          role: { name: "Dev", id: "role2" },
+        },
+        {
+          id: "user3",
+          createdAt: "2023-03-01",
+          updatedAt: "2023-03-02",
+          organisation: { name: "Org Main" },
+          role: null,
+        }, // No role
+      ],
+      totalNumberOfRecords: 3,
+      page: 1,
       totalNumberOfPages: 1,
     };
+
     listServiceUsers.mockResolvedValue(serviceUsersData);
 
     const usersData = [
-      { sub: "user123", email: "user@education.gov.uk", moreData: "userData" },
+      {
+        sub: "user1",
+        email: "it@example.com",
+        family_name: "Testerson",
+        given_name: "It",
+        status: "Active",
+      },
+      {
+        sub: "user2",
+        email: "dev@example.com",
+        family_name: "Developer",
+        given_name: "Dev",
+        status: "Inactive",
+      },
+      // User3 has no match in usersByIds result
     ];
     usersByIds.mockResolvedValue(usersData);
 
-    // TODO fix all these undefined
     const expectedResponseBody = {
       users: [
         {
-          userId: "user123",
-          email: "user@education.gov.uk",
-          approvedAt: undefined,
-          familyName: undefined,
-          givenName: undefined,
-          organisation: undefined,
-          roleId: undefined,
+          approvedAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: { name: "Org It" },
+          roleName: "Tester",
+          roleId: "role1",
+          userId: "user1",
+          email: "it@example.com",
+          familyName: "Testerson",
+          givenName: "It",
+          userStatus: "Active",
+        },
+        {
+          approvedAt: "2023-02-01",
+          updatedAt: "2023-02-02",
+          organisation: { name: "Org Dev" },
+          roleName: "Dev",
+          roleId: "role2",
+          userId: "user2",
+          email: "dev@example.com",
+          familyName: "Developer",
+          givenName: "Dev",
+          userStatus: "Inactive",
+        },
+        {
+          approvedAt: "2023-03-01",
+          updatedAt: "2023-03-02",
+          organisation: { name: "Org Main" },
           roleName: undefined,
-          updatedAt: undefined,
-          userStatus: undefined,
+          roleId: undefined,
+          userId: "user3",
+          // No email, name, status as user3 was not in the `users` array
         },
       ],
-      numberOfRecords: 1,
-      page: 2,
+      numberOfRecords: 3,
+      page: 1,
       numberOfPages: 1,
       dateRange:
         "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
@@ -217,7 +274,10 @@ describe("listUsersWithFilters", () => {
       25,
       mockReq.correlationId,
     );
-    expect(usersByIds).toHaveBeenCalledWith("user123", mockReq.correlationId);
+    expect(usersByIds).toHaveBeenCalledWith(
+      "user1,user2,user3",
+      mockReq.correlationId,
+    );
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
     // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
@@ -279,7 +339,6 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    //TODO need to figure out how to make date static
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - 7);
 
@@ -511,36 +570,93 @@ describe("listUsersWithoutFilters", () => {
     };
 
     const serviceUsersData = {
-      users: [{ id: "user123", data: "serviceData" }],
-      totalNumberOfRecords: 1,
-      page: 2,
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: { name: "Org It" },
+          role: { name: "Tester", id: "role1" },
+        },
+        {
+          id: "user2",
+          createdAt: "2023-02-01",
+          updatedAt: "2023-02-02",
+          organisation: { name: "Org Dev" },
+          role: { name: "Dev", id: "role2" },
+        },
+        {
+          id: "user3",
+          createdAt: "2023-03-01",
+          updatedAt: "2023-03-02",
+          organisation: { name: "Org Main" },
+          role: null,
+        }, // No role
+      ],
+      totalNumberOfRecords: 3,
+      page: 1,
       totalNumberOfPages: 1,
     };
+
     listServiceUsers.mockResolvedValue(serviceUsersData);
 
     const usersData = [
-      { sub: "user123", email: "user@education.gov.uk", moreData: "userData" },
+      {
+        sub: "user1",
+        email: "it@example.com",
+        family_name: "Testerson",
+        given_name: "It",
+        status: "Active",
+      },
+      {
+        sub: "user2",
+        email: "dev@example.com",
+        family_name: "Developer",
+        given_name: "Dev",
+        status: "Inactive",
+      },
+      // User3 has no match in usersByIds result
     ];
     usersByIds.mockResolvedValue(usersData);
 
-    // TODO fix all these undefined
     const expectedResponseBody = {
       users: [
         {
-          userId: "user123",
-          email: "user@education.gov.uk",
-          approvedAt: undefined,
-          familyName: undefined,
-          givenName: undefined,
-          organisation: undefined,
-          roleId: undefined,
+          approvedAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: { name: "Org It" },
+          roleName: "Tester",
+          roleId: "role1",
+          userId: "user1",
+          email: "it@example.com",
+          familyName: "Testerson",
+          givenName: "It",
+          userStatus: "Active",
+        },
+        {
+          approvedAt: "2023-02-01",
+          updatedAt: "2023-02-02",
+          organisation: { name: "Org Dev" },
+          roleName: "Dev",
+          roleId: "role2",
+          userId: "user2",
+          email: "dev@example.com",
+          familyName: "Developer",
+          givenName: "Dev",
+          userStatus: "Inactive",
+        },
+        {
+          approvedAt: "2023-03-01",
+          updatedAt: "2023-03-02",
+          organisation: { name: "Org Main" },
           roleName: undefined,
-          updatedAt: undefined,
-          userStatus: undefined,
+          roleId: undefined,
+          userId: "user3",
+          // No email, name, status as user3 was not in the `users` array
         },
       ],
-      numberOfRecords: 1,
-      page: 2,
+      numberOfRecords: 3,
+      page: 1,
       numberOfPages: 1,
     };
 
@@ -556,99 +672,12 @@ describe("listUsersWithoutFilters", () => {
       25,
       mockReq.correlationId,
     );
-    expect(usersByIds).toHaveBeenCalledWith("user123", mockReq.correlationId);
+    expect(usersByIds).toHaveBeenCalledWith(
+      "user1,user2,user3",
+      mockReq.correlationId,
+    );
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
     // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
   });
 });
-
-// describe('prepareUserResponse (Actual implementation it - optional to be honest, as it should be unit tested separately)', () => {
-//   // These would be its for the actual prepareUserResponse if it weren't mocked above.
-//   // For the listUsersWithFilters its, mocking prepareUserResponse is usually sufficient.
-//   const { prepareUserResponse } = require('./"./../../../src/app/users/getServiceUsers"');
-//
-//   it('should correctly map user service data and user data', () => {
-//     const pageOfUserServices = {
-//       users: [
-//         { id: 'user1', createdAt: '2023-01-01', updatedAt: '2023-01-02', organisation: {name: 'Org It'}, role: { name: 'Tester', id: 'role1' } },
-//         { id: 'user2', createdAt: '2023-02-01', updatedAt: '2023-02-02', organisation: {name: 'Org Dev'}, role: { name: 'Dev', id: 'role2' } },
-//         { id: 'user3', createdAt: '2023-03-01', updatedAt: '2023-03-02', organisation: {name: 'Org Main'}, role: null } // No role
-//       ],
-//       totalNumberOfRecords: 3,
-//       page: 1,
-//       totalNumberOfPages: 1,
-//     };
-//     const users = [
-//       { sub: 'user1', email: 'it@example.com', family_name: 'Testerson', given_name: 'It', status: 'Active' },
-//       { sub: 'user2', email: 'dev@example.com', family_name: 'Developer', given_name: 'Dev', status: 'Inactive' },
-//       // User3 has no match in usersByIds result
-//     ];
-//
-//     const result = prepareUserResponse(pageOfUserServices, users);
-//
-//     expect(result.users).toHaveLength(3);
-//     expect(result.users[0]).toEqual({
-//       approvedAt: '2023-01-01',
-//       updatedAt: '2023-01-02',
-//       organisation: {name: 'Org It'},
-//       roleName: 'Tester',
-//       roleId: 'role1',
-//       userId: 'user1',
-//       email: 'it@example.com',
-//       familyName: 'Testerson',
-//       givenName: 'It',
-//       userStatus: 'Active',
-//     });
-//     expect(result.users[1]).toEqual({
-//       approvedAt: '2023-02-01',
-//       updatedAt: '2023-02-02',
-//       organisation: {name: 'Org Dev'},
-//       roleName: 'Dev',
-//       roleId: 'role2',
-//       userId: 'user2',
-//       email: 'dev@example.com',
-//       familyName: 'Developer',
-//       givenName: 'Dev',
-//       userStatus: 'Inactive',
-//     });
-//       expect(result.users[2]).toEqual({
-//       approvedAt: '2023-03-01',
-//       updatedAt: '2023-03-02',
-//       organisation: {name: 'Org Main'},
-//       roleName: undefined,
-//       roleId: undefined,
-//       userId: 'user3',
-//       // No email, name, status as user3 was not in the `users` array
-//     });
-//     expect(result.numberOfRecords).toBe(3);
-//     expect(result.page).toBe(1);
-//     expect(result.numberOfPages).toBe(1);
-//   });
-
-//   it('should handle empty pageOfUserServices.users', () => {
-//     const pageOfUserServices = {
-//       users: [],
-//       totalNumberOfRecords: 0,
-//       page: 1,
-//       totalNumberOfPages: 0,
-//     };
-//     const users = [];
-//     const result = prepareUserResponse(pageOfUserServices, users);
-//     expect(result.users).toEqual([]);
-//     expect(result.numberOfRecords).toBe(0);
-//   });
-
-//   it('should handle users not found in usersByIds lookup', () => {
-//     const pageOfUserServices = {
-//       users: [{ id: 'user1', createdAt: '2023-01-01', updatedAt: '2023-01-02', organisation: {name: 'Org It'}, role: { name: 'Tester', id: 'role1' } }],
-//       totalNumberOfRecords: 1, page: 1, totalNumberOfPages: 1,
-//     };
-//     const users = []; // No matching user
-//     const result = prepareUserResponse(pageOfUserServices, users);
-//     expect(result.users[0]).toEqual(expect.objectContaining({
-//       userId: 'user1',
-//       email: undefined, // Because no match
-//     }));
-//   });
-// })
