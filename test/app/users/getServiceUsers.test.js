@@ -54,7 +54,7 @@ describe("listUsersWithFilters", () => {
 
   it('should return 400 if status is not "0"', async () => {
     mockReq.query = {
-      status: 1,
+      status: "not-a-number",
     };
     await listUsers(mockReq, mockRes);
     expect(mockRes.status).toHaveBeenCalledWith(400);

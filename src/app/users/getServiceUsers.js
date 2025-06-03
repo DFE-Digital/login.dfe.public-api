@@ -193,12 +193,19 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   return responseBody;
 };
 
+/**
+ * Add `dateRange` key with a human readable message representing the range of dates requested
+ * to object if both `fromDate` and `toDate` are present
+ */
 const addDateRangeValue = (responseBody, fromDate, toDate) => {
   if (fromDate && toDate) {
     responseBody.dateRange = `Users between ${fromDate.toUTCString()} and ${toDate.toUTCString()}`;
   }
 };
 
+/**
+ * Add `warning` key with a message to object if `isWarning` is true
+ */
 const addWarningValue = (responseBody, duration, isWarning) => {
   if (isWarning) {
     responseBody.warning = `Only ${duration} days of data can be fetched`;
