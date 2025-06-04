@@ -57,7 +57,7 @@ const listUsersWithFilters = async (req, res) => {
   let from;
   let fromDate;
   let toDate;
-  const duration = 1200;
+  const duration = 7;
 
   try {
     page = extractPageParam(req);
