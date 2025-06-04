@@ -3,8 +3,10 @@ const {
   listServiceUsers,
   getServiceById,
   getOrganisationCategories,
-  getOrganisationStatuses,
 } = require("../../infrastructure/organisations");
+const {
+  getOrganisationStatuses,
+} = require("login.dfe.api-client/organisations");
 const {
   getUserRaw,
   getUserServicesRaw,
@@ -58,10 +60,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       uid,
       correlationId,
     );
-    const organisationStatusData = await getOrganisationStatuses(
-      uid,
-      correlationId,
-    );
+    const organisationStatusData = await getOrganisationStatuses();
 
     const mappedOrgs = pageOfUserServices.users.map((x) => {
       const category = organisationCategoryData.find(

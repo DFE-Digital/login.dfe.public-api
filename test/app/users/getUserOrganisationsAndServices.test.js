@@ -13,6 +13,14 @@ jest.mock("login.dfe.api-client/services", () => ({
   getServiceRolesRaw: jest.fn(),
 }));
 
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationStatuses: jest.fn(),
+}));
+
+const {
+  getOrganisationStatuses,
+} = require("login.dfe.api-client/organisations");
+
 const { mockResponse, mockRequest } = require("../../utils");
 const { getServiceRolesRaw } = require("login.dfe.api-client/services");
 
@@ -20,7 +28,6 @@ const {
   listServiceUsers,
   getServiceById,
   getOrganisationCategories,
-  getOrganisationStatuses,
 } = require("../../../src/infrastructure/organisations");
 const {
   getUserRaw,
@@ -200,7 +207,7 @@ describe("when getting users organisations and services", () => {
     getOrganisationCategories
       .mockReset()
       .mockReturnValue(organisationCategoryData);
-    getOrganisationStatuses.mockReset().mockReturnValue(organisationStatusData);
+    getOrganisationStatuses.mockReturnValue(organisationStatusData);
   });
 
   it("then it should return 404 if the user isn't found", async () => {
