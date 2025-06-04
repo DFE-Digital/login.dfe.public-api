@@ -14,7 +14,7 @@ describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
   let mockRes;
-  const DURATION = 7; // Consistent duration
+  //const DURATION = 7; // Consistent duration
 
   beforeEach(() => {
     mockReq = {
