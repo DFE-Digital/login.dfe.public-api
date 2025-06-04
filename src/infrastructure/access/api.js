@@ -33,15 +33,10 @@ const callApi = async (
   }
 };
 
-const getServices = async (sid, correlationId) => {
-  return await callApi(`/services/${sid}`, correlationId);
-};
-
 const getServicesForUser = async (userId, correlationId) => {
   return await callApi(`/users/${userId}/services`, correlationId);
 };
 
 module.exports = {
-  getServices,
   getServicesForUser,
 };
