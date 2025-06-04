@@ -15,10 +15,12 @@ jest.mock("login.dfe.api-client/services", () => ({
 
 jest.mock("login.dfe.api-client/organisations", () => ({
   getOrganisationStatuses: jest.fn(),
+  getOrganisationCategories: jest.fn(),
 }));
 
 const {
   getOrganisationStatuses,
+  getOrganisationCategories,
 } = require("login.dfe.api-client/organisations");
 
 const { mockResponse, mockRequest } = require("../../utils");
@@ -27,7 +29,6 @@ const { getServiceRolesRaw } = require("login.dfe.api-client/services");
 const {
   listServiceUsers,
   getServiceById,
-  getOrganisationCategories,
 } = require("../../../src/infrastructure/organisations");
 const {
   getUserRaw,
@@ -204,9 +205,7 @@ describe("when getting users organisations and services", () => {
       },
     ]);
 
-    getOrganisationCategories
-      .mockReset()
-      .mockReturnValue(organisationCategoryData);
+    getOrganisationCategories.mockReturnValue(organisationCategoryData);
     getOrganisationStatuses.mockReturnValue(organisationStatusData);
   });
 
