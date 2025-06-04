@@ -5,8 +5,10 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../infrastructure/organisations");
-const { getUserRaw } = require("login.dfe.api-client/users");
-const { getServicesForUser } = require("../../infrastructure/access");
+const {
+  getUserRaw,
+  getUserServicesRaw,
+} = require("login.dfe.api-client/users");
 const { getServiceRolesRaw } = require("login.dfe.api-client/services");
 const getUsersOrganisationsAndServices = async (req, res) => {
   const uid = req.params.id;
@@ -108,7 +110,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     // Get list of ALL services for the user.  We need this because it has all the the service specific roles
     // for the user against each service for each organisationId.
     // We need this because that role information isn't provided in the listServiceUsers call.
-    const servicesForAUser = await getServicesForUser(uid, correlationId);
+    const servicesForAUser = await getUserServicesRaw({ userId: uid });
 
     // A user can have multiple organisations for the same service, so we loop over them all.
     for (const organisation of response.organisations) {

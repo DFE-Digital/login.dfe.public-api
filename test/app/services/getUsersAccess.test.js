@@ -17,7 +17,6 @@ jest.mock("login.dfe.dao", () => ({
     getUserOrganisationIdentifiers: jest.fn(),
   },
 }));
-jest.mock("./../../../src/infrastructure/access");
 jest.mock("login.dfe.api-client/services");
 jest.mock("login.dfe.api-client/users");
 
