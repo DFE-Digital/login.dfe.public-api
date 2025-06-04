@@ -7,12 +7,14 @@ jest.mock("./../../../src/infrastructure/logger", () =>
 jest.mock("../../../src/infrastructure/access");
 jest.mock("../../../src/infrastructure/organisations");
 jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceRolesRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("../../utils");
-const {
-  getServicesForUser,
-  getRoles,
-} = require("../../../src/infrastructure/access");
+const { getServicesForUser } = require("../../../src/infrastructure/access");
+const { getServiceRolesRaw } = require("login.dfe.api-client/services");
+
 const {
   listServiceUsers,
   getServiceById,
@@ -174,7 +176,7 @@ describe("when getting users organisations and services", () => {
       description: "DfE Sign-in Manage",
     });
 
-    getRoles.mockReset().mockReturnValue([
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "0B8625A7-43CB-433C-9991-00331879251B",
         name: "School Experience - Service Configuration",

@@ -6,8 +6,8 @@ const {
   getOrganisationStatuses,
 } = require("../../infrastructure/organisations");
 const { getUserRaw } = require("login.dfe.api-client/users");
-const { getServicesForUser, getRoles } = require("../../infrastructure/access");
-
+const { getServicesForUser } = require("../../infrastructure/access");
+const { getServiceRolesRaw } = require("login.dfe.api-client/services");
 const getUsersOrganisationsAndServices = async (req, res) => {
   const uid = req.params.id;
   const { correlationId, clientCorrelationId } = req;
@@ -123,7 +123,9 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       for (const service of services) {
         // Resolve all the serviceIds and roleIds into human readable names for the response
         const serviceDetails = await getServiceById(service.serviceId);
-        const roleDataForService = await getRoles(service.serviceId);
+        const roleDataForService = await getServiceRolesRaw({
+          serviceId: service.serviceId,
+        });
 
         // For all the roles in the service, loop over them so we have a list of names instead
         // of a list of just ids.
