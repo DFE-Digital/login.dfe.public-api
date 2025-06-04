@@ -4,15 +4,16 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("../../utils").mockLogger(),
 );
-jest.mock("../../../src/infrastructure/access");
 jest.mock("../../../src/infrastructure/organisations");
-jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUserRaw: jest.fn(),
+  getUserServicesRaw: jest.fn(),
+}));
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceRolesRaw: jest.fn(),
 }));
 
 const { mockResponse, mockRequest } = require("../../utils");
-const { getServicesForUser } = require("../../../src/infrastructure/access");
 const { getServiceRolesRaw } = require("login.dfe.api-client/services");
 
 const {
@@ -21,7 +22,10 @@ const {
   getOrganisationCategories,
   getOrganisationStatuses,
 } = require("../../../src/infrastructure/organisations");
-const { getUserRaw } = require("login.dfe.api-client/users");
+const {
+  getUserRaw,
+  getUserServicesRaw,
+} = require("login.dfe.api-client/users");
 const getUsersOrganisationsAndServices = require("../../../src/app/users/getUsersOrganisationsAndServices");
 
 const res = mockResponse();
@@ -136,7 +140,7 @@ describe("when getting users organisations and services", () => {
       totalNumberOfRecords: 1,
     });
 
-    getServicesForUser.mockReset().mockReturnValue([
+    getUserServicesRaw.mockReset().mockReturnValue([
       {
         userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
         serviceId: "4FD40032-61A6-4BEB-A6C4-6B39A3AF81C1",
