@@ -2,10 +2,10 @@ const logger = require("../../infrastructure/logger");
 const {
   listServiceUsers,
   getServiceById,
-  getOrganisationCategories,
 } = require("../../infrastructure/organisations");
 const {
   getOrganisationStatuses,
+  getOrganisationCategories,
 } = require("login.dfe.api-client/organisations");
 const {
   getUserRaw,
@@ -56,10 +56,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
 
     // Need to do 2 calls so we can translate the organisation category and status
     // ids into their human readable names
-    const organisationCategoryData = await getOrganisationCategories(
-      uid,
-      correlationId,
-    );
+    const organisationCategoryData = await getOrganisationCategories();
     const organisationStatusData = await getOrganisationStatuses();
 
     const mappedOrgs = pageOfUserServices.users.map((x) => {

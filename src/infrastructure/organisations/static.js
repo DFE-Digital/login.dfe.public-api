@@ -60,10 +60,6 @@ const getServiceById = async () => {
   return Promise.resolve();
 };
 
-const getOrganisationCategories = async () => {
-  return Promise.resolve();
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
@@ -72,5 +68,4 @@ module.exports = {
   listOrganisationUsersV3,
   listServiceUsers,
   getServiceById,
-  getOrganisationCategories,
 };
