@@ -5,24 +5,24 @@ jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
 jest.mock("./../../../src/infrastructure/organisations");
-jest.mock("./../../../src/infrastructure/access");
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceUsersForOrganisationRaw: jest.fn(),
   getServiceUsersWithRolesForOrganisationRaw: jest.fn(),
+  getServiceRolesRaw: jest.fn(),
 }));
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("./../../../src/infrastructure/organisations");
-const { getRoles } = require("./../../../src/infrastructure/access");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getServiceUsersForOrganisationRaw,
   getServiceUsersWithRolesForOrganisationRaw,
+  getServiceRolesRaw,
 } = require("login.dfe.api-client/services");
 
 const getUserOverview = require("./../../../src/app/organisations/getUserOverview");
@@ -73,7 +73,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       companyRegistrationNumber: null,
     });
     getServiceUsersForOrganisationRaw.mockReset().mockReturnValue([]);
-    getRoles.mockReset().mockReturnValue([
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "E53644D0-4B4A-43BD-92A9-F019EC63F978",
         name: "Dev User",
@@ -147,8 +147,10 @@ describe("when getting organisations users with roles by ukprn", () => {
 
   it("then it should call roles api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getRoles).toHaveBeenCalledTimes(1);
-    expect(getRoles).toHaveBeenCalledWith(req.client.id, req.correlationId);
+    expect(getServiceRolesRaw).toHaveBeenCalledTimes(1);
+    expect(getServiceRolesRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+    });
   });
 
   it("then it should call service users with roles api with client params", async () => {
