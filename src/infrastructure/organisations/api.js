@@ -124,17 +124,6 @@ const listOrganisationUsersV3 = async (
   return await callOrganisationsApi(uri, "POST", payload, correlationId);
 };
 
-const getUserOrganisation = async (userId, organisationId, correlationId) => {
-  let uri = `organisations/v3/users`;
-  const payload = {
-    page: 1,
-    pageSize: 1,
-    userId,
-    organisationId,
-  };
-  return await callOrganisationsApi(uri, "POST", payload, correlationId);
-};
-
 const getUsersForOrganisation = async (organisationId, correlationId) => {
   return await callOrganisationsApi(
     `/organisations/${organisationId}/users`,
@@ -151,5 +140,4 @@ module.exports = {
   getUsersForOrganisation,
   listServiceUsers,
   listOrganisationUsersV3,
-  getUserOrganisation,
 };
