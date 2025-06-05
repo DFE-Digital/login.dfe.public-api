@@ -144,15 +144,6 @@ const getUsersForOrganisation = async (organisationId, correlationId) => {
   );
 };
 
-const getServiceById = async (serviceId, correlationId) => {
-  return await callOrganisationsApi(
-    `services/${serviceId}`,
-    "GET",
-    undefined,
-    correlationId,
-  );
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
@@ -161,5 +152,4 @@ module.exports = {
   listServiceUsers,
   listOrganisationUsersV3,
   getUserOrganisation,
-  getServiceById,
 };
