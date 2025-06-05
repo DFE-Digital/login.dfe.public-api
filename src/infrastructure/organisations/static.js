@@ -48,17 +48,12 @@ const listOrganisationUsersV3 = async () => {
   return Promise.resolve();
 };
 
-const getUsersForOrganisation = async () => {
-  return Promise.resolve();
-};
-
 const listServiceUsers = async () => {
   return Promise.resolve();
 };
 
 module.exports = {
   getOrganisationByTypeAndIdentifier,
-  getUsersForOrganisation,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   listOrganisationUsersV3,
