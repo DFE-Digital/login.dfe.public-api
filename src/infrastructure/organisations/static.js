@@ -56,10 +56,6 @@ const listServiceUsers = async () => {
   return Promise.resolve();
 };
 
-const getServiceById = async () => {
-  return Promise.resolve();
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
@@ -67,5 +63,4 @@ module.exports = {
   upsertOrganisationAnnouncement,
   listOrganisationUsersV3,
   listServiceUsers,
-  getServiceById,
 };

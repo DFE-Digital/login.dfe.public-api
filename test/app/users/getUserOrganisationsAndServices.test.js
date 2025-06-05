@@ -11,6 +11,7 @@ jest.mock("login.dfe.api-client/users", () => ({
 }));
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceRolesRaw: jest.fn(),
+  getServiceInfo: jest.fn(),
 }));
 
 jest.mock("login.dfe.api-client/organisations", () => ({
@@ -24,11 +25,13 @@ const {
 } = require("login.dfe.api-client/organisations");
 
 const { mockResponse, mockRequest } = require("../../utils");
-const { getServiceRolesRaw } = require("login.dfe.api-client/services");
+const {
+  getServiceRolesRaw,
+  getServiceInfo,
+} = require("login.dfe.api-client/services");
 
 const {
   listServiceUsers,
-  getServiceById,
 } = require("../../../src/infrastructure/organisations");
 const {
   getUserRaw,
@@ -182,7 +185,7 @@ describe("when getting users organisations and services", () => {
       },
     ]);
 
-    getServiceById.mockReset().mockReturnValue({
+    getServiceInfo.mockReset().mockReturnValue({
       id: "B1F190AA-729A-45FC-A695-4EA209DC79D4",
       name: "DfE Sign-in manage",
       description: "DfE Sign-in Manage",
