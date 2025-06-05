@@ -8,6 +8,9 @@ jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getBasicOrganisationUsersRaw: jest.fn(),
+}));
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceUsersForOrganisationRaw: jest.fn(),
 }));
@@ -15,12 +18,14 @@ jest.mock("login.dfe.api-client/services", () => ({
 const { mockResponse, mockRequest } = require("../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
-  getUsersForOrganisation,
 } = require("../../../src/infrastructure/organisations");
 const {
   getServiceUsersForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
+const {
+  getBasicOrganisationUsersRaw,
+} = require("login.dfe.api-client/organisations");
 
 const getUsersByRolesV2 = require("../../../src/app/organisations/getUsersByRolesV2");
 
@@ -129,7 +134,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       },
     ]);
 
-    getUsersForOrganisation.mockReset().mockReturnValue([
+    getBasicOrganisationUsersRaw.mockReset().mockReturnValue([
       {
         id: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
         status: 0,

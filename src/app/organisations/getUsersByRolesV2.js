@@ -1,12 +1,14 @@
 const logger = require("../../infrastructure/logger");
 const {
   getOrganisationByTypeAndIdentifier,
-  getUsersForOrganisation,
 } = require("../../infrastructure/organisations");
 const {
   getServiceUsersForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
+const {
+  getBasicOrganisationUsersRaw,
+} = require("login.dfe.api-client/organisations");
 
 const getUsersByRolesV2 = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -127,10 +129,9 @@ const processOrganisationUsers = async (
       userId ? user.sub.toLowerCase() === userId.toLowerCase() : true,
     );
 
-  const organisationUsers = await getUsersForOrganisation(
-    organisationId,
-    correlationId,
-  );
+  const organisationUsers = await getBasicOrganisationUsersRaw({
+    organisationId: organisationId,
+  });
 
   return filteredDetails.map((user) => {
     const userRoles =
