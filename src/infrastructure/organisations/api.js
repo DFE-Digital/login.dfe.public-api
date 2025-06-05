@@ -8,7 +8,8 @@ const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
   ).getBearerToken();
 
   try {
-    return await fetchApi(`${config.organisations.service.url}/${endpoint}`, {
+    const route = `${config.organisations.service.url}/${endpoint}`;
+    const result = await fetchApi(`${route}`, {
       method: method,
       headers: {
         authorization: `bearer ${token}`,
@@ -16,6 +17,7 @@ const callOrganisationsApi = async (endpoint, method, body, correlationId) => {
       },
       body: body,
     });
+    return result;
   } catch (e) {
     const status = e.statusCode ? e.statusCode : 500;
     if (status === 401 || status === 404) {
@@ -124,20 +126,10 @@ const listOrganisationUsersV3 = async (
   return await callOrganisationsApi(uri, "POST", payload, correlationId);
 };
 
-const getUsersForOrganisation = async (organisationId, correlationId) => {
-  return await callOrganisationsApi(
-    `/organisations/${organisationId}/users`,
-    "GET",
-    undefined,
-    correlationId,
-  );
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
-  getUsersForOrganisation,
   listServiceUsers,
   listOrganisationUsersV3,
 };
