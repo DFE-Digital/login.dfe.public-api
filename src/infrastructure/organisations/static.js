@@ -44,10 +44,6 @@ const upsertOrganisationAnnouncement = async () => {
   return Promise.resolve();
 };
 
-const listOrganisationUsersV3 = async () => {
-  return Promise.resolve();
-};
-
 const listServiceUsers = async () => {
   return Promise.resolve();
 };
@@ -56,6 +52,5 @@ module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
-  listOrganisationUsersV3,
   listServiceUsers,
 };

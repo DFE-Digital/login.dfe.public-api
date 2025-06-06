@@ -109,27 +109,9 @@ const upsertOrganisationAnnouncement = async (
   );
 };
 
-const listOrganisationUsersV3 = async (
-  page,
-  pageSize,
-  roleId,
-  policies,
-  correlationId,
-) => {
-  let uri = `organisations/v3/users`;
-  const payload = {
-    page: page,
-    pageSize: pageSize,
-    role: roleId,
-    policies: policies,
-  };
-  return await callOrganisationsApi(uri, "POST", payload, correlationId);
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
   upsertOrganisationAnnouncement,
   listServiceUsers,
-  listOrganisationUsersV3,
 };
