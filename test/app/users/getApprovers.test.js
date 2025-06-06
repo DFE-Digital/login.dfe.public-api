@@ -9,17 +9,19 @@ jest.mock("login.dfe.api-client/services", () => ({
   getServicePoliciesRaw: jest.fn(),
 }));
 jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getFilteredOrganisationUsersRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  listOrganisationUsersV3,
-} = require("./../../../src/infrastructure/organisations");
 
 const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getApprovers = require("./../../../src/app/users/getApprovers");
 const { getServicePoliciesRaw } = require("login.dfe.api-client/services");
-
+const {
+  getFilteredOrganisationUsersRaw,
+} = require("login.dfe.api-client/organisations");
 const res = mockResponse();
 
 describe("when getting approver organisations", () => {
@@ -39,7 +41,7 @@ describe("when getting approver organisations", () => {
 
     res.mockResetAll();
 
-    listOrganisationUsersV3.mockReset().mockReturnValue({
+    getFilteredOrganisationUsersRaw.mockReturnValue({
       users: [
         {
           userId: "userId",
@@ -178,14 +180,13 @@ describe("when getting approver organisations", () => {
   it("then it should call organisations to get page of org approvers with defaults", async () => {
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV3).toHaveBeenCalledWith(
-      1,
-      25,
-      10000,
-      [],
-      req.correlationId,
-    );
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 25,
+      role: 10000,
+      policies: [],
+    });
   });
 
   it("then it should call organisations to get page of org approvers with policy conditions as filter", async () => {
@@ -204,14 +205,13 @@ describe("when getting approver organisations", () => {
     getServicePoliciesRaw.mockReset().mockReturnValue(mockPolicies);
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV3).toHaveBeenCalledWith(
-      1,
-      25,
-      10000,
-      mockPolicies,
-      req.correlationId,
-    );
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 25,
+      role: 10000,
+      policies: mockPolicies,
+    });
   });
 
   it("then it should call directories with the userIds", async () => {
