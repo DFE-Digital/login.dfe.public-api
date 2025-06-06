@@ -5,10 +5,12 @@ jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
 jest.mock("./../../../src/infrastructure/organisations");
-
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationRaw: jest.fn(),
+}));
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 const { mockRequest, mockResponse } = require("./../../utils");
 const {
-  getOrganisationByTypeAndIdentifier,
   upsertOrganisationAnnouncement,
 } = require("./../../../src/infrastructure/organisations");
 const upsertAnnouncement = require("./../../../src/app/organisations/upsertAnnouncement");
@@ -35,7 +37,7 @@ describe("when upserting an organisation announcement", () => {
 
     res.mockResetAll();
 
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue({
+    getOrganisationRaw.mockReturnValue({
       id: "org1",
     });
 
@@ -68,12 +70,10 @@ describe("when upserting an organisation announcement", () => {
 
     await upsertAnnouncement(req, res);
 
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith(
-      "001",
-      req.body.urn,
-      req.correlationId,
-    );
+    expect(getOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getOrganisationRaw).toHaveBeenCalledWith({
+      by: { type: "001", identifierValue: req.body.urn },
+    });
   });
 
   it("then it should get organisation by uid if uid specified", async () => {
@@ -82,12 +82,10 @@ describe("when upserting an organisation announcement", () => {
 
     await upsertAnnouncement(req, res);
 
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith(
-      "010",
-      req.body.uid,
-      req.correlationId,
-    );
+    expect(getOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getOrganisationRaw).toHaveBeenCalledWith({
+      by: { type: "010", identifierValue: req.body.uid },
+    });
   });
 
   it("then it should upsert the announcement in orgs api", async () => {

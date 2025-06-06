@@ -1,11 +1,9 @@
 const logger = require("../../infrastructure/logger");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../infrastructure/organisations");
-const {
   getServiceUsersForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 
 const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -26,18 +24,14 @@ const getUsersByRoles = async (req, res) => {
     }
     // Get organisations by UKPRN/UPIN
     let isUPIN = false;
-    let organisations = await getOrganisationByTypeAndIdentifier(
-      "UKPRN-multi",
-      req.params.id,
-      correlationId,
-    );
+    let organisations = await getOrganisationRaw({
+      by: { type: "UKPRN-multi", identifierValue: req.params.id },
+    });
 
     if (organisations.length === 0) {
-      organisations = await getOrganisationByTypeAndIdentifier(
-        "UPIN-multi",
-        req.params.id,
-        correlationId,
-      );
+      organisations = await getOrganisationRaw({
+        by: { type: "UPIN-multi", identifierValue: req.params.id },
+      });
       organisations = [].concat(organisations);
       isUPIN = true;
     }

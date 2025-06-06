@@ -1,9 +1,9 @@
 const { validationResult } = require("express-validator");
 const logger = require("./../../infrastructure/logger");
 const {
-  getOrganisationByTypeAndIdentifier,
   upsertOrganisationAnnouncement,
 } = require("./../../infrastructure/organisations");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 
 const getAndValidateModel = (req) => {
   const validTypes = [1, 2, 4, 5];
@@ -86,17 +86,13 @@ const upsertAnnouncement = async (req, res) => {
 
     let organisation;
     if (model.announcement.urn) {
-      organisation = await getOrganisationByTypeAndIdentifier(
-        "001",
-        model.announcement.urn,
-        correlationId,
-      );
+      organisation = await getOrganisationRaw({
+        by: { type: "001", identifierValue: model.announcement.urn },
+      });
     } else {
-      organisation = await getOrganisationByTypeAndIdentifier(
-        "010",
-        model.announcement.uid,
-        correlationId,
-      );
+      organisation = await getOrganisationRaw({
+        by: { type: "010", identifierValue: model.announcement.uid },
+      });
     }
 
     const announcement = await upsertOrganisationAnnouncement(
