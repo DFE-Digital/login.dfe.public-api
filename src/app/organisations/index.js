@@ -1,7 +1,7 @@
 const express = require("express");
 const { asyncWrapper } = require("login.dfe.express-error-handling");
 const { body } = require("express-validator");
-const getOrganisatiobByTypeAndIdentifier = require("./getOrganisatiobByTypeAndIdentifier");
+const getOrganisationByTypeAndIdentifier = require("./getOrganisationByTypeAndIdentifier");
 const upsertAnnouncement = require("./upsertAnnouncement");
 const deleteAnnouncement = require("./deleteAnnouncement");
 const getUsersByRoles = require("./getUsersByRoles");
@@ -13,7 +13,7 @@ const area = () => {
 
   router.get(
     "/find-by-type/:type/:identifier",
-    asyncWrapper(getOrganisatiobByTypeAndIdentifier),
+    asyncWrapper(getOrganisationByTypeAndIdentifier),
   );
 
   router.post(

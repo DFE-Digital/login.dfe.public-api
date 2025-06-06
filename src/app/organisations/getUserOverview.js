@@ -1,7 +1,5 @@
 const logger = require("./../../infrastructure/logger");
-const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../infrastructure/organisations");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getServiceUsersForOrganisationRaw,
@@ -62,11 +60,10 @@ const getUserOverview = async (req, res) => {
       return res.status(400).send();
     }
     // Get organisation_id by UKPRN
-    const organisation = await getOrganisationByTypeAndIdentifier(
-      "UKPRN",
-      ukprn,
-      correlationId,
-    );
+    const organisation = await getOrganisationRaw({
+      by: { type: "UKPRN", identifierValue: ukprn },
+    });
+
     if (!organisation) {
       return res.status(404).send();
     }

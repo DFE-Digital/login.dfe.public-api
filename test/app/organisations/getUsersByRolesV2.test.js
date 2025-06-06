@@ -4,11 +4,11 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
 jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationsRaw: jest.fn(),
   getBasicOrganisationUsersRaw: jest.fn(),
 }));
 jest.mock("login.dfe.api-client/services", () => ({
@@ -17,13 +17,11 @@ jest.mock("login.dfe.api-client/services", () => ({
 
 const { mockResponse, mockRequest } = require("../../utils");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../../src/infrastructure/organisations");
-const {
   getServiceUsersForOrganisationRaw,
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
+  getOrganisationsRaw,
   getBasicOrganisationUsersRaw,
 } = require("login.dfe.api-client/organisations");
 
@@ -53,7 +51,7 @@ describe("when getting organisations users with roles by ukprn", () => {
 
     res.mockResetAll();
 
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue([
+    getOrganisationsRaw.mockReturnValue([
       {
         id: "966B98F1-80F7-4BEB-B886-C9742F7A087F",
         name: "16-19 ABINGDON",
@@ -191,7 +189,7 @@ describe("when getting organisations users with roles by ukprn", () => {
   });
 
   it("should return 404 no organisations are returned", async () => {
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue([]);
+    getOrganisationsRaw.mockReset().mockReturnValue([]);
     await getUsersByRolesV2(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
