@@ -7,7 +7,7 @@ const {
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
-  getOrganisationUsersRaw,
+  getBasicOrganisationUsersRaw,
 } = require("login.dfe.api-client/organisations");
 
 const getUsersByRolesV2 = async (req, res) => {
@@ -129,7 +129,7 @@ const processOrganisationUsers = async (
       userId ? user.sub.toLowerCase() === userId.toLowerCase() : true,
     );
 
-  const organisationUsers = await getOrganisationUsersRaw({
+  const organisationUsers = await getBasicOrganisationUsersRaw({
     organisationId: organisationId,
   });
 
