@@ -410,7 +410,7 @@ This will return a response in the following format
 ]
 ```
 
-### Get organisations and services for user
+## Get organisations and services for user
 
 You can use this API to get the organisations associated with a user
 The request looks like
@@ -507,7 +507,7 @@ This will return a response in the following format
 }
 ```
 
-### Service Users without filters
+## Service Users without filters
 
 You can get a list of users without filters as defined in the Authorization token (iss attribute)  
 The request looks like:
@@ -583,9 +583,9 @@ _Response Example_
 }
 ```
 
-### Service Users with filters
+## Service Users with filters
 
-You can get a list of users with filters as defined in the Authorization token (iss attribute)  
+You can get a list of users with filters as defined in the Authorization token (iss attribute).
 The request looks like:
 
 ```
@@ -593,27 +593,45 @@ GET https://environment-url/users?page=1&pageSize=25&status=0&from=2021%2F02%2F1
 Authorization: bearer {jwt-token}
 ```
 
-The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
-The status, from and to are optional
-status accepts 0 at the moment.
-date range only accepts 7 days
-dates should be in URL encoded form as shown in the example
+For this endpoint to be used (as opposed to the 'Service Users without filters'), at least one of `status`, `from` or `to` must be provided.
 
-_Date range validation_
+### Query parameters
+
+| Parameter | Description                                              |
+| --------- | -------------------------------------------------------- |
+| status    | Needs to be 1 or 0                                       |
+| from      | Date string in the form of YYYY-MM-DD (e.g., 2025-01-01) |
+| to        | Date string in the form of YYYY-MM-DD (e.g., 2025-01-01) |
+| page      | A number. Defaults to 1 if not provided                  |
+| pageSize  | A number. Defaults to 25 if not provided                 |
+
+The page and pageSize variables are optional and default to 1 and 25 respectively, these variables allow the caller to iterate over pages of results (using attributes in the response body to calculate the number of records and pages).
+
+### Validation
+
+- The status, from and to are optional
+- date range only accepts 7 days
+- dates should be in URL encoded form as shown in the example
+
+#### Date range validation
+
 Send error message when the date range is more than 7 days.
 Only from date in the filter gets users updated 7 days after the from date.
 Only to date in the filter gets users updated 7 days before the to date.
 When no date specified, gets users updated from now to 7 days before it.
 
+### Response
+
 The response body contains the following attributes (example response below):
 
-| Name               | Description                                                      |
-| ------------------ | ---------------------------------------------------------------- |
-| users              | An array of user details (including a child organisation object) |
-| numberOfRecords    | Total number of records reported                                 |
-| page               | Current page number                                              |
-| numberOfPages      | Total number of pages                                            |
-| warning (optional) | appears only when fetching only 7 days of users                  |
+| Name               | Description                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| users              | An array of user details (including a child organisation object)                                         |
+| numberOfRecords    | Total number of records reported                                                                         |
+| page               | Current page number                                                                                      |
+| numberOfPages      | Total number of pages                                                                                    |
+| warning (optional) | appears only when fetching only 7 days of users                                                          |
+| dateRange          | Human readable description of date range requested. Appears only when `from` and `to` values are present |
 
 _Response Example_
 
@@ -667,13 +685,14 @@ _Response Example_
   "numberOfRecords": 1,
   "page": 1,
   "numberOfPages": 1,
-  "warning": "Only 7 days of data can be fetched"
+  "warning": "Only 7 days of data can be fetched",
+  "dateRange": "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT"
 }
 ```
 
 To interpret the category id, see [here](#how-do-ids-map-to-categories-and-types).
 
-### Approvers for organisations
+## Approvers for organisations
 
 You can get a list of approvers for organisations that are within your services scope (based on role policy conditions)
 if your service has permission to do so.
@@ -817,7 +836,7 @@ This will return a response in the following format
 }
 ```
 
-Retrieve Organisation Users by Filtered Criteria
+## Retrieve Organisation Users by Filtered Criteria
 
 You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId.
 The request looks like
@@ -894,7 +913,7 @@ This will return a response in the following format
 }
 ```
 
-Retrieve Organisation Users by Filtered Criteria
+## Retrieve Organisation Users by Filtered Criteria
 
 You can also use the above API to retrieve organisation users based on filtered criteria such as email address or userId.
 The request looks like
