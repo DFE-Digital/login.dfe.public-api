@@ -1,9 +1,7 @@
 const logger = require("./../../infrastructure/logger");
 const {
-  searchForAnnouncements,
-} = require("./../../infrastructure/organisations");
-const {
   addOrganisationAnnouncementRaw,
+  getPaginatedOrganisationsAnnouncementsRaw,
 } = require("login.dfe.api-client/organisations");
 
 const deleteAnnouncement = async (req, res) => {
@@ -19,7 +17,10 @@ const deleteAnnouncement = async (req, res) => {
       },
     );
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await getPaginatedOrganisationsAnnouncementsRaw({
+      announcementOriginId: messageId,
+    });
+
     const announcement =
       result && result.announcements && result.announcements.length > 0
         ? result.announcements[0]
