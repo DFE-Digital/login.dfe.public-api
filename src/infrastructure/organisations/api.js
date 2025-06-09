@@ -79,39 +79,8 @@ const searchForAnnouncements = async (messageId, correlationId) => {
   );
 };
 
-const upsertOrganisationAnnouncement = async (
-  organisationId,
-  messageId,
-  type,
-  title,
-  summary,
-  body,
-  publishedAt,
-  expiresAt,
-  published,
-  correlationId,
-) => {
-  const requestBody = {
-    originId: messageId,
-    type,
-    title,
-    summary,
-    body,
-    publishedAt,
-    expiresAt,
-    published,
-  };
-  return await callOrganisationsApi(
-    `organisations/${organisationId}/announcements`,
-    "POST",
-    requestBody,
-    correlationId,
-  );
-};
-
 module.exports = {
   getOrganisationByTypeAndIdentifier,
   searchForAnnouncements,
-  upsertOrganisationAnnouncement,
   listServiceUsers,
 };
