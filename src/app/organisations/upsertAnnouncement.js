@@ -1,9 +1,9 @@
 const { validationResult } = require("express-validator");
 const logger = require("./../../infrastructure/logger");
 const {
-  upsertOrganisationAnnouncement,
-} = require("./../../infrastructure/organisations");
-const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
+  getOrganisationRaw,
+  addOrganisationAnnouncementRaw,
+} = require("login.dfe.api-client/organisations");
 
 const getAndValidateModel = (req) => {
   const validTypes = [1, 2, 4, 5];
@@ -94,19 +94,18 @@ const upsertAnnouncement = async (req, res) => {
         by: { type: "010", identifierValue: model.announcement.uid },
       });
     }
+    const announcement = await addOrganisationAnnouncementRaw({
+      organisationId: organisation.id,
+      announcementOriginId: model.announcement.messageId,
+      announcementType: model.announcement.type,
+      announcementTitle: model.announcement.title,
+      announcementSummary: model.announcement.summary,
+      announcementBody: model.announcement.body,
+      isAnnouncementPublished: true,
+      expiresAt: model.announcement.expiresAt || undefined,
+      publishedAt: model.announcement.publishedAt,
+    });
 
-    const announcement = await upsertOrganisationAnnouncement(
-      organisation.id,
-      model.announcement.messageId,
-      model.announcement.type,
-      model.announcement.title,
-      model.announcement.summary,
-      model.announcement.body,
-      model.announcement.publishedAt,
-      model.announcement.expiresAt || undefined,
-      true,
-      correlationId,
-    );
     return res.status(202).json(announcement);
   } catch (e) {
     logger.info(
