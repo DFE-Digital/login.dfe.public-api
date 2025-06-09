@@ -57,16 +57,6 @@ const listServiceUsers = async (
   }
 };
 
-const searchForAnnouncements = async (messageId, correlationId) => {
-  return await callOrganisationsApi(
-    `organisations/announcements?messageid=${messageId}`,
-    "GET",
-    undefined,
-    correlationId,
-  );
-};
-
 module.exports = {
-  searchForAnnouncements,
   listServiceUsers,
 };

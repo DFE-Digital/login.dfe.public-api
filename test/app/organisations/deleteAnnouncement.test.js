@@ -4,17 +4,15 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
 jest.mock("login.dfe.api-client/organisations", () => ({
   addOrganisationAnnouncementRaw: jest.fn(),
+  getPaginatedOrganisationsAnnouncementsRaw: jest.fn(),
 }));
 
 const { mockRequest, mockResponse } = require("./../../utils");
 const {
-  searchForAnnouncements,
-} = require("./../../../src/infrastructure/organisations");
-const {
   addOrganisationAnnouncementRaw,
+  getPaginatedOrganisationsAnnouncementsRaw,
 } = require("login.dfe.api-client/organisations");
 const deleteAnnouncement = require("./../../../src/app/organisations/deleteAnnouncement");
 
@@ -45,7 +43,7 @@ describe("when deleting an organisation announcement", () => {
       expiresAt: "2020-01-31T14:49:00Z",
       published: true,
     };
-    searchForAnnouncements.mockReset().mockReturnValue({
+    getPaginatedOrganisationsAnnouncementsRaw.mockReset().mockReturnValue({
       announcements: [announcement],
     });
 
@@ -63,11 +61,10 @@ describe("when deleting an organisation announcement", () => {
   it("then it should search for announcement by message id", async () => {
     await deleteAnnouncement(req, res);
 
-    expect(searchForAnnouncements).toHaveBeenCalledTimes(1);
-    expect(searchForAnnouncements).toHaveBeenCalledWith(
-      "message-1",
-      req.correlationId,
-    );
+    expect(getPaginatedOrganisationsAnnouncementsRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedOrganisationsAnnouncementsRaw).toHaveBeenCalledWith({
+      announcementOriginId: "message-1",
+    });
   });
 
   it("then it should upsert the announcement in orgs api to be unpublished", async () => {
@@ -88,7 +85,7 @@ describe("when deleting an organisation announcement", () => {
   });
 
   it("then it should return not found result if no message by id", async () => {
-    searchForAnnouncements.mockReturnValue({
+    getPaginatedOrganisationsAnnouncementsRaw.mockReturnValue({
       announcements: [],
     });
 
