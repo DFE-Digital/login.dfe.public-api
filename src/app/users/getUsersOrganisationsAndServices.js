@@ -26,12 +26,15 @@ const getUsersOrganisationsAndServices = async (req, res) => {
       return res.status(404).send();
     }
 
-    // Call to get data about user of this service (limited by clientId). Returns their organisation role for this
-    // service (end user/approver), and the organisations this user is part of for this service
-    // (can be part of a service for multiple organisations)
+    // Call to get data about user of this service (limited by clientId). Returns their organisation
+    // role for this service (end user/approver), and the organisations this user is part of for
+    // this service (can be part of a service for multiple organisations)
     const pageOfUserServices = await listServiceUsers(
       req.client.id,
       [uid],
+      undefined,
+      undefined,
+      undefined,
       1,
       200,
       req.correlationId,
@@ -105,8 +108,8 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     });
     response.organisations = mappedOrgs;
 
-    // Get list of ALL services for the user.  We need this because it has all the the service specific roles
-    // for the user against each service for each organisationId.
+    // Get list of ALL services for the user.  We need this because it has all the the service
+    // specific roles for the user against each service for each organisationId.
     // We need this because that role information isn't provided in the listServiceUsers call.
     const servicesForAUser = await getServicesForUser(uid, correlationId);
 
