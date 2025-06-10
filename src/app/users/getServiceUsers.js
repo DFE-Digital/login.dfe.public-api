@@ -7,20 +7,12 @@ const {
 } = require("../utils");
 const { listServiceUsers } = require("../../infrastructure/organisations");
 const { getUsersRaw } = require("login.dfe.api-client/users");
-const { directories } = require("login.dfe.dao");
 
 const listUsers = async (req, res) => {
-  let status;
-  let to;
-  let from;
+  const status = extractStatusParam(req);
+  const to = extractToParam(req);
+  const from = extractFromParam(req);
 
-  try {
-    status = extractStatusParam(req);
-    to = extractToParam(req);
-    from = extractFromParam(req);
-  } catch (e) {
-    return res.status(400).send(e.message);
-  }
   if (status || from || to) {
     return listUsersWithFilters(req, res);
   } else {
@@ -39,18 +31,18 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  let pageOfUserServices;
-  let users;
-
-  pageOfUserServices = await listServiceUsers(
+  const pageOfUserServices = await listServiceUsers(
     req.client.id,
     null,
+    undefined,
+    undefined,
+    undefined,
     page,
     pageSize,
     req.correlationId,
   );
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  users = await getUsersRaw({ by: { userIds: userIds } });
+  const users = await getUsersRaw({ by: { userIds: userIds } });
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 
@@ -74,26 +66,31 @@ const listUsersWithFilters = async (req, res) => {
     to = extractToParam(req);
     from = extractFromParam(req);
 
-    if (status && status !== "0") {
-      return res.status(400).send("status should only be 0");
+    if (status !== undefined && status !== null) {
+      // Check if status is provided at all
+      if (status !== "0" && status !== "1") {
+        return res
+          .status(400)
+          .send("Status is not valid. Should be either 0 or 1.");
+      }
     }
 
     if (to && isNaN(Date.parse(to))) {
-      return res.status(400).send("to date is not a valid date");
+      return res.status(400).send("To date is not a valid date.");
     } else if (to) {
       toDate = new Date(to);
     }
     if (from && isNaN(Date.parse(from))) {
-      return res.status(400).send("from date is not a valid date");
+      return res.status(400).send("From date is not a valid date.");
     } else if (from) {
       fromDate = new Date(from);
     }
 
     if (fromDate && toDate) {
       if (isFutureDate(fromDate) && isFutureDate(toDate)) {
-        return res.status(400).send("date range should not be in the future");
+        return res.status(400).send("Date range should not be in the future");
       } else if (fromDate.getTime() > toDate.getTime()) {
-        return res.status(400).send("from date greater than to date");
+        return res.status(400).send("From date greater than to date");
       }
 
       const time_difference = toDate.getTime() - fromDate.getTime();
@@ -106,56 +103,50 @@ const listUsersWithFilters = async (req, res) => {
     } else if (fromDate || toDate) {
       const selectedDate = fromDate ? fromDate : toDate;
       if (isFutureDate(selectedDate)) {
-        return res.status(400).send("date range should not be in the future");
+        return res.status(400).send("Date range should not be in the future");
       }
     }
   } catch (e) {
     return res.status(400).send(e.message);
   }
 
-  let pageOfUserServices;
-  let users;
   let isWarning = false;
+  ({ toDate, fromDate, isWarning } = findDateRange(
+    toDate,
+    fromDate,
+    duration,
+    isWarning,
+  ));
 
-  if (status || from || to) {
-    ({ toDate, fromDate, isWarning } = findDateRange(
-      toDate,
-      fromDate,
-      duration,
-      isWarning,
-    ));
+  const pageOfUserServices = await listServiceUsers(
+    req.client.id,
+    undefined,
+    status,
+    fromDate,
+    toDate,
+    page,
+    pageSize,
+    req.correlationId,
+  );
 
-    users = await directories.getUserWithFilters(
-      status,
-      fromDate,
-      toDate,
-      req.correlationId,
-    );
-    if (!users) {
-      const responseBody = {
-        users: [],
-        numberOfRecords: 0,
-        page: 0,
-        numberOfPages: 0,
-      };
-      addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
+  const userIds = pageOfUserServices.users.map((user) => user.id);
+  const users = await getUsersRaw({ by: { userIds: userIds } });
+  let responseBody;
 
-      return res.send(responseBody);
-    }
-    const userIds = users.map((user) => user.sub);
-    pageOfUserServices = await listServiceUsers(
-      req.client.id,
-      userIds,
-      page,
-      pageSize,
-      req.correlationId,
-    );
-
-    const responseBody = prepareUserResponse(pageOfUserServices, users);
-
-    addAddionalMessage(responseBody, fromDate, toDate, duration, isWarning);
-    return res.send(responseBody);
+  if (!users) {
+    responseBody = {
+      users: [],
+      numberOfRecords: 0,
+      page: 0,
+      numberOfPages: 0,
+    };
+  } else {
+    responseBody = prepareUserResponse(pageOfUserServices, users);
   }
+
+  addDateRangeValue(responseBody, fromDate, toDate);
+  addWarningValue(responseBody, duration, isWarning);
+  return res.send(responseBody);
 };
 
 const prepareUserResponse = (pageOfUserServices, users) => {
@@ -200,17 +191,20 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   return responseBody;
 };
 
-const addAddionalMessage = (
-  responseBody,
-  fromDate,
-  toDate,
-  duration,
-  isWarning,
-) => {
+/**
+ * Add `dateRange` key with a human readable message representing the range of dates requested
+ * to object if both `fromDate` and `toDate` are present
+ */
+const addDateRangeValue = (responseBody, fromDate, toDate) => {
   if (fromDate && toDate) {
-    responseBody.dateRange = `Users between ${fromDate} and ${toDate}`;
+    responseBody.dateRange = `Users between ${fromDate.toUTCString()} and ${toDate.toUTCString()}`;
   }
+};
 
+/**
+ * Add `warning` key with a message to object if `isWarning` is true
+ */
+const addWarningValue = (responseBody, duration, isWarning) => {
   if (isWarning) {
     responseBody.warning = `Only ${duration} days of data can be fetched`;
   }

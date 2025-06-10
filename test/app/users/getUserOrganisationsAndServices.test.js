@@ -242,6 +242,16 @@ describe("when getting users organisations and services", () => {
   it("then it should return 200 if the user is found", async () => {
     await getUsersOrganisationsAndServices(req, res);
 
+    expect(listServiceUsers).toHaveBeenCalledWith(
+      "serviceId",
+      ["user-1"],
+      undefined,
+      undefined,
+      undefined,
+      1,
+      200,
+      "server-correlation-id",
+    );
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send.mock.calls[0][0]).toMatchObject({
       userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
