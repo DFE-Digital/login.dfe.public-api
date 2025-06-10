@@ -77,7 +77,16 @@ describe("when getting a users services mapping from api", () => {
   });
 
   it("should include the correlation id", async () => {
-    await listServiceUsers(serviceId, userIds, page, pageSize, correlationId);
+    await listServiceUsers(
+      serviceId,
+      userIds,
+      undefined,
+      undefined,
+      undefined,
+      page,
+      pageSize,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
