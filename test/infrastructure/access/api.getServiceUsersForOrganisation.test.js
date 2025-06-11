@@ -15,14 +15,16 @@ jest.mock("./../../../src/infrastructure/config", () =>
 
 const { fetchApi } = require("login.dfe.async-retry");
 const jwtStrategy = require("login.dfe.jwt-strategies");
-const { getServiceUsers } = require("../../../src/infrastructure/access/api");
+const {
+  getServiceUsersForOrganisation,
+} = require("../../../src/infrastructure/access/api");
 
 const serviceId = "service-1";
 const organisationId = "org-1";
 const correlationId = "abc123";
 const apiResponse = {};
 
-describe("when calling the getServiceUsers function", () => {
+describe("when calling the getServiceUsersForOrganisation function", () => {
   beforeEach(() => {
     fetchApi.mockReset();
     fetchApi.mockImplementation(() => {
@@ -38,7 +40,11 @@ describe("when calling the getServiceUsers function", () => {
   });
 
   it("then it should call users resource with user id", async () => {
-    await getServiceUsers(serviceId, organisationId, correlationId);
+    await getServiceUsersForOrganisation(
+      serviceId,
+      organisationId,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls).toHaveLength(1);
     expect(fetchApi.mock.calls[0][0]).toBe(
@@ -50,7 +56,11 @@ describe("when calling the getServiceUsers function", () => {
   });
 
   it("should use the token from jwt strategy as bearer token", async () => {
-    await getServiceUsers(serviceId, organisationId, correlationId);
+    await getServiceUsersForOrganisation(
+      serviceId,
+      organisationId,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -60,7 +70,11 @@ describe("when calling the getServiceUsers function", () => {
   });
 
   it("should include the correlation id", async () => {
-    await getServiceUsers(serviceId, organisationId, correlationId);
+    await getServiceUsersForOrganisation(
+      serviceId,
+      organisationId,
+      correlationId,
+    );
 
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       headers: {
@@ -76,7 +90,7 @@ describe("when calling the getServiceUsers function", () => {
       throw error;
     });
 
-    const result = await getServiceUsers(
+    const result = await getServiceUsersForOrganisation(
       serviceId,
       organisationId,
       correlationId,
@@ -92,7 +106,11 @@ describe("when calling the getServiceUsers function", () => {
     });
 
     try {
-      await getServiceUsers(serviceId, organisationId, correlationId);
+      await getServiceUsersForOrganisation(
+        serviceId,
+        organisationId,
+        correlationId,
+      );
     } catch (e) {
       expect(e.statusCode).toEqual(400);
       expect(e.message).toEqual("Client Error");

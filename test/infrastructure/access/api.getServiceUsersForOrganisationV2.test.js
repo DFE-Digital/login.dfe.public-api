@@ -15,7 +15,9 @@ jest.mock("./../../../src/infrastructure/config", () =>
 
 const { fetchApi } = require("login.dfe.async-retry");
 const jwtStrategy = require("login.dfe.jwt-strategies");
-const { getServiceUsersV2 } = require("../../../src/infrastructure/access/api");
+const {
+  getServiceUsersForOrganisationV2,
+} = require("../../../src/infrastructure/access/api");
 
 const serviceId = "service-1";
 const organisationId = "org-1";
@@ -25,7 +27,7 @@ const pageSize = 10;
 const correlationId = "abc123";
 const apiResponse = {};
 
-describe("when calling the getServiceUsersV2 function", () => {
+describe("when calling the getServiceUsersForOrganisationV2 function", () => {
   beforeEach(() => {
     fetchApi.mockReset();
     fetchApi.mockImplementation(() => {
@@ -41,7 +43,7 @@ describe("when calling the getServiceUsersV2 function", () => {
   });
 
   it("then it should call service resource with the provided parameters", async () => {
-    await getServiceUsersV2(
+    await getServiceUsersForOrganisationV2(
       serviceId,
       organisationId,
       roleIds,
@@ -60,7 +62,7 @@ describe("when calling the getServiceUsersV2 function", () => {
   });
 
   it("should use the token from jwt strategy as bearer token", async () => {
-    await getServiceUsersV2(
+    await getServiceUsersForOrganisationV2(
       serviceId,
       organisationId,
       roleIds,
@@ -77,7 +79,7 @@ describe("when calling the getServiceUsersV2 function", () => {
   });
 
   it("should include the correlation id", async () => {
-    await getServiceUsersV2(
+    await getServiceUsersForOrganisationV2(
       serviceId,
       organisationId,
       roleIds,
@@ -100,7 +102,7 @@ describe("when calling the getServiceUsersV2 function", () => {
       throw error;
     });
 
-    const result = await getServiceUsersV2(
+    const result = await getServiceUsersForOrganisationV2(
       serviceId,
       organisationId,
       roleIds,
@@ -119,7 +121,7 @@ describe("when calling the getServiceUsersV2 function", () => {
     });
 
     try {
-      await getServiceUsersV2(
+      await getServiceUsersForOrganisationV2(
         serviceId,
         organisationId,
         roleIds,
