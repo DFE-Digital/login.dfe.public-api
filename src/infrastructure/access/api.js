@@ -49,6 +49,17 @@ const getPoliciesOfService = async (sid, correlationId) => {
   return await callApi(`/services/${sid}/policies`, correlationId);
 };
 
+/**
+ * Gets users for service (for all organisations)
+ * @param sid Service id for the service
+ * @param correlationId Id to link requests into a single transaction
+ *
+ */
+const getServiceUsers = async (sid, correlationId) => {
+  // TODO Copy code to handle multiple pages of results
+  return await callApi(`/services/${sid}/users`, correlationId);
+};
+
 const getServiceUsersForOrganisation = async (sid, oid, correlationId) => {
   return await callApi(
     `/services/${sid}/organisations/${oid}/users`,
@@ -85,9 +96,10 @@ const getServiceUsersForOrganisationV2 = async (
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
-  getServiceUsersForOrganisation,
   getServices,
   getServicesForUser,
   getRoles,
+  getServiceUsers,
+  getServiceUsersForOrganisation,
   getServiceUsersForOrganisationV2,
 };
