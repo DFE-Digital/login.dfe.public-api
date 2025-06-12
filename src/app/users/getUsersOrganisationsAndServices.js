@@ -1,5 +1,4 @@
 const logger = require("../../infrastructure/logger");
-const { listServiceUsers } = require("../../infrastructure/organisations");
 const {
   getOrganisationStatuses,
   getOrganisationCategories,
@@ -11,6 +10,7 @@ const {
 const {
   getServiceRolesRaw,
   getServiceInfo,
+  getFilteredServiceUsersRaw,
 } = require("login.dfe.api-client/services");
 const getUsersOrganisationsAndServices = async (req, res) => {
   const uid = req.params.id;
@@ -33,16 +33,12 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     // Call to get data about user of this service (limited by clientId). Returns their organisation
     // role for this service (end user/approver), and the organisations this user is part of for
     // this service (can be part of a service for multiple organisations)
-    const pageOfUserServices = await listServiceUsers(
-      req.client.id,
-      [uid],
-      undefined,
-      undefined,
-      undefined,
-      1,
-      200,
-      req.correlationId,
-    );
+    const pageOfUserServices = await getFilteredServiceUsersRaw({
+      serviceId: req.client.id,
+      userIds: [uid],
+      pageNumber: 1,
+      pageSize: 200,
+    });
 
     let response = {
       userId: userDetails.sub,
@@ -108,7 +104,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
 
     // Get list of ALL services for the user.  We need this because it has all the the service
     // specific roles for the user against each service for each organisationId.
-    // We need this because that role information isn't provided in the listServiceUsers call.
+    // We need this because that role information isn't provided in the getFilteredServiceUsersRaw call.
     const servicesForAUser = await getUserServicesRaw({ userId: uid });
 
     // A user can have multiple organisations for the same service, so we loop over them all.
