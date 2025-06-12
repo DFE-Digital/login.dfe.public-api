@@ -12,6 +12,98 @@ const listUsers = require("./../../../src/app/users/getServiceUsers");
 
 jest.useFakeTimers().setSystemTime(new Date("2024-01-01"));
 
+// Example data in a global context because this file has 2 sets of tests in it
+const exampleListServiceUsersData = {
+  users: [
+    {
+      id: "user1",
+      createdAt: "2023-01-01",
+      updatedAt: "2023-01-02",
+      organisation: "OrgA",
+      role: { name: "Admin", id: "role1" },
+    },
+  ],
+  totalNumberOfRecords: 1,
+  page: 1,
+  totalNumberOfPages: 1,
+};
+
+const exampleUsersByIdsData = [
+  {
+    sub: "user1",
+    email: "test@education.gov.uk",
+    family_name: "Test",
+    given_name: "User",
+    status: "Active",
+  },
+];
+
+const exampleGetServiceUsersData = {
+  services: [
+    {
+      userId: "user1",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org1",
+      roles: [
+        {
+          id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
+          name: "Submit Learner Data - Standard Submissions",
+          code: "DCFT",
+          numericId: "21818",
+          status: {
+            id: 1,
+          },
+        },
+        {
+          id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
+          name: "Submit Learner Data - FE Workforce Governor",
+          code: "FEWG",
+          numericId: "21819",
+          status: {
+            id: 1,
+          },
+        },
+      ],
+      identifiers: [
+        {
+          key: "groups",
+          value: "FEWG,DCFT",
+        },
+      ],
+      accessGrantedOn: "2023-06-01T12:03:10.866Z",
+    },
+    {
+      userId: "user2",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org2",
+      roles: [
+        {
+          id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
+          name: "Submit Learner Data - Advanced Support Resubmit File",
+          code: "RSF",
+          numericId: "21824",
+          status: {
+            id: 1,
+          },
+        },
+      ],
+      identifiers: [],
+      accessGrantedOn: "2023-02-22T14:50:01.691Z",
+    },
+    {
+      userId: "user3",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org3",
+      roles: [],
+      identifiers: [],
+      accessGrantedOn: "2023-02-22T14:50:01.360Z",
+    },
+  ],
+  page: 1,
+  totalNumberOfPages: 1,
+  totalNumberOfRecords: 3,
+};
+
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
@@ -29,142 +121,9 @@ describe("listUsersWithFilters", () => {
       send: jest.fn(),
     };
 
-    //TODO tidy mock data to let test pass
-    getServiceUsers.mockResolvedValue({
-      services: [
-        {
-          userId: "0661DAAE-3887-4EC2-8BD6-0586DAA19B7C",
-          serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-          organisationId: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
-          roles: [
-            {
-              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-              name: "Submit Learner Data - Standard Submissions",
-              code: "DCFT",
-              numericId: "21818",
-              status: {
-                id: 1,
-              },
-            },
-            {
-              id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
-              name: "Submit Learner Data - FE Workforce Governor",
-              code: "FEWG",
-              numericId: "21819",
-              status: {
-                id: 1,
-              },
-            },
-          ],
-          identifiers: [
-            {
-              key: "groups",
-              value: "FEWG,DCFT",
-            },
-          ],
-          accessGrantedOn: "2023-06-01T12:03:10.866Z",
-        },
-        {
-          userId: "3F42E829-C1A3-48F5-9CB1-0AF45E87E167",
-          serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-          organisationId: "1253DAF6-7EC6-4863-96D2-1B64B03AB372",
-          roles: [
-            {
-              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
-              name: "Submit Learner Data - Advanced Support Resubmit File",
-              code: "RSF",
-              numericId: "21824",
-              status: {
-                id: 1,
-              },
-            },
-          ],
-          identifiers: [],
-          accessGrantedOn: "2023-02-22T14:50:01.691Z",
-        },
-        {
-          userId: "67B589A5-A2D6-4DE7-B3D1-0C4C6CF63C13",
-          serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-          organisationId: "24711D8B-AED1-44E8-8951-5D2F71FF95CD",
-          roles: [
-            {
-              id: "5BCCD42D-7905-4443-A07C-438CDEEE2DD5",
-              name: "Submit Learner Data - FE Workforce",
-              code: "FEW",
-              numericId: "21821",
-              status: {
-                id: 1,
-              },
-            },
-            {
-              id: "A7DF9E65-1B29-40FE-9752-BEB8EDD1EACC",
-              name: "Submit Learner Data - Enter Learning Data",
-              code: "sld_enter_learning_data",
-              numericId: "21822",
-              status: {
-                id: 1,
-              },
-            },
-            {
-              id: "ED3F49DD-C2F1-437B-A586-C17EBC0D69E3",
-              name: "Submit Learner Data - EDS",
-              code: "EDRS",
-              numericId: "21820",
-              status: {
-                id: 1,
-              },
-            },
-          ],
-          identifiers: [],
-          accessGrantedOn: "2024-07-19T10:10:45.595Z",
-        },
-        {
-          userId: "52AB4CC3-930A-4295-B4CE-1AB5D0C070DA",
-          serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-          organisationId: "1253DAF6-7EC6-4863-96D2-1B64B03AB372",
-          roles: [
-            {
-              id: "A7DF9E65-1B29-40FE-9752-BEB8EDD1EACC",
-              name: "Submit Learner Data - Enter Learning Data",
-              code: "sld_enter_learning_data",
-              numericId: "21822",
-              status: {
-                id: 1,
-              },
-            },
-          ],
-          identifiers: [],
-          accessGrantedOn: "2023-02-22T14:50:01.360Z",
-        },
-      ],
-      page: 1,
-      totalNumberOfPages: 1,
-      totalNumberOfRecords: 3,
-    });
-
-    listServiceUsers.mockResolvedValue({
-      users: [
-        {
-          id: "user1",
-          createdAt: "2023-01-01",
-          updatedAt: "2023-01-02",
-          organisation: "OrgA",
-          role: { name: "Admin", id: "role1" },
-        },
-      ],
-      totalNumberOfRecords: 1,
-      page: 1,
-      totalNumberOfPages: 1,
-    });
-    usersByIds.mockResolvedValue([
-      {
-        sub: "user1",
-        email: "test@education.gov.uk",
-        family_name: "Test",
-        given_name: "User",
-        status: "Active",
-      },
-    ]);
+    getServiceUsers.mockResolvedValue(exampleGetServiceUsersData);
+    listServiceUsers.mockResolvedValue(exampleListServiceUsersData);
+    usersByIds.mockResolvedValue(exampleUsersByIdsData);
   });
 
   it('should return 400 if status is not "0"', async () => {
@@ -290,21 +249,21 @@ describe("listUsersWithFilters", () => {
           id: "user1",
           createdAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
           createdAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
           createdAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
+          organisation: { id: "org3" },
           role: null,
         }, // No role
       ],
@@ -339,7 +298,7 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
           roles: [
             {
               id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
@@ -367,13 +326,13 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
           roles: [
             {
-              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-              name: "Submit Learner Data - Standard Submissions",
-              code: "DCFT",
-              numericId: "21818",
+              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
+              name: "Submit Learner Data - Advanced Support Resubmit File",
+              code: "RSF",
+              numericId: "21824",
               status: 1,
             },
           ],
@@ -388,8 +347,8 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
-          roles: undefined,
+          organisation: { id: "org3" },
+          roles: [],
           roleName: undefined,
           roleId: undefined,
           userId: "user3",
@@ -668,29 +627,9 @@ describe("listUsersWithoutFilters", () => {
       send: jest.fn(),
     };
 
-    listServiceUsers.mockResolvedValue({
-      users: [
-        {
-          id: "user1",
-          createdAt: "2023-01-01",
-          updatedAt: "2023-01-02",
-          organisation: "OrgA",
-          role: { name: "Admin", id: "role1" },
-        },
-      ],
-      totalNumberOfRecords: 1,
-      page: 1,
-      totalNumberOfPages: 1,
-    });
-    usersByIds.mockResolvedValue([
-      {
-        sub: "user1",
-        email: "test@education.gov.uk",
-        family_name: "Test",
-        given_name: "User",
-        status: "Active",
-      },
-    ]);
+    listServiceUsers.mockResolvedValue(exampleListServiceUsersData);
+    usersByIds.mockResolvedValue(exampleUsersByIdsData);
+    getServiceUsers.mockResolvedValue(exampleGetServiceUsersData);
   });
 
   it("should return 400 if pageSize is not a number", async () => {
@@ -716,21 +655,21 @@ describe("listUsersWithoutFilters", () => {
           id: "user1",
           createdAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
           createdAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
           createdAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
+          organisation: { id: "org3" },
           role: null,
         }, // No role
       ],
@@ -765,7 +704,23 @@ describe("listUsersWithoutFilters", () => {
         {
           approvedAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
+          roles: [
+            {
+              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
+              name: "Submit Learner Data - Standard Submissions",
+              code: "DCFT",
+              numericId: "21818",
+              status: 1,
+            },
+            {
+              id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
+              name: "Submit Learner Data - FE Workforce Governor",
+              code: "FEWG",
+              numericId: "21819",
+              status: 1,
+            },
+          ],
           roleName: "Tester",
           roleId: "role1",
           userId: "user1",
@@ -777,7 +732,16 @@ describe("listUsersWithoutFilters", () => {
         {
           approvedAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
+          roles: [
+            {
+              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
+              name: "Submit Learner Data - Advanced Support Resubmit File",
+              code: "RSF",
+              numericId: "21824",
+              status: 1,
+            },
+          ],
           roleName: "Dev",
           roleId: "role2",
           userId: "user2",
@@ -789,7 +753,8 @@ describe("listUsersWithoutFilters", () => {
         {
           approvedAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
+          organisation: { id: "org3" },
+          roles: [],
           roleName: undefined,
           roleId: undefined,
           userId: "user3",
