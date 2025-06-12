@@ -1,12 +1,12 @@
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
-jest.mock("./../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/services", () => ({
+  getFilteredServiceUsersRaw: jest.fn(),
+}));
 
-const {
-  listServiceUsers,
-} = require("./../../../src/infrastructure/organisations");
 const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
@@ -29,7 +29,7 @@ describe("listUsersWithFilters", () => {
       send: jest.fn(),
     };
 
-    listServiceUsers.mockResolvedValue({
+    getFilteredServiceUsersRaw.mockResolvedValue({
       users: [
         {
           id: "user1",
@@ -200,7 +200,7 @@ describe("listUsersWithFilters", () => {
       totalNumberOfPages: 1,
     };
 
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
 
     const usersData = [
       {
@@ -266,16 +266,14 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      "0",
-      new Date("2023-01-01T00:00:00.000Z"),
-      new Date("2023-01-05T00:00:00.000Z"),
-      2,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: new Date("2023-01-01T00:00:00.000Z"),
+      dateTo: new Date("2023-01-05T00:00:00.000Z"),
+      pageNumber: 2,
+      pageSize: 25,
+      serviceId: "client123",
+      userStatus: "0",
+    });
     expect(getUsersRaw).toHaveBeenCalledWith({
       by: { userIds: ["user1", "user2", "user3"] },
     });
@@ -295,16 +293,14 @@ describe("listUsersWithFilters", () => {
     await listUsers(mockReq, mockRes);
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      undefined,
-      new Date("2023-01-01T00:00:00.000Z"),
-      new Date("2023-01-05T00:00:00.000Z"),
-      1,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: new Date("2023-01-01T00:00:00.000Z"),
+      dateTo: new Date("2023-01-05T00:00:00.000Z"),
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: "client123",
+      userStatus: undefined,
+    });
     expect(mockRes.send).toHaveBeenCalled();
   });
 
@@ -343,16 +339,14 @@ describe("listUsersWithFilters", () => {
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - 7);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      "0",
-      pastDate,
-      new Date(),
-      1,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: pastDate,
+      dateTo: new Date(),
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: mockReq.client.id,
+      userStatus: "0",
+    });
     expect(mockRes.send).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
@@ -366,7 +360,7 @@ describe("listUsersWithFilters", () => {
       pageSize: 25,
     };
 
-    listServiceUsers.mockResolvedValue({
+    getFilteredServiceUsersRaw.mockResolvedValue({
       users: [{ id: "user1" }], // Simulate a successful first call
       totalNumberOfRecords: 1,
       page: 1,
@@ -388,7 +382,7 @@ describe("listUsersWithFilters", () => {
     expect(mockRes.send).toHaveBeenCalledWith(expectedBody);
   });
 
-  it("should handle empty user list from listServiceUsers and subsequently empty from getUsersRaw", async () => {
+  it("should handle empty user list from getFilteredServiceUsersRaw and subsequently empty from getUsersRaw", async () => {
     mockReq.query = {
       from: "2023-01-01T00:00:00.000Z",
       to: "2023-01-05T00:00:00.000Z",
@@ -400,7 +394,7 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 0,
     };
-    listServiceUsers.mockResolvedValue(pageOfServiceUsersEmpty);
+    getFilteredServiceUsersRaw.mockResolvedValue(pageOfServiceUsersEmpty);
     getUsersRaw.mockResolvedValue([]); // getUsersRaw called with "" and returns []
 
     const expectedResponseBody = {
@@ -414,7 +408,7 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalled();
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).toHaveBeenCalledWith({ by: { userIds: [] } });
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
@@ -431,7 +425,7 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 1,
     };
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
     const usersData = [{ sub: "s1", email: "e1" }];
     getUsersRaw.mockResolvedValue(usersData);
     const preparedResponse = {
@@ -461,7 +455,7 @@ describe("listUsersWithFilters", () => {
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
 
-    expect(listServiceUsers).toHaveBeenCalled();
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
   });
@@ -477,7 +471,7 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 1,
     };
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
     const usersData = [{ sub: "s2", email: "e2" }];
     getUsersRaw.mockResolvedValue(usersData);
     const preparedResponse = {
@@ -507,7 +501,7 @@ describe("listUsersWithFilters", () => {
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
 
-    expect(listServiceUsers).toHaveBeenCalled();
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
   });
 });
@@ -528,7 +522,7 @@ describe("listUsersWithoutFilters", () => {
       send: jest.fn(),
     };
 
-    listServiceUsers.mockResolvedValue({
+    getFilteredServiceUsersRaw.mockResolvedValue({
       users: [
         {
           id: "user1",
@@ -599,7 +593,7 @@ describe("listUsersWithoutFilters", () => {
       totalNumberOfPages: 1,
     };
 
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
 
     const usersData = [
       {
@@ -663,16 +657,11 @@ describe("listUsersWithoutFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      null,
-      undefined,
-      undefined,
-      undefined,
-      1,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: mockReq.client.id,
+    });
     expect(getUsersRaw).toHaveBeenCalledWith({
       by: { userIds: ["user1", "user2", "user3"] },
     });

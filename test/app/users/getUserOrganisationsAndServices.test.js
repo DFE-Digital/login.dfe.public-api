@@ -4,7 +4,6 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("../../utils").mockLogger(),
 );
-jest.mock("../../../src/infrastructure/organisations");
 jest.mock("login.dfe.api-client/users", () => ({
   getUserRaw: jest.fn(),
   getUserServicesRaw: jest.fn(),
@@ -12,6 +11,7 @@ jest.mock("login.dfe.api-client/users", () => ({
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceRolesRaw: jest.fn(),
   getServiceInfo: jest.fn(),
+  getFilteredServiceUsersRaw: jest.fn(),
 }));
 
 jest.mock("login.dfe.api-client/organisations", () => ({
@@ -28,11 +28,9 @@ const { mockResponse, mockRequest } = require("../../utils");
 const {
   getServiceRolesRaw,
   getServiceInfo,
+  getFilteredServiceUsersRaw,
 } = require("login.dfe.api-client/services");
 
-const {
-  listServiceUsers,
-} = require("../../../src/infrastructure/organisations");
 const {
   getUserRaw,
   getUserServicesRaw,
@@ -95,7 +93,7 @@ describe("when getting users organisations and services", () => {
       phone_number: null,
     });
 
-    listServiceUsers.mockReset().mockReturnValue({
+    getFilteredServiceUsersRaw.mockReset().mockReturnValue({
       users: [
         {
           id: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
@@ -219,8 +217,8 @@ describe("when getting users organisations and services", () => {
     expect(res.status.mock.calls[0][0]).toBe(404);
   });
 
-  it("then it should return 200 with empty organisations if listServiceUsers is empty", async () => {
-    listServiceUsers.mockReset().mockReturnValue({
+  it("then it should return 200 with empty organisations if getFilteredServiceUsersRaw is empty", async () => {
+    getFilteredServiceUsersRaw.mockReset().mockReturnValue({
       users: [],
       page: 1,
       totalNumberOfPages: 0,
@@ -242,16 +240,12 @@ describe("when getting users organisations and services", () => {
   it("then it should return 200 if the user is found", async () => {
     await getUsersOrganisationsAndServices(req, res);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      "serviceId",
-      ["user-1"],
-      undefined,
-      undefined,
-      undefined,
-      1,
-      200,
-      "server-correlation-id",
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      pageNumber: 1,
+      pageSize: 200,
+      serviceId: "serviceId",
+      userIds: ["user-1"],
+    });
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send.mock.calls[0][0]).toMatchObject({
       userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
