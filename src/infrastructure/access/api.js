@@ -56,7 +56,9 @@ const getPoliciesOfService = async (sid, correlationId) => {
  *
  */
 const getServiceUsers = async (sid, correlationId) => {
-  // TODO Copy code to handle multiple pages of results
+  // Note: As of 12/06/25, the paging for this endpoint appears to be bugged.
+  // Regardless of the page and pageSize you provide this endpoint, it'll always
+  // return everything it has.
   return await callApi(`/services/${sid}/users`, correlationId);
 };
 
