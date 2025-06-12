@@ -400,7 +400,7 @@ describe("listUsersWithFilters", () => {
     const expectedResponseBody = {
       users: [],
       numberOfRecords: 0,
-      page: 1,
+      page: 0,
       numberOfPages: 0,
       dateRange:
         "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
@@ -409,7 +409,7 @@ describe("listUsersWithFilters", () => {
     await listUsers(mockReq, mockRes);
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
-    expect(getUsersRaw).toHaveBeenCalledWith({ by: { userIds: [] } });
+    expect(getUsersRaw).not.toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
