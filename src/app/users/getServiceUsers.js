@@ -124,7 +124,10 @@ const listUsersWithFilters = async (req, res) => {
   });
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await getUsersRaw({ by: { userIds: userIds } });
+  const users = userIds.length
+    ? await getUsersRaw({ by: { userIds } })
+    : undefined;
+
   let responseBody;
 
   if (!users) {
