@@ -1,9 +1,9 @@
 const { validationResult } = require("express-validator");
 const logger = require("./../../infrastructure/logger");
 const {
-  getOrganisationByTypeAndIdentifier,
-  upsertOrganisationAnnouncement,
-} = require("./../../infrastructure/organisations");
+  getOrganisationRaw,
+  addOrganisationAnnouncementRaw,
+} = require("login.dfe.api-client/organisations");
 
 const getAndValidateModel = (req) => {
   const validTypes = [1, 2, 4, 5];
@@ -86,31 +86,26 @@ const upsertAnnouncement = async (req, res) => {
 
     let organisation;
     if (model.announcement.urn) {
-      organisation = await getOrganisationByTypeAndIdentifier(
-        "001",
-        model.announcement.urn,
-        correlationId,
-      );
+      organisation = await getOrganisationRaw({
+        by: { type: "001", identifierValue: model.announcement.urn },
+      });
     } else {
-      organisation = await getOrganisationByTypeAndIdentifier(
-        "010",
-        model.announcement.uid,
-        correlationId,
-      );
+      organisation = await getOrganisationRaw({
+        by: { type: "010", identifierValue: model.announcement.uid },
+      });
     }
+    const announcement = await addOrganisationAnnouncementRaw({
+      organisationId: organisation.id,
+      announcementOriginId: model.announcement.messageId,
+      announcementType: model.announcement.type,
+      announcementTitle: model.announcement.title,
+      announcementSummary: model.announcement.summary,
+      announcementBody: model.announcement.body,
+      isAnnouncementPublished: true,
+      expiresAt: model.announcement.expiresAt || undefined,
+      publishedAt: model.announcement.publishedAt,
+    });
 
-    const announcement = await upsertOrganisationAnnouncement(
-      organisation.id,
-      model.announcement.messageId,
-      model.announcement.type,
-      model.announcement.title,
-      model.announcement.summary,
-      model.announcement.body,
-      model.announcement.publishedAt,
-      model.announcement.expiresAt || undefined,
-      true,
-      correlationId,
-    );
     return res.status(202).json(announcement);
   } catch (e) {
     logger.info(

@@ -1,11 +1,13 @@
 const {
-  getClientByServiceId,
+  getServiceRaw,
   updateService,
-} = require("./../../infrastructure/applications");
+} = require("login.dfe.api-client/services");
 const uuid = require("uuid");
 
 const regenerateSecret = async (req, res) => {
-  const service = await getClientByServiceId(req.params.clientid);
+  const service = await getServiceRaw({
+    by: { clientId: req.params.clientid },
+  });
   if (!service) {
     return res.status(404).send();
   }
@@ -14,7 +16,10 @@ const regenerateSecret = async (req, res) => {
   }
 
   const clientSecret = uuid.v4();
-  await updateService(service.id, { clientSecret }, req.correlationId);
+  await updateService({
+    serviceId: service.id,
+    update: { clientSecret: clientSecret },
+  });
   return res.json({ clientSecret });
 };
 module.exports = regenerateSecret;

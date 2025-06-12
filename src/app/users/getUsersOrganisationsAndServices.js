@@ -1,13 +1,17 @@
 const logger = require("../../infrastructure/logger");
 const {
-  listServiceUsers,
-  getServiceById,
-  getOrganisationCategories,
   getOrganisationStatuses,
-} = require("../../infrastructure/organisations");
-const { userById } = require("../../infrastructure/directories");
-const { getServicesForUser, getRoles } = require("../../infrastructure/access");
-
+  getOrganisationCategories,
+} = require("login.dfe.api-client/organisations");
+const {
+  getUserRaw,
+  getUserServicesRaw,
+} = require("login.dfe.api-client/users");
+const {
+  getServiceRolesRaw,
+  getServiceInfo,
+  getFilteredServiceUsersRaw,
+} = require("login.dfe.api-client/services");
 const getUsersOrganisationsAndServices = async (req, res) => {
   const uid = req.params.id;
   const { correlationId, clientCorrelationId } = req;
@@ -21,7 +25,7 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     );
 
     // Get the details for the user (name, email, etc)
-    const userDetails = await userById(uid, correlationId);
+    const userDetails = await getUserRaw({ by: { id: uid } });
     if (!userDetails) {
       return res.status(404).send();
     }
@@ -29,16 +33,12 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     // Call to get data about user of this service (limited by clientId). Returns their organisation
     // role for this service (end user/approver), and the organisations this user is part of for
     // this service (can be part of a service for multiple organisations)
-    const pageOfUserServices = await listServiceUsers(
-      req.client.id,
-      [uid],
-      undefined,
-      undefined,
-      undefined,
-      1,
-      200,
-      req.correlationId,
-    );
+    const pageOfUserServices = await getFilteredServiceUsersRaw({
+      serviceId: req.client.id,
+      userIds: [uid],
+      pageNumber: 1,
+      pageSize: 200,
+    });
 
     let response = {
       userId: userDetails.sub,
@@ -55,14 +55,8 @@ const getUsersOrganisationsAndServices = async (req, res) => {
 
     // Need to do 2 calls so we can translate the organisation category and status
     // ids into their human readable names
-    const organisationCategoryData = await getOrganisationCategories(
-      uid,
-      correlationId,
-    );
-    const organisationStatusData = await getOrganisationStatuses(
-      uid,
-      correlationId,
-    );
+    const organisationCategoryData = await getOrganisationCategories();
+    const organisationStatusData = await getOrganisationStatuses();
 
     const mappedOrgs = pageOfUserServices.users.map((x) => {
       const category = organisationCategoryData.find(
@@ -110,8 +104,8 @@ const getUsersOrganisationsAndServices = async (req, res) => {
 
     // Get list of ALL services for the user.  We need this because it has all the the service
     // specific roles for the user against each service for each organisationId.
-    // We need this because that role information isn't provided in the listServiceUsers call.
-    const servicesForAUser = await getServicesForUser(uid, correlationId);
+    // We need this because that role information isn't provided in the getFilteredServiceUsersRaw call.
+    const servicesForAUser = await getUserServicesRaw({ userId: uid });
 
     // A user can have multiple organisations for the same service, so we loop over them all.
     for (const organisation of response.organisations) {
@@ -125,8 +119,12 @@ const getUsersOrganisationsAndServices = async (req, res) => {
 
       for (const service of services) {
         // Resolve all the serviceIds and roleIds into human readable names for the response
-        const serviceDetails = await getServiceById(service.serviceId);
-        const roleDataForService = await getRoles(service.serviceId);
+        const serviceDetails = await getServiceInfo({
+          serviceId: service.serviceId,
+        });
+        const roleDataForService = await getServiceRolesRaw({
+          serviceId: service.serviceId,
+        });
 
         // For all the roles in the service, loop over them so we have a list of names instead
         // of a list of just ids.

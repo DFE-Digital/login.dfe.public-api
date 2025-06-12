@@ -5,13 +5,15 @@ const mockLogger = mockUtils.mockLogger();
 
 jest.mock("../../../src/infrastructure/config", () => mockUtils.mockConfig());
 jest.mock("../../../src/infrastructure/logger", () => mockLogger);
-jest.mock("../../../src/infrastructure/applications");
-jest.mock("../../../src/infrastructure/access");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceRaw: jest.fn(),
+  getServiceRolesRaw: jest.fn(),
+}));
 
 const {
-  getClientByServiceId,
-} = require("../../../src/infrastructure/applications");
-const { getRoles } = require("../../../src/infrastructure/access");
+  getServiceRaw,
+  getServiceRolesRaw,
+} = require("login.dfe.api-client/services");
 const getServiceRoles = require("../../../src/app/services/getServiceRoles");
 
 describe("When getting the roles for a service", () => {
@@ -33,7 +35,7 @@ describe("When getting the roles for a service", () => {
     res.mockResetAll();
     mockLogger.mockResetAll();
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "service-1",
       parentId: "parent-1",
       relyingParty: {
@@ -41,7 +43,7 @@ describe("When getting the roles for a service", () => {
       },
     });
 
-    getRoles.mockReset().mockReturnValue([
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "role-1",
         name: "Role One",
@@ -79,7 +81,7 @@ describe("When getting the roles for a service", () => {
   });
 
   it("then it should return 404 if the requested service does not exist", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await getServiceRoles(req, res);
 
@@ -104,7 +106,9 @@ describe("When getting the roles for a service", () => {
     await getServiceRoles(req, res);
 
     expect(res.json).toHaveBeenCalledTimes(1);
-    expect(res.json.mock.calls[0][0].length).toEqual(getRoles().length);
+    expect(res.json.mock.calls[0][0].length).toEqual(
+      getServiceRolesRaw().length,
+    );
   });
 
   it("then it should return the roles if the requester is the requested service", async () => {
@@ -112,11 +116,13 @@ describe("When getting the roles for a service", () => {
     await getServiceRoles(req, res);
 
     expect(res.json).toHaveBeenCalledTimes(1);
-    expect(res.json.mock.calls[0][0].length).toEqual(getRoles().length);
+    expect(res.json.mock.calls[0][0].length).toEqual(
+      getServiceRolesRaw().length,
+    );
   });
 
   it("then it should return an empty array if the requested service has no roles", async () => {
-    getRoles.mockReturnValue(undefined);
+    getServiceRolesRaw.mockReturnValue(undefined);
 
     await getServiceRoles(req, res);
 
@@ -153,7 +159,7 @@ describe("When getting the roles for a service", () => {
         code: "Role2",
       },
     ];
-    getRoles.mockReturnValue(getRolesValues);
+    getServiceRolesRaw.mockReturnValue(getRolesValues);
 
     await getServiceRoles(req, res);
 
@@ -169,7 +175,7 @@ describe("When getting the roles for a service", () => {
   });
 
   it('then it should return the status as "Active" if the status ID is 1', async () => {
-    getRoles.mockReset().mockReturnValue([
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "role-1",
         name: "Role One",
@@ -187,7 +193,7 @@ describe("When getting the roles for a service", () => {
   });
 
   it('then it should return the status as "Inactive" if the status ID is 0', async () => {
-    getRoles.mockReturnValue([
+    getServiceRolesRaw.mockReturnValue([
       {
         id: "role-1",
         name: "Role One",
@@ -205,7 +211,7 @@ describe("When getting the roles for a service", () => {
   });
 
   it('then it should return the status as "Inactive" if the status property does not exist', async () => {
-    getRoles.mockReturnValue([
+    getServiceRolesRaw.mockReturnValue([
       {
         id: "role-1",
         name: "Role One",
