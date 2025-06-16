@@ -12,7 +12,9 @@ const { mockResponse, mockRequest } = require("../../utils");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../../src/infrastructure/organisations");
-const { getServiceUsers } = require("../../../src/infrastructure/access");
+const {
+  getServiceUsersForOrganisation,
+} = require("../../../src/infrastructure/access");
 const { usersByIds } = require("../../../src/infrastructure/directories");
 
 const getUsersByRoles = require("../../../src/app/organisations/getUsersByRoles");
@@ -67,7 +69,7 @@ describe("when getting organisations users with roles by ukprn", () => {
     ]);
 
     // TODO this was copied from v2 so need to figure out what a real getServiceUsers request looks like
-    getServiceUsers.mockReset().mockReturnValue({
+    getServiceUsersForOrganisation.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -168,7 +170,7 @@ describe("when getting organisations users with roles by ukprn", () => {
   });
 
   it("should return 404 when no users are returned from getServiceUsers", async () => {
-    getServiceUsers.mockReset().mockReturnValue([]);
+    getServiceUsersForOrganisation.mockReset().mockReturnValue([]);
     await getUsersByRoles(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
@@ -253,7 +255,7 @@ describe("when getting organisations users with roles by ukprn", () => {
   });
 
   it("should throw an exception if there is a non-404 api call", async () => {
-    getServiceUsers.mockImplementation(() => {
+    getServiceUsersForOrganisation.mockImplementation(() => {
       const error = new Error("Server Error");
       error.statusCode = 500;
       throw error;

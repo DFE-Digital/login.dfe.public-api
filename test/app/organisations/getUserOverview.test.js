@@ -13,9 +13,9 @@ const {
   getOrganisationByTypeAndIdentifier,
 } = require("./../../../src/infrastructure/organisations");
 const {
-  getServiceUsers,
+  getServiceUsersForOrganisation,
   getRoles,
-  getServiceUsersV2,
+  getServiceUsersForOrganisationV2,
 } = require("./../../../src/infrastructure/access");
 const { usersByIds } = require("./../../../src/infrastructure/directories");
 
@@ -66,7 +66,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       legacyId: "155",
       companyRegistrationNumber: null,
     });
-    getServiceUsers.mockReset().mockReturnValue([]);
+    getServiceUsersForOrganisation.mockReset().mockReturnValue([]);
     getRoles.mockReset().mockReturnValue([
       {
         id: "E53644D0-4B4A-43BD-92A9-F019EC63F978",
@@ -78,7 +78,7 @@ describe("when getting organisations users with roles by ukprn", () => {
         },
       },
     ]);
-    getServiceUsersV2.mockReset().mockReturnValue({
+    getServiceUsersForOrganisationV2.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -147,8 +147,8 @@ describe("when getting organisations users with roles by ukprn", () => {
 
   it("then it should call service users with roles api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getServiceUsersV2).toHaveBeenCalledTimes(1);
-    expect(getServiceUsersV2).toHaveBeenCalledWith(
+    expect(getServiceUsersForOrganisationV2).toHaveBeenCalledTimes(1);
+    expect(getServiceUsersForOrganisationV2).toHaveBeenCalledWith(
       req.client.id,
       "966B98F1-80F7-4BEB-B886-C9742F7A087F",
       ["E53644D0-4B4A-43BD-92A9-F019EC63F978"],
