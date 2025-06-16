@@ -165,3 +165,9 @@ stages:
                         ContRegServerCode: $(tranShaCode)
                       ${{ else }}:
                         ContRegServerCode: $(prShaCode)
+                      ContRegServers:
+                        - ${{ if eq(variables.ContRegServerTran, 'true') }}:
+                          - name: '$(platformGlobalIdentifier)$(tranShaCode)$(platformGlobalName)shdcr'
+                            servCon: $(devServiceConnection)
+                        - name: '$(platformGlobalIdentifier)$(prShaCode)$(platformGlobalName)shdcr'
+                          servCon: $(prodServiceConnection) 
