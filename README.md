@@ -568,15 +568,6 @@ _Response Example_
         "createdAt": "2019-02-20T14:27:59.020Z",
         "updatedAt": "2019-02-20T14:28:38.223Z"
       },
-      "roles": [
-        {
-          "id": "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-          "name": "Test Service - Example role",
-          "code": "TEST",
-          "numericId": "12345",
-          "status": 1
-        }
-      ],
       "roleName": "Approver",
       "roleId": 10000,
       "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
@@ -682,15 +673,6 @@ _Response Example_
         "createdAt": "2019-02-20T14:27:59.020Z",
         "updatedAt": "2019-02-20T14:28:38.223Z"
       },
-      "roles": [
-        {
-          "id": "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-          "name": "Test Service - Example role",
-          "code": "TEST",
-          "numericId": "12345",
-          "status": 1
-        }
-      ],
       "roleName": "Approver",
       "roleId": 10000,
       "userId": "21D62132-6570-4E63-9DCB-137CC35E7543",
