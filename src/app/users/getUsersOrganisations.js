@@ -15,10 +15,18 @@ const getUserOrganisations = async (req, res) => {
       },
     );
 
-    const userOrganisations = await getOrganisationsAssociatedWithUser(
+    let userOrganisations = await getOrganisationsAssociatedWithUser(
       uid,
       correlationId,
     );
+    // TODO move filtering into getOrganisationsAssociatedWithUser with optional parameter.
+    // Make filtering the default and you have to opt in to get it unfiltered
+    // Filter out orgs with status of 0.  This is mostly to remove the hidden id-only org, if present.
+    if (userOrganisations.length > 0) {
+      userOrganisations = userOrganisations.filter(
+        (org) => org.organisation.status !== 0,
+      );
+    }
     if (!userOrganisations) {
       return res.status(404).send();
     }
