@@ -12,33 +12,26 @@ const getUsersAccessToServiceAtOrganisation = async (uid, sid, oid) => {
 const getPoliciesOfService = async () => {
   return Promise.resolve();
 };
+const getServiceUsers = async () => {
+  return Promise.resolve();
+};
 
 const getRoles = async () => {
   return Promise.resolve();
 };
 
-const getServiceUsers = async () => {
-  return Promise.resolve();
-};
-
-const getServiceUsersForOrganisation = async () => {
-  return Promise.resolve();
-};
-
-const getServiceUsersForOrganisationV2 = async () => {
+const getServiceUsersV2 = async () => {
   return Promise.resolve();
 };
 
 const getServicesForUser = async () => {
   return Promise.resolve();
 };
-
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
-  getRoles,
   getServiceUsers,
-  getServiceUsersForOrganisation,
-  getServiceUsersForOrganisationV2,
+  getRoles,
+  getServiceUsersV2,
   getServicesForUser,
 };

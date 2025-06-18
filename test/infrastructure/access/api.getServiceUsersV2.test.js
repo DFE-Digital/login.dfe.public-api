@@ -15,16 +15,17 @@ jest.mock("./../../../src/infrastructure/config", () =>
 
 const { fetchApi } = require("login.dfe.async-retry");
 const jwtStrategy = require("login.dfe.jwt-strategies");
-const {
-  getServiceUsersForOrganisation,
-} = require("../../../src/infrastructure/access/api");
+const { getServiceUsersV2 } = require("../../../src/infrastructure/access/api");
 
 const serviceId = "service-1";
 const organisationId = "org-1";
+const roleIds = ["role-1", "role-2"];
+const page = 1;
+const pageSize = 10;
 const correlationId = "abc123";
 const apiResponse = {};
 
-describe("when calling the getServiceUsersForOrganisation function", () => {
+describe("when calling the getServiceUsersV2 function", () => {
   beforeEach(() => {
     fetchApi.mockReset();
     fetchApi.mockImplementation(() => {
@@ -39,16 +40,19 @@ describe("when calling the getServiceUsersForOrganisation function", () => {
     });
   });
 
-  it("then it should call users resource with user id", async () => {
-    await getServiceUsersForOrganisation(
+  it("then it should call service resource with the provided parameters", async () => {
+    await getServiceUsersV2(
       serviceId,
       organisationId,
+      roleIds,
+      page,
+      pageSize,
       correlationId,
     );
 
     expect(fetchApi.mock.calls).toHaveLength(1);
     expect(fetchApi.mock.calls[0][0]).toBe(
-      "http://access.test/services/service-1/organisations/org-1/users",
+      "http://access.test/services/service-1/organisations/org-1/users?version=v2&page=1&pageSize=10&roleIds=role-1,role-2",
     );
     expect(fetchApi.mock.calls[0][1]).toMatchObject({
       method: "GET",
@@ -56,9 +60,12 @@ describe("when calling the getServiceUsersForOrganisation function", () => {
   });
 
   it("should use the token from jwt strategy as bearer token", async () => {
-    await getServiceUsersForOrganisation(
+    await getServiceUsersV2(
       serviceId,
       organisationId,
+      roleIds,
+      page,
+      pageSize,
       correlationId,
     );
 
@@ -70,9 +77,12 @@ describe("when calling the getServiceUsersForOrganisation function", () => {
   });
 
   it("should include the correlation id", async () => {
-    await getServiceUsersForOrganisation(
+    await getServiceUsersV2(
       serviceId,
       organisationId,
+      roleIds,
+      page,
+      pageSize,
       correlationId,
     );
 
@@ -90,9 +100,12 @@ describe("when calling the getServiceUsersForOrganisation function", () => {
       throw error;
     });
 
-    const result = await getServiceUsersForOrganisation(
+    const result = await getServiceUsersV2(
       serviceId,
       organisationId,
+      roleIds,
+      page,
+      pageSize,
       correlationId,
     );
     expect(result).toEqual(undefined);
@@ -106,9 +119,12 @@ describe("when calling the getServiceUsersForOrganisation function", () => {
     });
 
     try {
-      await getServiceUsersForOrganisation(
+      await getServiceUsersV2(
         serviceId,
         organisationId,
+        roleIds,
+        page,
+        pageSize,
         correlationId,
       );
     } catch (e) {

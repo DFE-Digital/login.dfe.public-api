@@ -49,20 +49,7 @@ const getPoliciesOfService = async (sid, correlationId) => {
   return await callApi(`/services/${sid}/policies`, correlationId);
 };
 
-/**
- * Gets users for service (for all organisations)
- * @param sid Service id for the service
- * @param correlationId Id to link requests into a single transaction
- *
- */
-const getServiceUsers = async (sid, correlationId) => {
-  // Note: As of 12/06/25, the paging for this endpoint appears to be bugged.
-  // Regardless of the page and pageSize you provide this endpoint, it'll always
-  // return everything it has.
-  return await callApi(`/services/${sid}/users`, correlationId);
-};
-
-const getServiceUsersForOrganisation = async (sid, oid, correlationId) => {
+const getServiceUsers = async (sid, oid, correlationId) => {
   return await callApi(
     `/services/${sid}/organisations/${oid}/users`,
     correlationId,
@@ -81,7 +68,7 @@ const getServicesForUser = async (userId, correlationId) => {
   return await callApi(`/users/${userId}/services`, correlationId);
 };
 
-const getServiceUsersForOrganisationV2 = async (
+const getServiceUsersV2 = async (
   sid,
   oid,
   roleIds,
@@ -98,10 +85,9 @@ const getServiceUsersForOrganisationV2 = async (
 module.exports = {
   getUsersAccessToServiceAtOrganisation,
   getPoliciesOfService,
+  getServiceUsers,
   getServices,
   getServicesForUser,
   getRoles,
-  getServiceUsers,
-  getServiceUsersForOrganisation,
-  getServiceUsersForOrganisationV2,
+  getServiceUsersV2,
 };

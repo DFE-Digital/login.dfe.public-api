@@ -13,9 +13,7 @@ const {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
 } = require("../../../src/infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-} = require("../../../src/infrastructure/access");
+const { getServiceUsers } = require("../../../src/infrastructure/access");
 const { usersByIds } = require("../../../src/infrastructure/directories");
 
 const getUsersByRolesV2 = require("../../../src/app/organisations/getUsersByRolesV2");
@@ -70,7 +68,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       },
     ]);
 
-    getServiceUsersForOrganisation.mockReset().mockReturnValue({
+    getServiceUsers.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -189,8 +187,8 @@ describe("when getting organisations users with roles by ukprn", () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it("should return 404 when no users are returned from getServiceUsersForOrganisation", async () => {
-    getServiceUsersForOrganisation.mockReset().mockReturnValue([]);
+  it("should return 404 when no users are returned from getServiceUsers", async () => {
+    getServiceUsers.mockReset().mockReturnValue([]);
     await getUsersByRolesV2(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
