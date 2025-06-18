@@ -3,9 +3,7 @@ const {
   getOrganisationByTypeAndIdentifier,
   getUsersForOrganisation,
 } = require("../../infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-} = require("../../infrastructure/access");
+const { getServiceUsers } = require("../../infrastructure/access");
 const { usersByIds } = require("../../infrastructure/directories");
 
 const getUsersByRolesV2 = async (req, res) => {
@@ -99,7 +97,7 @@ const processOrganisationUsers = async (
   email,
   userId,
 ) => {
-  const serviceUsers = await getServiceUsersForOrganisation(
+  const serviceUsers = await getServiceUsers(
     clientId,
     organisationId,
     correlationId,
