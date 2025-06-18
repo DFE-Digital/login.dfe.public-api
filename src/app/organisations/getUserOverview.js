@@ -3,9 +3,9 @@ const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../infrastructure/organisations");
 const {
-  getServiceUsersForOrganisation,
+  getServiceUsers,
   getRoles,
-  getServiceUsersForOrganisationV2,
+  getServiceUsersV2,
 } = require("../../infrastructure/access");
 const { usersByIds } = require("../../infrastructure/directories");
 
@@ -87,7 +87,7 @@ const getUserOverview = async (req, res) => {
         })
         .map((m) => m.id);
       if (serviceRoleIds && serviceRoleIds.length > 0) {
-        serviceUsers = await getServiceUsersForOrganisationV2(
+        serviceUsers = await getServiceUsersV2(
           req.client.id,
           organisation.id,
           serviceRoleIds,
@@ -97,7 +97,7 @@ const getUserOverview = async (req, res) => {
         );
       }
     } else {
-      serviceUsers = await getServiceUsersForOrganisation(
+      serviceUsers = await getServiceUsers(
         req.client.id,
         organisation.id,
         correlationId,
