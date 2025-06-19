@@ -50,15 +50,26 @@ const getPoliciesOfService = async (sid, correlationId) => {
 };
 
 /**
- * Gets users for service (for all organisations)
- * @param sid Service id for the service
- * @param correlationId Id to link requests into a single transaction
+ * Gets users for service (for all organisations).  If userId is NOT provided then it
+ * will get every user for the service.  Depending on the data, this could be 1000s of
+ * users.
+ *
+ * Note: As of 12/06/25, the paging for this endpoint appears to be bugged.
+ * Regardless of the page and pageSize you provide this endpoint, it'll always
+ * return everything it has.
+ *
+ * @param {String} sid Service id for the service
+ * @param {Array} userIds optional array of user ids to search for
+ * @param {String} correlationId Id to link requests into a single transaction
  *
  */
-const getServiceUsers = async (sid, correlationId) => {
-  // Note: As of 12/06/25, the paging for this endpoint appears to be bugged.
-  // Regardless of the page and pageSize you provide this endpoint, it'll always
-  // return everything it has.
+const getServiceUsers = async (sid, userIds, correlationId) => {
+  if (userIds) {
+    return await callApi(
+      `/services/${sid}/users?userIds=${userIds.join(",")}`,
+      correlationId,
+    );
+  }
   return await callApi(`/services/${sid}/users`, correlationId);
 };
 

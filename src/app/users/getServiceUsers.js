@@ -63,6 +63,7 @@ const listUsersWithOutFilters = async (req, res) => {
   const users = await usersByIds(userIds.join(","), req.correlationId);
   const userDataWithRoles = await getServiceUsers(
     req.client.id,
+    userIds,
     req.correlationId,
   );
   const responseBody = prepareUserResponse(
@@ -170,6 +171,7 @@ const listUsersWithFilters = async (req, res) => {
     // until we're sure that there are users we need to get service role data for.
     const userDataWithRoles = await getServiceUsers(
       req.client.id,
+      userIds,
       req.correlationId,
     );
     responseBody = prepareUserResponse(
