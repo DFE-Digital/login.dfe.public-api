@@ -2,7 +2,9 @@ const logger = require("../../infrastructure/logger");
 const {
   getOrganisationByTypeAndIdentifier,
 } = require("../../infrastructure/organisations");
-const { getServiceUsers } = require("../../infrastructure/access");
+const {
+  getServiceUsersForOrganisation,
+} = require("../../infrastructure/access");
 const { usersByIds } = require("../../infrastructure/directories");
 
 const getUsersByRoles = async (req, res) => {
@@ -49,7 +51,7 @@ const getUsersByRoles = async (req, res) => {
 
     for (const organisation of organisations) {
       // Get all users associated with that service
-      const serviceUsers = await getServiceUsers(
+      const serviceUsers = await getServiceUsersForOrganisation(
         req.client.id,
         organisation.id,
         correlationId,
