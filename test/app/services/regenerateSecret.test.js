@@ -1,17 +1,14 @@
 jest.mock("niceware");
-jest.mock("./../../../src/infrastructure/applications", () => ({
-  getClientByServiceId: jest.fn(),
-  updateService: jest.fn(),
-}));
+jest.mock("login.dfe.api-client/services");
 
 jest.mock("uuid");
 
 const { mockResponse, mockRequest } = require("./../../utils");
 const uuid = require("uuid");
 const {
-  getClientByServiceId,
+  getServiceRaw,
   updateService,
-} = require("./../../../src/infrastructure/applications");
+} = require("login.dfe.api-client/services");
 const regenerateSecret = require("./../../../src/app/services/regenerateSecret");
 
 const res = mockResponse();
@@ -33,7 +30,7 @@ describe("when creating a sub-application", () => {
 
     uuid.v4.mockReset().mockReturnValue("428fd7d3-b6d5-4cc0-8645-57cc22164fca");
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "service-1",
       name: "service one",
       description: "first child service",
@@ -50,19 +47,20 @@ describe("when creating a sub-application", () => {
   it("then it should get service using client id", async () => {
     await regenerateSecret(req, res);
 
-    expect(getClientByServiceId).toHaveBeenCalledTimes(1);
-    expect(getClientByServiceId).toHaveBeenCalledWith("client-id-1");
+    expect(getServiceRaw).toHaveBeenCalledTimes(1);
+    expect(getServiceRaw).toHaveBeenCalledWith({
+      by: { clientId: "client-id-1" },
+    });
   });
 
   it("then it should patch service with new client secret", async () => {
     await regenerateSecret(req, res);
 
     expect(updateService).toHaveBeenCalledTimes(1);
-    expect(updateService).toHaveBeenCalledWith(
-      "service-1",
-      { clientSecret: "428fd7d3-b6d5-4cc0-8645-57cc22164fca" },
-      req.correlationId,
-    );
+    expect(updateService).toHaveBeenCalledWith({
+      serviceId: "service-1",
+      update: { clientSecret: "428fd7d3-b6d5-4cc0-8645-57cc22164fca" },
+    });
   });
 
   it("then it should return new client secret", async () => {
@@ -75,7 +73,7 @@ describe("when creating a sub-application", () => {
   });
 
   it("then it should return not found if not client with specified client id", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await regenerateSecret(req, res);
 

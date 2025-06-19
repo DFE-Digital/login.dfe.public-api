@@ -1,6 +1,8 @@
 const logger = require("../../infrastructure/logger");
-const { getClientByServiceId } = require("../../infrastructure/applications");
-const { getRoles } = require("../../infrastructure/access");
+const {
+  getServiceRaw,
+  getServiceRolesRaw,
+} = require("login.dfe.api-client/services");
 
 const getServiceRoles = async (req, res) => {
   const { correlationId, clientCorrelationId, client } = req;
@@ -19,7 +21,7 @@ const getServiceRoles = async (req, res) => {
     },
   );
 
-  const service = await getClientByServiceId(requestedClientId, correlationId);
+  const service = await getServiceRaw({ by: { clientId: requestedClientId } });
   if (!service) {
     return res.status(404).send();
   }
@@ -31,7 +33,7 @@ const getServiceRoles = async (req, res) => {
     return res.status(403).send();
   }
 
-  const roles = (await getRoles(service.id, correlationId)) ?? [];
+  const roles = (await getServiceRolesRaw({ serviceId: service.id })) ?? [];
 
   return res.json(
     roles.map((role) => ({

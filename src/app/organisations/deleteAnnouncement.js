@@ -1,8 +1,8 @@
 const logger = require("./../../infrastructure/logger");
 const {
-  searchForAnnouncements,
-  upsertOrganisationAnnouncement,
-} = require("./../../infrastructure/organisations");
+  addOrganisationAnnouncementRaw,
+  getPaginatedOrganisationsAnnouncementsRaw,
+} = require("login.dfe.api-client/organisations");
 
 const deleteAnnouncement = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -17,7 +17,10 @@ const deleteAnnouncement = async (req, res) => {
       },
     );
 
-    const result = await searchForAnnouncements(messageId, correlationId);
+    const result = await getPaginatedOrganisationsAnnouncementsRaw({
+      announcementOriginId: messageId,
+    });
+
     const announcement =
       result && result.announcements && result.announcements.length > 0
         ? result.announcements[0]
@@ -26,18 +29,18 @@ const deleteAnnouncement = async (req, res) => {
       return res.status(404).send();
     }
 
-    await upsertOrganisationAnnouncement(
-      announcement.organisationId,
-      announcement.originId,
-      announcement.type,
-      announcement.title,
-      announcement.summary,
-      announcement.body,
-      announcement.publishedAt,
-      announcement.expiresAt,
-      false,
-      correlationId,
-    );
+    await addOrganisationAnnouncementRaw({
+      organisationId: announcement.organisationId,
+      announcementOriginId: announcement.originId,
+      announcementType: announcement.type,
+      announcementTitle: announcement.title,
+      announcementSummary: announcement.summary,
+      announcementBody: announcement.body,
+      isAnnouncementPublished: false,
+      expiresAt: announcement.expiresAt,
+      publishedAt: announcement.publishedAt,
+    });
+
     return res.status(204).send();
   } catch (e) {
     logger.info(

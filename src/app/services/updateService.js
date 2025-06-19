@@ -1,7 +1,7 @@
 const {
-  getClientByServiceId,
+  getServiceRaw,
   updateService: updateServiceDetails,
-} = require("./../../infrastructure/applications");
+} = require("login.dfe.api-client/services");
 
 const patchableProperties = [
   "name",
@@ -31,7 +31,9 @@ const validate = (req) => {
 };
 
 const updateService = async (req, res) => {
-  const service = await getClientByServiceId(req.params.clientid);
+  const service = await getServiceRaw({
+    by: { clientId: req.params.clientid },
+  });
   if (!service) {
     return res.status(404).send();
   }
@@ -44,14 +46,7 @@ const updateService = async (req, res) => {
     return res.status(400).send(validation);
   }
 
-  const patch = {
-    name: req.body.name,
-    description: req.body.description,
-    redirect_uris: req.body.redirectUris,
-    consentTitle: req.body.consentTitle,
-    consentBody: req.body.consentBody,
-  };
-  await updateServiceDetails(service.id, patch, req.correlationId);
+  await updateServiceDetails({ serviceId: service.id, update: req.body });
   return res.status(202).send();
 };
 module.exports = updateService;

@@ -1,7 +1,5 @@
 const { extractPageParam, extractPageSizeParam } = require("./../utils");
-const {
-  listServices: listChildServices,
-} = require("./../../infrastructure/applications");
+const { getPaginatedServicesRaw } = require("login.dfe.api-client/services");
 
 const listServices = async (req, res) => {
   if (
@@ -20,12 +18,11 @@ const listServices = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfServices = await listChildServices(
-    req.client.id,
-    page,
-    pageSize,
-    req.correlationId,
-  );
+  const pageOfServices = await getPaginatedServicesRaw({
+    pageSize: pageSize,
+    pageNumber: page,
+    serviceParentId: req.client.id,
+  });
   return res.send({
     services: pageOfServices.services.map((s) => ({
       name: s.name,

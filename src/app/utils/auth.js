@@ -26,7 +26,7 @@ const getClient = async (decoded, clientLookup) => {
     };
   }
 
-  const client = await clientLookup(decoded.iss);
+  const client = await clientLookup({ by: { clientId: decoded.iss } });
   return {
     found: client ? true : false,
     details: client,
