@@ -330,7 +330,7 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 25 Mar 2024 00:00:00 GMT",
+        "Users between Mon, 02 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
       warning: "Only 90 days of data can be fetched",
     };
 
@@ -446,9 +446,9 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: 1,
       numberOfPages: 1,
-      warning: "Only 7 days of data can be fetched",
+      warning: "Only 90 days of data can be fetched",
       dateRange:
-        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sun, 12 Mar 2023 00:00:00 GMT",
+        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Fri, 02 Jun 2023 23:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -492,9 +492,9 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: 1,
       numberOfPages: 1,
-      warning: "Only 7 days of data can be fetched",
+      warning: "Only 90 days of data can be fetched",
       dateRange:
-        "Users between Mon, 13 Mar 2023 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
+        "Users between Tue, 20 Dec 2022 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
