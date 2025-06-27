@@ -5,8 +5,8 @@ const {
   extractFromParam,
   extractToParam,
 } = require("../utils");
-const { listServiceUsers } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
 
 const listUsers = async (req, res) => {
   const status = extractStatusParam(req);
@@ -31,18 +31,14 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    null,
-    undefined,
-    undefined,
-    undefined,
-    page,
+  const pageOfUserServices = await getFilteredServiceUsersRaw({
+    serviceId: req.client.id,
+    pageNumber: page,
     pageSize,
-    req.correlationId,
-  );
+  });
+
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await usersByIds(userIds.join(","), req.correlationId);
+  const users = await getUsersRaw({ by: { userIds: userIds } });
 
   const responseBody = prepareUserResponse(pageOfUserServices, users);
 
@@ -118,19 +114,20 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
-  const pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    undefined,
-    status,
-    fromDate,
-    toDate,
-    page,
+  const pageOfUserServices = await getFilteredServiceUsersRaw({
+    serviceId: req.client.id,
+    userStatus: status,
+    dateFrom: fromDate,
+    dateTo: toDate,
+    pageNumber: page,
     pageSize,
-    req.correlationId,
-  );
+  });
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await usersByIds(userIds.join(","), req.correlationId);
+  const users = userIds.length
+    ? await getUsersRaw({ by: { userIds } })
+    : undefined;
+
   let responseBody;
 
   if (!users) {
