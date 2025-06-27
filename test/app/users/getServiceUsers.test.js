@@ -16,7 +16,7 @@ describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
   let mockRes;
-  const DURATION = 7; // Consistent duration
+  const DURATION = 90; // Consistent duration
 
   beforeEach(() => {
     mockReq = {
@@ -138,7 +138,7 @@ describe("listUsersWithFilters", () => {
   it("should return 400 if date range exceeds duration", async () => {
     mockReq.query = {
       from: "2023-01-01",
-      to: "2023-01-09",
+      to: "2023-04-02",
     };
 
     await listUsers(mockReq, mockRes);
@@ -330,14 +330,14 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
-      warning: "Only 7 days of data can be fetched",
+        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 25 Mar 2024 00:00:00 GMT",
+      warning: "Only 90 days of data can be fetched",
     };
 
     await listUsers(mockReq, mockRes);
 
     const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 7);
+    pastDate.setDate(pastDate.getDate() - 90);
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
       dateFrom: pastDate,
