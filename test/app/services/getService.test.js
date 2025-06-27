@@ -1,12 +1,10 @@
 jest.mock("./../../../src/infrastructure/config", () =>
   require("./../../utils").mockConfig(),
 );
-jest.mock("./../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services");
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  getClientByServiceId,
-} = require("./../../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const getService = require("./../../../src/app/services/getService");
 
 const res = mockResponse();
@@ -27,7 +25,7 @@ describe("when getting specific child service", () => {
     });
     res.mockResetAll();
 
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       id: "service-1",
       name: "Service One",
       description: "First service",
@@ -54,7 +52,7 @@ describe("when getting specific child service", () => {
   });
 
   it("then it should return not found if client does not exist", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await getService(req, res);
 

@@ -1,10 +1,7 @@
 const logger = require("./../../infrastructure/logger");
-const {
-  getUsersAccessToServiceAtOrganisation,
-} = require("./../../infrastructure/access");
-const { getClientByServiceId } = require("./../../infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const { organisation } = require("login.dfe.dao");
-
+const { getUserServiceRaw } = require("login.dfe.api-client/users");
 const getUsersAccess = async (req, res) => {
   const { uid, sid, oid } = req.params;
   const { correlationId, clientCorrelationId } = req;
@@ -18,14 +15,14 @@ const getUsersAccess = async (req, res) => {
       },
     );
 
-    const service = await getClientByServiceId(sid);
+    const service = await getServiceRaw({ by: { serviceId: sid } });
 
-    const access = await getUsersAccessToServiceAtOrganisation(
-      uid,
-      service.id,
-      oid,
-      correlationId,
-    );
+    const access = await getUserServiceRaw({
+      userId: uid,
+      serviceId: service.id,
+      organisationId: oid,
+    });
+
     if (!access) {
       return res.status(404).send();
     }

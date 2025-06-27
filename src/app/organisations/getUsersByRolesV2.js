@@ -1,10 +1,12 @@
 const logger = require("../../infrastructure/logger");
 const {
-  getOrganisationByTypeAndIdentifier,
-  getUsersForOrganisation,
-} = require("../../infrastructure/organisations");
-const { getServiceUsers } = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
+const { getOrganisationsRaw } = require("login.dfe.api-client/organisations");
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const {
+  getBasicOrganisationUsersRaw,
+} = require("login.dfe.api-client/organisations");
 
 const getUsersByRolesV2 = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -24,10 +26,8 @@ const getUsersByRolesV2 = async (req, res) => {
     );
 
     // Fetch organisations by UKPRN or UPIN
-    const { organisations, isUPIN } = await fetchOrganisationsByIdentifier(
-      ukprnOrUpin,
-      correlationId,
-    );
+    const { organisations, isUPIN } =
+      await fetchOrganisationsByIdentifier(ukprnOrUpin);
 
     if (!organisations || organisations.length === 0) {
       return res.status(404).send();
@@ -39,7 +39,6 @@ const getUsersByRolesV2 = async (req, res) => {
       const orgUsers = await processOrganisationUsers(
         clientId,
         organisation.id,
-        correlationId,
         roles,
         email,
         userId,
@@ -68,20 +67,17 @@ const getUsersByRolesV2 = async (req, res) => {
 };
 
 // Helper function to fetch organisations by UKPRN or UPIN
-const fetchOrganisationsByIdentifier = async (id, correlationId) => {
-  let organisations = await getOrganisationByTypeAndIdentifier(
-    "UKPRN-multi",
-    id,
-    correlationId,
-  );
+const fetchOrganisationsByIdentifier = async (id) => {
+  let organisations = await getOrganisationsRaw({
+    by: { type: "UKPRN-multi", identifierValue: id },
+  });
+
   let isUPIN = false;
 
   if (!organisations || organisations.length === 0) {
-    organisations = await getOrganisationByTypeAndIdentifier(
-      "UPIN-multi",
-      id,
-      correlationId,
-    );
+    organisations = await getOrganisationsRaw({
+      by: { type: "UPIN-multi", identifierValue: id },
+    });
     isUPIN = true;
   }
 
@@ -92,16 +88,14 @@ const fetchOrganisationsByIdentifier = async (id, correlationId) => {
 const processOrganisationUsers = async (
   clientId,
   organisationId,
-  correlationId,
   roles,
   email,
   userId,
 ) => {
-  const serviceUsers = await getServiceUsers(
-    clientId,
-    organisationId,
-    correlationId,
-  );
+  const serviceUsers = await getServiceUsersForOrganisationRaw({
+    organisationId: organisationId,
+    serviceId: clientId,
+  });
 
   if (!serviceUsers || !serviceUsers.services) {
     return [];
@@ -115,7 +109,7 @@ const processOrganisationUsers = async (
     : serviceUsers.services;
 
   const userIds = filteredUsers.map((user) => user.userId);
-  const userDetails = await usersByIds(userIds.join(","), correlationId);
+  const userDetails = (await getUsersRaw({ by: { userIds: userIds } })) ?? [];
 
   // Apply email and userId filters
   const filteredDetails = userDetails
@@ -126,10 +120,9 @@ const processOrganisationUsers = async (
       userId ? user.sub.toLowerCase() === userId.toLowerCase() : true,
     );
 
-  const organisationUsers = await getUsersForOrganisation(
-    organisationId,
-    correlationId,
-  );
+  const organisationUsers = await getBasicOrganisationUsersRaw({
+    organisationId: organisationId,
+  });
 
   return filteredDetails.map((user) => {
     const userRoles =

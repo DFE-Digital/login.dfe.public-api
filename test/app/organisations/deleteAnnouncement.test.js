@@ -4,13 +4,16 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/organisations", () => ({
+  addOrganisationAnnouncementRaw: jest.fn(),
+  getPaginatedOrganisationsAnnouncementsRaw: jest.fn(),
+}));
 
 const { mockRequest, mockResponse } = require("./../../utils");
 const {
-  searchForAnnouncements,
-  upsertOrganisationAnnouncement,
-} = require("./../../../src/infrastructure/organisations");
+  addOrganisationAnnouncementRaw,
+  getPaginatedOrganisationsAnnouncementsRaw,
+} = require("login.dfe.api-client/organisations");
 const deleteAnnouncement = require("./../../../src/app/organisations/deleteAnnouncement");
 
 const res = mockResponse();
@@ -40,11 +43,11 @@ describe("when deleting an organisation announcement", () => {
       expiresAt: "2020-01-31T14:49:00Z",
       published: true,
     };
-    searchForAnnouncements.mockReset().mockReturnValue({
+    getPaginatedOrganisationsAnnouncementsRaw.mockReset().mockReturnValue({
       announcements: [announcement],
     });
 
-    upsertOrganisationAnnouncement.mockReset().mockReturnValue(announcement);
+    addOrganisationAnnouncementRaw.mockReset().mockReturnValue(announcement);
   });
 
   it("then it should return no content result", async () => {
@@ -58,33 +61,31 @@ describe("when deleting an organisation announcement", () => {
   it("then it should search for announcement by message id", async () => {
     await deleteAnnouncement(req, res);
 
-    expect(searchForAnnouncements).toHaveBeenCalledTimes(1);
-    expect(searchForAnnouncements).toHaveBeenCalledWith(
-      "message-1",
-      req.correlationId,
-    );
+    expect(getPaginatedOrganisationsAnnouncementsRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedOrganisationsAnnouncementsRaw).toHaveBeenCalledWith({
+      announcementOriginId: "message-1",
+    });
   });
 
   it("then it should upsert the announcement in orgs api to be unpublished", async () => {
     await deleteAnnouncement(req, res);
 
-    expect(upsertOrganisationAnnouncement).toHaveBeenCalledTimes(1);
-    expect(upsertOrganisationAnnouncement).toHaveBeenCalledWith(
-      "org-1",
-      "message-1",
-      1,
-      "Message 1",
-      "message one",
-      "first message",
-      "2019-01-31T14:49:00Z",
-      "2020-01-31T14:49:00Z",
-      false,
-      req.correlationId,
-    );
+    expect(addOrganisationAnnouncementRaw).toHaveBeenCalledTimes(1);
+    expect(addOrganisationAnnouncementRaw).toHaveBeenCalledWith({
+      announcementBody: "first message",
+      announcementOriginId: "message-1",
+      announcementSummary: "message one",
+      announcementTitle: "Message 1",
+      announcementType: 1,
+      expiresAt: "2020-01-31T14:49:00Z",
+      isAnnouncementPublished: false,
+      organisationId: "org-1",
+      publishedAt: "2019-01-31T14:49:00Z",
+    });
   });
 
   it("then it should return not found result if no message by id", async () => {
-    searchForAnnouncements.mockReturnValue({
+    getPaginatedOrganisationsAnnouncementsRaw.mockReturnValue({
       announcements: [],
     });
 

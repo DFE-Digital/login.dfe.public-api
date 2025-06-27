@@ -5,13 +5,11 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services");
 jest.mock("login.dfe.jobs-client");
 
 const { mockRequest, mockResponse } = require("./../../utils");
-const {
-  getClientByServiceId,
-} = require("./../../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 
 const sendInvitationRequestStub = jest.fn();
 const publicApiClient = require("login.dfe.jobs-client").PublicApiClient;
@@ -27,7 +25,7 @@ describe("When inviting a user", () => {
   let req;
 
   beforeEach(() => {
-    getClientByServiceId.mockReset().mockReturnValue({
+    getServiceRaw.mockReset().mockReturnValue({
       relyingParty: {
         friendlyName: "DfE Sign-in",
         client_id: "test",
@@ -87,7 +85,7 @@ describe("When inviting a user", () => {
   });
 
   it("then it should return 404 result if service not found", async () => {
-    getClientByServiceId.mockReturnValue(undefined);
+    getServiceRaw.mockReturnValue(undefined);
 
     await inviteUser(req, res);
 

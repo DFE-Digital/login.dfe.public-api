@@ -4,13 +4,17 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationRaw: jest.fn(),
+  addOrganisationAnnouncementRaw: jest.fn(),
+}));
+const {
+  getOrganisationRaw,
+  addOrganisationAnnouncementRaw,
+} = require("login.dfe.api-client/organisations");
 
 const { mockRequest, mockResponse } = require("./../../utils");
-const {
-  getOrganisationByTypeAndIdentifier,
-  upsertOrganisationAnnouncement,
-} = require("./../../../src/infrastructure/organisations");
+
 const upsertAnnouncement = require("./../../../src/app/organisations/upsertAnnouncement");
 
 const res = mockResponse();
@@ -35,7 +39,7 @@ describe("when upserting an organisation announcement", () => {
 
     res.mockResetAll();
 
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue({
+    getOrganisationRaw.mockReturnValue({
       id: "org1",
     });
 
@@ -50,7 +54,7 @@ describe("when upserting an organisation announcement", () => {
       publishedAt: "2019-01-31T14:49:00Z",
       expiresAt: "2020-01-31T14:49:00Z",
     };
-    upsertOrganisationAnnouncement.mockReset().mockReturnValue(announcement);
+    addOrganisationAnnouncementRaw.mockReset().mockReturnValue(announcement);
   });
 
   it("then it should return the announcement details", async () => {
@@ -68,12 +72,10 @@ describe("when upserting an organisation announcement", () => {
 
     await upsertAnnouncement(req, res);
 
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith(
-      "001",
-      req.body.urn,
-      req.correlationId,
-    );
+    expect(getOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getOrganisationRaw).toHaveBeenCalledWith({
+      by: { type: "001", identifierValue: req.body.urn },
+    });
   });
 
   it("then it should get organisation by uid if uid specified", async () => {
@@ -82,30 +84,27 @@ describe("when upserting an organisation announcement", () => {
 
     await upsertAnnouncement(req, res);
 
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith(
-      "010",
-      req.body.uid,
-      req.correlationId,
-    );
+    expect(getOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getOrganisationRaw).toHaveBeenCalledWith({
+      by: { type: "010", identifierValue: req.body.uid },
+    });
   });
 
   it("then it should upsert the announcement in orgs api", async () => {
     await upsertAnnouncement(req, res);
 
-    expect(upsertOrganisationAnnouncement).toHaveBeenCalledTimes(1);
-    expect(upsertOrganisationAnnouncement).toHaveBeenCalledWith(
-      "org1",
-      "message-1",
-      1,
-      "Message 1",
-      "message one",
-      "first message",
-      "2019-01-31T14:49:00Z",
-      "2020-01-31T14:49:00Z",
-      true,
-      req.correlationId,
-    );
+    expect(addOrganisationAnnouncementRaw).toHaveBeenCalledTimes(1);
+    expect(addOrganisationAnnouncementRaw).toHaveBeenCalledWith({
+      announcementBody: "first message",
+      announcementOriginId: "message-1",
+      announcementSummary: "message one",
+      announcementTitle: "Message 1",
+      announcementType: 1,
+      expiresAt: "2020-01-31T14:49:00Z",
+      isAnnouncementPublished: true,
+      organisationId: "org1",
+      publishedAt: "2019-01-31T14:49:00Z",
+    });
   });
 
   it("then it should return bad request if message id missing", async () => {

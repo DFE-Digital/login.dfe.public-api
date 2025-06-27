@@ -2,7 +2,7 @@ const { validate: validateEmail } = require("email-validator");
 const { isHttpUri, isHttpsUri } = require("valid-url");
 const config = require("./../../infrastructure/config");
 const logger = require("./../../infrastructure/logger");
-const { getClientByServiceId } = require("./../../infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const { PublicApiClient } = require("login.dfe.jobs-client");
 
 const jobsClient = new PublicApiClient(config.queue);
@@ -25,7 +25,7 @@ const parseAndValidateRequest = async (req) => {
     },
   };
 
-  const client = await getClientByServiceId(req.params.sid);
+  const client = await getServiceRaw({ by: { serviceId: req.params.sid } });
   if (!client) {
     result.status = 404;
     return result;
