@@ -306,8 +306,12 @@ describe("listUsersWithFilters", () => {
   });
 
   it("should successfully list users when no date parameters are provided", async () => {
+    // Mock current date to a fixed point in time
+    const fixedNow = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // Jan 1, 2024 UTC
+    jest.useFakeTimers().setSystemTime(fixedNow);
+
     mockReq.query = {
-      status: "0",
+      status: "1",
       page: 1,
       pageSize: 25,
     };
@@ -331,39 +335,27 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 03 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+        "Users between Mon, 02 Oct 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
       warning: "Only 90 days of data can be fetched",
     };
 
-    // Use UTC to calculate the date 90 days ago
-    const now = new Date();
-    const utcNow = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes(),
-        now.getUTCSeconds(),
-      ),
-    );
-
-    const pastUtcDate = new Date(utcNow);
-    pastUtcDate.setUTCDate(pastUtcDate.getUTCDate() - 91);
+    const expectedDateTo = fixedNow;
+    const expectedDateFrom = new Date(Date.UTC(2023, 9, 2, 0, 0, 0)); // Oct 2, 2023 UTC
 
     await listUsers(mockReq, mockRes);
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
-      dateFrom: pastUtcDate,
-      dateTo: utcNow,
+      dateFrom: expectedDateFrom,
+      dateTo: expectedDateTo,
       pageNumber: 1,
       pageSize: 25,
       serviceId: mockReq.client.id,
-      userStatus: "0",
+      userStatus: "1",
     });
 
-    expect(mockRes.send).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+
+    jest.useRealTimers(); // Clean up
   });
 
   it("should return empty users array if getUsersRaw returns null", async () => {
