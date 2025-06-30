@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
@@ -330,23 +331,37 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 02 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+        "Users between Mon, 03 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
       warning: "Only 90 days of data can be fetched",
     };
 
+    // Use UTC to calculate the date 90 days ago
+    const now = new Date();
+    const utcNow = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+      ),
+    );
+
+    const pastUtcDate = new Date(utcNow);
+    pastUtcDate.setUTCDate(pastUtcDate.getUTCDate() - 91);
+
     await listUsers(mockReq, mockRes);
 
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 90);
-
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
-      dateFrom: pastDate,
-      dateTo: new Date(),
+      dateFrom: pastUtcDate,
+      dateTo: utcNow,
       pageNumber: 1,
       pageSize: 25,
       serviceId: mockReq.client.id,
       userStatus: "0",
     });
+
     expect(mockRes.send).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
