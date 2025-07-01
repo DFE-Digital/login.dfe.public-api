@@ -335,12 +335,12 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 02 Oct 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+        "Users between Mon, 02 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
       warning: "Only 90 days of data can be fetched",
     };
 
     const expectedDateTo = fixedNow;
-    const expectedDateFrom = new Date(Date.UTC(2023, 9, 2, 0, 0, 0)); // Oct 2, 2023 UTC
+    const expectedDateFrom = new Date(Date.UTC(2023, 9, 2, 23, 0, 0)); // Oct 2, 2023 UTC
 
     await listUsers(mockReq, mockRes);
 
