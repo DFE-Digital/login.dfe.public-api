@@ -63,7 +63,6 @@ const listUsersWithFilters = async (req, res) => {
     from = extractFromParam(req);
 
     if (status !== undefined && status !== null) {
-      // Check if status is provided at all
       if (status !== "0" && status !== "1") {
         return res
           .status(400)
@@ -74,12 +73,13 @@ const listUsersWithFilters = async (req, res) => {
     if (to && isNaN(Date.parse(to))) {
       return res.status(400).send("To date is not a valid date.");
     } else if (to) {
-      toDate = new Date(to);
+      toDate = new Date(Date.parse(to));
     }
+
     if (from && isNaN(Date.parse(from))) {
       return res.status(400).send("From date is not a valid date.");
     } else if (from) {
-      fromDate = new Date(from);
+      fromDate = new Date(Date.parse(from));
     }
 
     if (fromDate && toDate) {
@@ -114,11 +114,15 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
+  // Convert to UTC ISO strings if needed
+  const dateFromUTC = fromDate ? new Date(fromDate.toISOString()) : undefined;
+  const dateToUTC = toDate ? new Date(toDate.toISOString()) : undefined;
+
   const pageOfUserServices = await getFilteredServiceUsersRaw({
     serviceId: req.client.id,
     userStatus: status,
-    dateFrom: fromDate,
-    dateTo: toDate,
+    dateFrom: dateFromUTC,
+    dateTo: dateToUTC,
     pageNumber: page,
     pageSize,
   });
@@ -141,7 +145,7 @@ const listUsersWithFilters = async (req, res) => {
     responseBody = prepareUserResponse(pageOfUserServices, users);
   }
 
-  addDateRangeValue(responseBody, fromDate, toDate);
+  addDateRangeValue(responseBody, dateFromUTC, dateToUTC);
   addWarningValue(responseBody, duration, isWarning);
   return res.send(responseBody);
 };
@@ -150,8 +154,8 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
     const user = users.find((u) => u.sub === userService.id);
     let mappedUserService = {
-      approvedAt: userService.createdAt,
-      updatedAt: userService.updatedAt,
+      approvedAt: new Date(userService.createdAt).toISOString(),
+      updatedAt: new Date(userService.updatedAt).toISOString(),
       organisation: userService.organisation,
       roleName:
         userService.role && userService.role.name
@@ -178,14 +182,13 @@ const prepareUserResponse = (pageOfUserServices, users) => {
     }
     return mappedUserService;
   });
-  const responseBody = {
+
+  return {
     users: mappedRecords,
     numberOfRecords: pageOfUserServices.totalNumberOfRecords,
     page: pageOfUserServices.page,
     numberOfPages: pageOfUserServices.totalNumberOfPages,
   };
-
-  return responseBody;
 };
 
 /**
