@@ -117,7 +117,7 @@ describe("when getting users organisations", () => {
     ]);
   });
 
-  it("then it raise an exception if an exception is raised on any api call", async () => {
+  it("should raise an exception if an exception is raised on any api call", async () => {
     getUserOrganisationsRaw.mockReset().mockImplementation(() => {
       const error = new Error("Client Error");
       error.statusCode = 400;
