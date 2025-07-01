@@ -1,14 +1,14 @@
 jest.mock("./../../../src/infrastructure/config", () =>
-  require("./../../utils").mockConfig(),
+  require("../../utils").mockConfig(),
 );
 jest.mock("./../../../src/infrastructure/logger", () =>
-  require("./../../utils").mockLogger(),
+  require("../../utils").mockLogger(),
 );
 jest.mock("login.dfe.api-client/users");
 
-const { mockResponse, mockRequest } = require("./../../utils");
+const { mockResponse, mockRequest } = require("../../utils");
 const { getUserOrganisationsRaw } = require("login.dfe.api-client/users");
-const getUserOrganisations = require("./../../../src/app/users/getUsersOrganisations");
+const getUserOrganisationsV2 = require("../../../src/app/users/getUsersOrganisationsV2");
 
 const res = mockResponse();
 
@@ -42,7 +42,7 @@ describe("when getting users organisations", () => {
   });
 
   it("should call organisation api with userId with mapped organisations", async () => {
-    await getUserOrganisations(req, res);
+    await getUserOrganisationsV2(req, res);
 
     expect(getUserOrganisationsRaw).toHaveBeenCalledTimes(1);
     expect(getUserOrganisationsRaw).toHaveBeenCalledWith({
@@ -63,7 +63,7 @@ describe("when getting users organisations", () => {
 
   it("should return 404 if no organisations found", async () => {
     getUserOrganisationsRaw.mockReset().mockReturnValue([]);
-    await getUserOrganisations(req, res);
+    await getUserOrganisationsV2(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status.mock.calls[0][0]).toBe(404);
@@ -101,7 +101,7 @@ describe("when getting users organisations", () => {
         },
       },
     ]);
-    await getUserOrganisations(req, res);
+    await getUserOrganisationsV2(req, res);
 
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send.mock.calls[0][0].length).toBe(1);
@@ -125,7 +125,7 @@ describe("when getting users organisations", () => {
     });
 
     try {
-      await getUserOrganisations(req, res);
+      await getUserOrganisationsV2(req, res);
     } catch (e) {
       expect(e.statusCode).toEqual(400);
       expect(e.message).toEqual("Client Error");
