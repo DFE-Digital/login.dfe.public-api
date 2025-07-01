@@ -1,13 +1,11 @@
 const logger = require("./../../infrastructure/logger");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-  getRoles,
-  getServiceUsersForOrganisationV2,
-} = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+  getServiceUsersForOrganisationRaw,
+  getServiceUsersWithRolesForOrganisationRaw,
+  getServiceRolesRaw,
+} = require("login.dfe.api-client/services");
 
 const getPageNumber = (req) => {
   const pageValue = req.query.page;
@@ -62,18 +60,17 @@ const getUserOverview = async (req, res) => {
       return res.status(400).send();
     }
     // Get organisation_id by UKPRN
-    const organisation = await getOrganisationByTypeAndIdentifier(
-      "UKPRN",
-      ukprn,
-      correlationId,
-    );
+    const organisation = await getOrganisationRaw({
+      by: { type: "UKPRN", identifierValue: ukprn },
+    });
+
     if (!organisation) {
       return res.status(404).send();
     }
     // Get Roles by RoleCode
     let serviceUsers = null;
     if (roles) {
-      const allRoles = await getRoles(req.client.id, correlationId);
+      const allRoles = await getServiceRolesRaw({ serviceId: req.client.id });
       const serviceRoleIds = allRoles
         .filter((role) => {
           const r = roles
@@ -87,21 +84,19 @@ const getUserOverview = async (req, res) => {
         })
         .map((m) => m.id);
       if (serviceRoleIds && serviceRoleIds.length > 0) {
-        serviceUsers = await getServiceUsersForOrganisationV2(
-          req.client.id,
-          organisation.id,
-          serviceRoleIds,
-          page,
-          pageSize,
-          correlationId,
-        );
+        serviceUsers = await getServiceUsersWithRolesForOrganisationRaw({
+          organisationId: organisation.id,
+          serviceId: req.client.id,
+          serviceRoleIds: serviceRoleIds,
+          page: page,
+          pageSize: pageSize,
+        });
       }
     } else {
-      serviceUsers = await getServiceUsersForOrganisation(
-        req.client.id,
-        organisation.id,
-        correlationId,
-      );
+      serviceUsers = await getServiceUsersForOrganisationRaw({
+        organisationId: organisation.id,
+        serviceId: req.client.id,
+      });
     }
     if (serviceUsers) {
       const userIds = serviceUsers.services.map((ids) => ids.userId);
@@ -129,7 +124,8 @@ const getUserOverview = async (req, res) => {
 };
 
 const getUserDetails = async (req, userIds) => {
-  const usersDetails = await usersByIds(userIds, req.correlationId);
+  const userIdList = userIds.split(",");
+  const usersDetails = await getUsersRaw({ by: { userIds: userIdList } });
   if (usersDetails && usersDetails.length > 0) {
     return usersDetails.map((user) => {
       return {

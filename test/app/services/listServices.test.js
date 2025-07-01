@@ -1,12 +1,12 @@
 jest.mock("./../../../src/infrastructure/config", () =>
   require("./../../utils").mockConfig(),
 );
-jest.mock("./../../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services", () => ({
+  getPaginatedServicesRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  listServices: listChildServices,
-} = require("./../../../src/infrastructure/applications");
+const { getPaginatedServicesRaw } = require("login.dfe.api-client/services");
 const listServices = require("./../../../src/app/services/listServices");
 
 const res = mockResponse();
@@ -27,7 +27,7 @@ describe("when listing child services", () => {
     });
     res.mockResetAll();
 
-    listChildServices.mockReset().mockReturnValue({
+    getPaginatedServicesRaw.mockReset().mockReturnValue({
       services: [
         {
           id: "service-1",
@@ -68,16 +68,19 @@ describe("when listing child services", () => {
   it("then it should use client id of caller as parent when getting child services", async () => {
     await listServices(req, res);
 
-    expect(listChildServices).toHaveBeenCalledTimes(1);
-    expect(listChildServices.mock.calls[0][0]).toBe("parent-1");
+    expect(getPaginatedServicesRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledWith(
+      expect.objectContaining({ serviceParentId: "parent-1" }),
+    );
   });
 
   it("then it should use default paging values if none specified", async () => {
     await listServices(req, res);
 
-    expect(listChildServices).toHaveBeenCalledTimes(1);
-    expect(listChildServices.mock.calls[0][1]).toBe(1);
-    expect(listChildServices.mock.calls[0][2]).toBe(25);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledWith(
+      expect.objectContaining({ pageNumber: 1, pageSize: 25 }),
+    );
   });
 
   it("then it should use specified page when available", async () => {
@@ -85,8 +88,10 @@ describe("when listing child services", () => {
 
     await listServices(req, res);
 
-    expect(listChildServices).toHaveBeenCalledTimes(1);
-    expect(listChildServices.mock.calls[0][1]).toBe(2);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledWith(
+      expect.objectContaining({ pageNumber: 2 }),
+    );
   });
 
   it("then it should use specified page size when available", async () => {
@@ -94,7 +99,9 @@ describe("when listing child services", () => {
 
     await listServices(req, res);
 
-    expect(listChildServices).toHaveBeenCalledTimes(1);
-    expect(listChildServices.mock.calls[0][2]).toBe(100);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledTimes(1);
+    expect(getPaginatedServicesRaw).toHaveBeenCalledWith(
+      expect.objectContaining({ pageSize: 100 }),
+    );
   });
 });

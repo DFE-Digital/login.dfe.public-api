@@ -1,10 +1,35 @@
 const express = require("express");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
+const { setupApi } = require("login.dfe.api-client/api/setup");
 const config = require("./infrastructure/config");
 const { requestCorrelation } = require("./app/utils");
 const mountRoutes = require("./routes");
 const logger = require("./infrastructure/logger");
+
+setupApi({
+  auth: {
+    tenant: config.directories.service.auth.tenant,
+    authorityHostUrl: config.directories.service.auth.authorityHostUrl,
+    clientId: config.directories.service.auth.clientId,
+    clientSecret: config.directories.service.auth.clientSecret,
+    resource: config.directories.service.auth.resource,
+  },
+  api: {
+    access: {
+      baseUri: config.access.service.url,
+    },
+    applications: {
+      baseUri: config.applications.service.url,
+    },
+    directories: {
+      baseUri: config.directories.service.url,
+    },
+    organisations: {
+      baseUri: config.organisations.service.url,
+    },
+  },
+});
 
 const app = express();
 

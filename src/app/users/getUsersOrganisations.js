@@ -1,7 +1,5 @@
 const logger = require("./../../infrastructure/logger");
-const {
-  getOrganisationsAssociatedWithUser,
-} = require("../../infrastructure/organisations");
+const { getUserOrganisationsRaw } = require("login.dfe.api-client/users");
 
 const getUserOrganisations = async (req, res) => {
   const uid = req.params.id;
@@ -15,10 +13,7 @@ const getUserOrganisations = async (req, res) => {
       },
     );
 
-    let userOrganisations = await getOrganisationsAssociatedWithUser(
-      uid,
-      correlationId,
-    );
+    let userOrganisations = await getUserOrganisationsRaw({ userId: uid });
     // TODO move filtering into getOrganisationsAssociatedWithUser with optional parameter.
     // Make filtering the default and you have to opt in to get it unfiltered
     // Filter out orgs with status of 0.  This is mostly to remove the hidden id-only org, if present.

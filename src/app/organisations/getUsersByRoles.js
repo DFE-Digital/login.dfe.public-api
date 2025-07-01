@@ -1,11 +1,9 @@
 const logger = require("../../infrastructure/logger");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-} = require("../../infrastructure/access");
-const { usersByIds } = require("../../infrastructure/directories");
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 
 const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -26,18 +24,14 @@ const getUsersByRoles = async (req, res) => {
     }
     // Get organisations by UKPRN/UPIN
     let isUPIN = false;
-    let organisations = await getOrganisationByTypeAndIdentifier(
-      "UKPRN-multi",
-      req.params.id,
-      correlationId,
-    );
+    let organisations = await getOrganisationRaw({
+      by: { type: "UKPRN-multi", identifierValue: req.params.id },
+    });
 
     if (organisations.length === 0) {
-      organisations = await getOrganisationByTypeAndIdentifier(
-        "UPIN-multi",
-        req.params.id,
-        correlationId,
-      );
+      organisations = await getOrganisationRaw({
+        by: { type: "UPIN-multi", identifierValue: req.params.id },
+      });
       organisations = [].concat(organisations);
       isUPIN = true;
     }
@@ -51,11 +45,11 @@ const getUsersByRoles = async (req, res) => {
 
     for (const organisation of organisations) {
       // Get all users associated with that service
-      const serviceUsers = await getServiceUsersForOrganisation(
-        req.client.id,
-        organisation.id,
-        correlationId,
-      );
+      const serviceUsers = await getServiceUsersForOrganisationRaw({
+        organisationId: organisation.id,
+        serviceId: req.client.id,
+      });
+
       let userIdNRoles;
       let usersDetails;
 
@@ -76,7 +70,7 @@ const getUsersByRoles = async (req, res) => {
         // Get user details by user ids
         if (userIdNRoles && userIdNRoles.length) {
           const userIds = userIdNRoles.map((ids) => ids.id);
-          usersDetails = await usersByIds(userIds.join(","), req.correlationId);
+          usersDetails = await getUsersRaw({ by: { userIds: userIds } });
           if (email !== null && email.length > 1) {
             usersDetails = usersDetails.filter(
               (user) => user.email.toLowerCase() === email.toLowerCase(),

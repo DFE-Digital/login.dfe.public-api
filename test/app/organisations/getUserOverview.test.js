@@ -4,20 +4,26 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
-jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUsersRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceUsersForOrganisationRaw: jest.fn(),
+  getServiceUsersWithRolesForOrganisationRaw: jest.fn(),
+  getServiceRolesRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("./../../utils");
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("./../../../src/infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-  getRoles,
-  getServiceUsersForOrganisationV2,
-} = require("./../../../src/infrastructure/access");
-const { usersByIds } = require("./../../../src/infrastructure/directories");
+  getServiceUsersForOrganisationRaw,
+  getServiceUsersWithRolesForOrganisationRaw,
+  getServiceRolesRaw,
+} = require("login.dfe.api-client/services");
 
 const getUserOverview = require("./../../../src/app/organisations/getUserOverview");
 
@@ -43,7 +49,7 @@ describe("when getting organisations users with roles by ukprn", () => {
 
     res.mockResetAll();
 
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue({
+    getOrganisationRaw.mockReturnValue({
       id: "966B98F1-80F7-4BEB-B886-C9742F7A087F",
       name: "16-19 ABINGDON",
       category: {
@@ -66,8 +72,8 @@ describe("when getting organisations users with roles by ukprn", () => {
       legacyId: "155",
       companyRegistrationNumber: null,
     });
-    getServiceUsersForOrganisation.mockReset().mockReturnValue([]);
-    getRoles.mockReset().mockReturnValue([
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue([]);
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "E53644D0-4B4A-43BD-92A9-F019EC63F978",
         name: "Dev User",
@@ -78,7 +84,7 @@ describe("when getting organisations users with roles by ukprn", () => {
         },
       },
     ]);
-    getServiceUsersForOrganisationV2.mockReset().mockReturnValue({
+    getServiceUsersWithRolesForOrganisationRaw.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -119,7 +125,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       totalNumberOfPages: 1,
       totalNumberOfRecords: 2,
     });
-    usersByIds.mockReset().mockReturnValue([
+    getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "userId",
         given_name: "User",
@@ -131,31 +137,30 @@ describe("when getting organisations users with roles by ukprn", () => {
 
   it("then it should call org By type api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledTimes(1);
-    expect(getOrganisationByTypeAndIdentifier).toHaveBeenCalledWith(
-      "UKPRN",
-      id,
-      req.correlationId,
-    );
+    expect(getOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getOrganisationRaw).toHaveBeenCalledWith({
+      by: { type: "UKPRN", identifierValue: id },
+    });
   });
 
   it("then it should call roles api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getRoles).toHaveBeenCalledTimes(1);
-    expect(getRoles).toHaveBeenCalledWith(req.client.id, req.correlationId);
+    expect(getServiceRolesRaw).toHaveBeenCalledTimes(1);
+    expect(getServiceRolesRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+    });
   });
 
   it("then it should call service users with roles api with client params", async () => {
     await getUserOverview(req, res);
-    expect(getServiceUsersForOrganisationV2).toHaveBeenCalledTimes(1);
-    expect(getServiceUsersForOrganisationV2).toHaveBeenCalledWith(
-      req.client.id,
-      "966B98F1-80F7-4BEB-B886-C9742F7A087F",
-      ["E53644D0-4B4A-43BD-92A9-F019EC63F978"],
-      req.query.page,
-      req.query.pageSize,
-      req.correlationId,
-    );
+    expect(getServiceUsersWithRolesForOrganisationRaw).toHaveBeenCalledTimes(1);
+    expect(getServiceUsersWithRolesForOrganisationRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+      organisationId: "966B98F1-80F7-4BEB-B886-C9742F7A087F",
+      serviceRoleIds: ["E53644D0-4B4A-43BD-92A9-F019EC63F978"],
+      page: req.query.page,
+      pageSize: req.query.pageSize,
+    });
   });
 
   it("then it should return users", async () => {

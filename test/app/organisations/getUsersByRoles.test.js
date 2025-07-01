@@ -4,18 +4,21 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
-jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
-
+jest.mock("login.dfe.api-client/users", () => ({
+  getUsersRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceUsersForOrganisationRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationRaw: jest.fn(),
+}));
+const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
 const { mockResponse, mockRequest } = require("../../utils");
 const {
-  getOrganisationByTypeAndIdentifier,
-} = require("../../../src/infrastructure/organisations");
-const {
-  getServiceUsersForOrganisation,
-} = require("../../../src/infrastructure/access");
-const { usersByIds } = require("../../../src/infrastructure/directories");
+  getServiceUsersForOrganisationRaw,
+} = require("login.dfe.api-client/services");
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getUsersByRoles = require("../../../src/app/organisations/getUsersByRoles");
 
@@ -42,7 +45,7 @@ describe("when getting organisations users with roles by ukprn", () => {
     req = mockRequest(requestPayload);
     res.mockResetAll();
 
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue([
+    getOrganisationRaw.mockReturnValue([
       {
         id: "966B98F1-80F7-4BEB-B886-C9742F7A087F",
         name: "16-19 ABINGDON",
@@ -68,8 +71,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       },
     ]);
 
-    // TODO this was copied from v2 so need to figure out what a real getServiceUsers request looks like
-    getServiceUsersForOrganisation.mockReset().mockReturnValue({
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue({
       services: [
         {
           userId: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
@@ -115,7 +117,7 @@ describe("when getting organisations users with roles by ukprn", () => {
       totalNumberOfRecords: 2,
     });
 
-    usersByIds.mockReset().mockReturnValue([
+    getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "3AC5A26C-4DE4-45E9-914E-2D45AC98F298",
         given_name: "User",
@@ -162,15 +164,15 @@ describe("when getting organisations users with roles by ukprn", () => {
   });
 
   it("should return 404 no organisations are returned", async () => {
-    getOrganisationByTypeAndIdentifier.mockReset().mockReturnValue([]);
+    getOrganisationRaw.mockReset().mockReturnValue([]);
     await getUsersByRoles(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it("should return 404 when no users are returned from getServiceUsers", async () => {
-    getServiceUsersForOrganisation.mockReset().mockReturnValue([]);
+  it("should return 404 when no users are returned from getServiceUsersForOrganisationRaw", async () => {
+    getServiceUsersForOrganisationRaw.mockReset().mockReturnValue([]);
     await getUsersByRoles(req, res);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(404);
@@ -255,7 +257,7 @@ describe("when getting organisations users with roles by ukprn", () => {
   });
 
   it("should throw an exception if there is a non-404 api call", async () => {
-    getServiceUsersForOrganisation.mockImplementation(() => {
+    getServiceUsersForOrganisationRaw.mockImplementation(() => {
       const error = new Error("Server Error");
       error.statusCode = 500;
       throw error;

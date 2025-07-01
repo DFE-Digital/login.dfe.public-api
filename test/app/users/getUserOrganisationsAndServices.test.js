@@ -4,22 +4,37 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("../../utils").mockLogger(),
 );
-jest.mock("../../../src/infrastructure/access");
-jest.mock("../../../src/infrastructure/directories");
-jest.mock("../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUserRaw: jest.fn(),
+  getUserServicesRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceRolesRaw: jest.fn(),
+  getServiceInfo: jest.fn(),
+  getFilteredServiceUsersRaw: jest.fn(),
+}));
+
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getOrganisationStatuses: jest.fn(),
+  getOrganisationCategories: jest.fn(),
+}));
+
+const {
+  getOrganisationStatuses,
+  getOrganisationCategories,
+} = require("login.dfe.api-client/organisations");
 
 const { mockResponse, mockRequest } = require("../../utils");
 const {
-  getServicesForUser,
-  getRoles,
-} = require("../../../src/infrastructure/access");
+  getServiceRolesRaw,
+  getServiceInfo,
+  getFilteredServiceUsersRaw,
+} = require("login.dfe.api-client/services");
+
 const {
-  listServiceUsers,
-  getServiceById,
-  getOrganisationCategories,
-  getOrganisationStatuses,
-} = require("../../../src/infrastructure/organisations");
-const { userById } = require("../../../src/infrastructure/directories");
+  getUserRaw,
+  getUserServicesRaw,
+} = require("login.dfe.api-client/users");
 const getUsersOrganisationsAndServices = require("../../../src/app/users/getUsersOrganisationsAndServices");
 
 const res = mockResponse();
@@ -68,7 +83,7 @@ describe("when getting users organisations and services", () => {
     });
     res.mockResetAll();
 
-    userById.mockReset().mockReturnValue({
+    getUserRaw.mockReset().mockReturnValue({
       sub: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
       given_name: "Test",
       family_name: "User",
@@ -78,7 +93,7 @@ describe("when getting users organisations and services", () => {
       phone_number: null,
     });
 
-    listServiceUsers.mockReset().mockReturnValue({
+    getFilteredServiceUsersRaw.mockReset().mockReturnValue({
       users: [
         {
           id: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
@@ -134,7 +149,7 @@ describe("when getting users organisations and services", () => {
       totalNumberOfRecords: 1,
     });
 
-    getServicesForUser.mockReset().mockReturnValue([
+    getUserServicesRaw.mockReset().mockReturnValue([
       {
         userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
         serviceId: "4FD40032-61A6-4BEB-A6C4-6B39A3AF81C1",
@@ -168,13 +183,13 @@ describe("when getting users organisations and services", () => {
       },
     ]);
 
-    getServiceById.mockReset().mockReturnValue({
+    getServiceInfo.mockReset().mockReturnValue({
       id: "B1F190AA-729A-45FC-A695-4EA209DC79D4",
       name: "DfE Sign-in manage",
       description: "DfE Sign-in Manage",
     });
 
-    getRoles.mockReset().mockReturnValue([
+    getServiceRolesRaw.mockReset().mockReturnValue([
       {
         id: "0B8625A7-43CB-433C-9991-00331879251B",
         name: "School Experience - Service Configuration",
@@ -191,21 +206,19 @@ describe("when getting users organisations and services", () => {
       },
     ]);
 
-    getOrganisationCategories
-      .mockReset()
-      .mockReturnValue(organisationCategoryData);
-    getOrganisationStatuses.mockReset().mockReturnValue(organisationStatusData);
+    getOrganisationCategories.mockReturnValue(organisationCategoryData);
+    getOrganisationStatuses.mockReturnValue(organisationStatusData);
   });
 
   it("then it should return 404 if the user isn't found", async () => {
-    userById.mockReset().mockReturnValue(undefined);
+    getUserRaw.mockReset().mockReturnValue(undefined);
     await getUsersOrganisationsAndServices(req, res);
 
     expect(res.status.mock.calls[0][0]).toBe(404);
   });
 
-  it("then it should return 200 with empty organisations if listServiceUsers is empty", async () => {
-    listServiceUsers.mockReset().mockReturnValue({
+  it("then it should return 200 with empty organisations if getFilteredServiceUsersRaw is empty", async () => {
+    getFilteredServiceUsersRaw.mockReset().mockReturnValue({
       users: [],
       page: 1,
       totalNumberOfPages: 0,
@@ -227,16 +240,12 @@ describe("when getting users organisations and services", () => {
   it("then it should return 200 if the user is found", async () => {
     await getUsersOrganisationsAndServices(req, res);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      "serviceId",
-      ["user-1"],
-      undefined,
-      undefined,
-      undefined,
-      1,
-      200,
-      "server-correlation-id",
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      pageNumber: 1,
+      pageSize: 200,
+      serviceId: "serviceId",
+      userIds: ["user-1"],
+    });
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send.mock.calls[0][0]).toMatchObject({
       userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
@@ -296,7 +305,7 @@ describe("when getting users organisations and services", () => {
   });
 
   it("then it raise an exception if an exception is raised on any api call", async () => {
-    userById.mockReset().mockImplementation(() => {
+    getUserRaw.mockReset().mockImplementation(() => {
       const error = new Error("Client Error");
       error.statusCode = 400;
       throw error;

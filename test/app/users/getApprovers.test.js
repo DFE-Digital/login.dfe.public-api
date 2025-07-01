@@ -4,21 +4,23 @@ jest.mock("./../../../src/infrastructure/config", () =>
 jest.mock("./../../../src/infrastructure/logger", () =>
   require("./../../utils").mockLogger(),
 );
-jest.mock("./../../../src/infrastructure/organisations");
-jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServicePoliciesRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/users");
+jest.mock("login.dfe.api-client/organisations", () => ({
+  getFilteredOrganisationUsersRaw: jest.fn(),
+}));
 
 const { mockResponse, mockRequest } = require("./../../utils");
-const {
-  listOrganisationUsersV3,
-} = require("./../../../src/infrastructure/organisations");
-const {
-  getPoliciesOfService,
-} = require("./../../../src/infrastructure/access");
-const { usersByIds } = require("./../../../src/infrastructure/directories");
+
+const { getUsersRaw } = require("login.dfe.api-client/users");
 
 const getApprovers = require("./../../../src/app/users/getApprovers");
-
+const { getServicePoliciesRaw } = require("login.dfe.api-client/services");
+const {
+  getFilteredOrganisationUsersRaw,
+} = require("login.dfe.api-client/organisations");
 const res = mockResponse();
 
 describe("when getting approver organisations", () => {
@@ -38,7 +40,7 @@ describe("when getting approver organisations", () => {
 
     res.mockResetAll();
 
-    listOrganisationUsersV3.mockReset().mockReturnValue({
+    getFilteredOrganisationUsersRaw.mockReturnValue({
       users: [
         {
           userId: "userId",
@@ -73,8 +75,8 @@ describe("when getting approver organisations", () => {
       totalNumberOfPages: 2,
       totalNumberOfRecords: 20,
     });
-    getPoliciesOfService.mockReset().mockReturnValue([]);
-    usersByIds.mockReset().mockReturnValue([
+    getServicePoliciesRaw.mockReset().mockReturnValue([]);
+    getUsersRaw.mockReset().mockReturnValue([
       {
         sub: "userId",
         given_name: "User",
@@ -168,24 +170,22 @@ describe("when getting approver organisations", () => {
   it("then it should call access to get policies for serviceId", async () => {
     await getApprovers(req, res);
 
-    expect(getPoliciesOfService).toHaveBeenCalledTimes(1);
-    expect(getPoliciesOfService).toHaveBeenCalledWith(
-      req.client.id,
-      req.correlationId,
-    );
+    expect(getServicePoliciesRaw).toHaveBeenCalledTimes(1);
+    expect(getServicePoliciesRaw).toHaveBeenCalledWith({
+      serviceId: req.client.id,
+    });
   });
 
   it("then it should call organisations to get page of org approvers with defaults", async () => {
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV3).toHaveBeenCalledWith(
-      1,
-      25,
-      10000,
-      [],
-      req.correlationId,
-    );
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 25,
+      role: 10000,
+      policies: [],
+    });
   });
 
   it("then it should call organisations to get page of org approvers with policy conditions as filter", async () => {
@@ -201,24 +201,23 @@ describe("when getting approver organisations", () => {
         ],
       },
     ];
-    getPoliciesOfService.mockReset().mockReturnValue(mockPolicies);
+    getServicePoliciesRaw.mockReset().mockReturnValue(mockPolicies);
     await getApprovers(req, res);
 
-    expect(listOrganisationUsersV3).toHaveBeenCalledTimes(1);
-    expect(listOrganisationUsersV3).toHaveBeenCalledWith(
-      1,
-      25,
-      10000,
-      mockPolicies,
-      req.correlationId,
-    );
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getFilteredOrganisationUsersRaw).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 25,
+      role: 10000,
+      policies: mockPolicies,
+    });
   });
 
   it("then it should call directories with the userIds", async () => {
     await getApprovers(req, res);
 
-    expect(usersByIds).toHaveBeenCalledTimes(1);
-    expect(usersByIds).toHaveBeenCalledWith("userId", req.correlationId);
+    expect(getUsersRaw).toHaveBeenCalledTimes(1);
+    expect(getUsersRaw).toHaveBeenCalledWith({ by: { userIds: ["userId"] } });
   });
 
   it("then it should return mapped approvers", async () => {

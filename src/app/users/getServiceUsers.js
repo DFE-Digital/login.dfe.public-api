@@ -5,26 +5,8 @@ const {
   extractFromParam,
   extractToParam,
 } = require("../utils");
-const { getServiceUsers } = require("../../infrastructure/access");
-const { listServiceUsers } = require("../../infrastructure/organisations");
-const { usersByIds } = require("../../infrastructure/directories");
-
-const mapRoleData = (roleData) => {
-  if (!roleData) {
-    return undefined;
-  }
-  const roles = [];
-  roleData.roles.forEach((role) => {
-    roles.push({
-      id: role.id,
-      name: role.name,
-      code: role.code,
-      numericId: role.numericId,
-      status: role.status.id,
-    });
-  });
-  return roles;
-};
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
 
 const listUsers = async (req, res) => {
   const status = extractStatusParam(req);
@@ -49,27 +31,16 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    null,
-    undefined,
-    undefined,
-    undefined,
-    page,
+  const pageOfUserServices = await getFilteredServiceUsersRaw({
+    serviceId: req.client.id,
+    pageNumber: page,
     pageSize,
-    req.correlationId,
-  );
+  });
+
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await usersByIds(userIds.join(","), req.correlationId);
-  const userDataWithRoles = await getServiceUsers(
-    req.client.id,
-    req.correlationId,
-  );
-  const responseBody = prepareUserResponse(
-    pageOfUserServices,
-    users,
-    userDataWithRoles,
-  );
+  const users = await getUsersRaw({ by: { userIds: userIds } });
+
+  const responseBody = prepareUserResponse(pageOfUserServices, users);
 
   return res.send(responseBody);
 };
@@ -143,19 +114,20 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
-  const pageOfUserServices = await listServiceUsers(
-    req.client.id,
-    undefined,
-    status,
-    fromDate,
-    toDate,
-    page,
+  const pageOfUserServices = await getFilteredServiceUsersRaw({
+    serviceId: req.client.id,
+    userStatus: status,
+    dateFrom: fromDate,
+    dateTo: toDate,
+    pageNumber: page,
     pageSize,
-    req.correlationId,
-  );
+  });
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await usersByIds(userIds.join(","), req.correlationId);
+  const users = userIds.length
+    ? await getUsersRaw({ by: { userIds } })
+    : undefined;
+
   let responseBody;
 
   if (!users) {
@@ -166,17 +138,7 @@ const listUsersWithFilters = async (req, res) => {
       numberOfPages: 0,
     };
   } else {
-    // Need to make call to access to get service role data.  No need to get this
-    // until we're sure that there are users we need to get service role data for.
-    const userDataWithRoles = await getServiceUsers(
-      req.client.id,
-      req.correlationId,
-    );
-    responseBody = prepareUserResponse(
-      pageOfUserServices,
-      users,
-      userDataWithRoles,
-    );
+    responseBody = prepareUserResponse(pageOfUserServices, users);
   }
 
   addDateRangeValue(responseBody, fromDate, toDate);
@@ -184,21 +146,13 @@ const listUsersWithFilters = async (req, res) => {
   return res.send(responseBody);
 };
 
-const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
+const prepareUserResponse = (pageOfUserServices, users) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
     const user = users.find((u) => u.sub === userService.id);
-    const serviceRoles = mapRoleData(
-      userDataWithRoles.services.find(
-        (role) =>
-          role.userId === userService.id &&
-          role.organisationId === userService.organisation.id,
-      ),
-    );
     let mappedUserService = {
       approvedAt: userService.createdAt,
       updatedAt: userService.updatedAt,
       organisation: userService.organisation,
-      roles: serviceRoles,
       roleName:
         userService.role && userService.role.name
           ? userService.role.name

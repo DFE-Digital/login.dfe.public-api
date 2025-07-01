@@ -1,108 +1,16 @@
-jest.mock("./../../../src/infrastructure/access");
-jest.mock("./../../../src/infrastructure/directories");
-jest.mock("./../../../src/infrastructure/organisations");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUsersRaw: jest.fn(),
+}));
+jest.mock("login.dfe.api-client/services", () => ({
+  getFilteredServiceUsersRaw: jest.fn(),
+}));
 
-const { getServiceUsers } = require("./../../../src/infrastructure/access");
-const {
-  listServiceUsers,
-} = require("./../../../src/infrastructure/organisations");
-const { usersByIds } = require("./../../../src/infrastructure/directories");
+const { getUsersRaw } = require("login.dfe.api-client/users");
+const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
 jest.useFakeTimers().setSystemTime(new Date("2024-01-01"));
-
-// Example data in a global context because this file has 2 sets of tests in it
-const exampleListServiceUsersData = {
-  users: [
-    {
-      id: "user1",
-      createdAt: "2023-01-01",
-      updatedAt: "2023-01-02",
-      organisation: "OrgA",
-      role: { name: "Admin", id: "role1" },
-    },
-  ],
-  totalNumberOfRecords: 1,
-  page: 1,
-  totalNumberOfPages: 1,
-};
-
-const exampleUsersByIdsData = [
-  {
-    sub: "user1",
-    email: "test@education.gov.uk",
-    family_name: "Test",
-    given_name: "User",
-    status: "Active",
-  },
-];
-
-const exampleGetServiceUsersData = {
-  services: [
-    {
-      userId: "user1",
-      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-      organisationId: "org1",
-      roles: [
-        {
-          id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-          name: "Submit Learner Data - Standard Submissions",
-          code: "DCFT",
-          numericId: "21818",
-          status: {
-            id: 1,
-          },
-        },
-        {
-          id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
-          name: "Submit Learner Data - FE Workforce Governor",
-          code: "FEWG",
-          numericId: "21819",
-          status: {
-            id: 1,
-          },
-        },
-      ],
-      identifiers: [
-        {
-          key: "groups",
-          value: "FEWG,DCFT",
-        },
-      ],
-      accessGrantedOn: "2023-06-01T12:03:10.866Z",
-    },
-    {
-      userId: "user2",
-      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-      organisationId: "org2",
-      roles: [
-        {
-          id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
-          name: "Submit Learner Data - Advanced Support Resubmit File",
-          code: "RSF",
-          numericId: "21824",
-          status: {
-            id: 1,
-          },
-        },
-      ],
-      identifiers: [],
-      accessGrantedOn: "2023-02-22T14:50:01.691Z",
-    },
-    {
-      userId: "user3",
-      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
-      organisationId: "org3",
-      roles: [],
-      identifiers: [],
-      accessGrantedOn: "2023-02-22T14:50:01.360Z",
-    },
-  ],
-  page: 1,
-  totalNumberOfPages: 1,
-  totalNumberOfRecords: 3,
-};
 
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
@@ -121,9 +29,29 @@ describe("listUsersWithFilters", () => {
       send: jest.fn(),
     };
 
-    getServiceUsers.mockResolvedValue(exampleGetServiceUsersData);
-    listServiceUsers.mockResolvedValue(exampleListServiceUsersData);
-    usersByIds.mockResolvedValue(exampleUsersByIdsData);
+    getFilteredServiceUsersRaw.mockResolvedValue({
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: "OrgA",
+          role: { name: "Admin", id: "role1" },
+        },
+      ],
+      totalNumberOfRecords: 1,
+      page: 1,
+      totalNumberOfPages: 1,
+    });
+    getUsersRaw.mockResolvedValue([
+      {
+        sub: "user1",
+        email: "test@education.gov.uk",
+        family_name: "Test",
+        given_name: "User",
+        status: "Active",
+      },
+    ]);
   });
 
   it('should return 400 if status is not "0"', async () => {
@@ -249,21 +177,21 @@ describe("listUsersWithFilters", () => {
           id: "user1",
           createdAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { id: "org1" },
+          organisation: { name: "Org It" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
           createdAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { id: "org2" },
+          organisation: { name: "Org Dev" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
           createdAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { id: "org3" },
+          organisation: { name: "Org Main" },
           role: null,
         }, // No role
       ],
@@ -272,7 +200,7 @@ describe("listUsersWithFilters", () => {
       totalNumberOfPages: 1,
     };
 
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
 
     const usersData = [
       {
@@ -289,32 +217,16 @@ describe("listUsersWithFilters", () => {
         given_name: "Dev",
         status: "Inactive",
       },
-      // User3 has no match in usersByIds result
+      // User3 has no match in getUsersRaw result
     ];
-    usersByIds.mockResolvedValue(usersData);
+    getUsersRaw.mockResolvedValue(usersData);
 
     const expectedResponseBody = {
       users: [
         {
           approvedAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { id: "org1" },
-          roles: [
-            {
-              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-              name: "Submit Learner Data - Standard Submissions",
-              code: "DCFT",
-              numericId: "21818",
-              status: 1,
-            },
-            {
-              id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
-              name: "Submit Learner Data - FE Workforce Governor",
-              code: "FEWG",
-              numericId: "21819",
-              status: 1,
-            },
-          ],
+          organisation: { name: "Org It" },
           roleName: "Tester",
           roleId: "role1",
           userId: "user1",
@@ -326,16 +238,7 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { id: "org2" },
-          roles: [
-            {
-              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
-              name: "Submit Learner Data - Advanced Support Resubmit File",
-              code: "RSF",
-              numericId: "21824",
-              status: 1,
-            },
-          ],
+          organisation: { name: "Org Dev" },
           roleName: "Dev",
           roleId: "role2",
           userId: "user2",
@@ -347,8 +250,7 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { id: "org3" },
-          roles: [],
+          organisation: { name: "Org Main" },
           roleName: undefined,
           roleId: undefined,
           userId: "user3",
@@ -364,20 +266,17 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      "0",
-      new Date("2023-01-01T00:00:00.000Z"),
-      new Date("2023-01-05T00:00:00.000Z"),
-      2,
-      25,
-      mockReq.correlationId,
-    );
-    expect(usersByIds).toHaveBeenCalledWith(
-      "user1,user2,user3",
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: new Date("2023-01-01T00:00:00.000Z"),
+      dateTo: new Date("2023-01-05T00:00:00.000Z"),
+      pageNumber: 2,
+      pageSize: 25,
+      serviceId: "client123",
+      userStatus: "0",
+    });
+    expect(getUsersRaw).toHaveBeenCalledWith({
+      by: { userIds: ["user1", "user2", "user3"] },
+    });
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
     // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
@@ -394,16 +293,14 @@ describe("listUsersWithFilters", () => {
     await listUsers(mockReq, mockRes);
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      undefined,
-      new Date("2023-01-01T00:00:00.000Z"),
-      new Date("2023-01-05T00:00:00.000Z"),
-      1,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: new Date("2023-01-01T00:00:00.000Z"),
+      dateTo: new Date("2023-01-05T00:00:00.000Z"),
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: "client123",
+      userStatus: undefined,
+    });
     expect(mockRes.send).toHaveBeenCalled();
   });
 
@@ -442,21 +339,19 @@ describe("listUsersWithFilters", () => {
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - 7);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      undefined,
-      "0",
-      pastDate,
-      new Date(),
-      1,
-      25,
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      dateFrom: pastDate,
+      dateTo: new Date(),
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: mockReq.client.id,
+      userStatus: "0",
+    });
     expect(mockRes.send).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
-  it("should return empty users array if usersByIds returns null", async () => {
+  it("should return empty users array if getUsersRaw returns null", async () => {
     mockReq.query = {
       from: "2023-01-01T00:00:00.000Z",
       to: "2023-01-05T00:00:00.000Z",
@@ -465,13 +360,13 @@ describe("listUsersWithFilters", () => {
       pageSize: 25,
     };
 
-    listServiceUsers.mockResolvedValue({
+    getFilteredServiceUsersRaw.mockResolvedValue({
       users: [{ id: "user1" }], // Simulate a successful first call
       totalNumberOfRecords: 1,
       page: 1,
       totalNumberOfPages: 1,
     });
-    usersByIds.mockResolvedValue(null); // Simulate no users found by Id (sub)
+    getUsersRaw.mockResolvedValue(null); // Simulate no users found by Id (sub)
 
     const expectedBody = {
       users: [],
@@ -487,7 +382,7 @@ describe("listUsersWithFilters", () => {
     expect(mockRes.send).toHaveBeenCalledWith(expectedBody);
   });
 
-  it("should handle empty user list from listServiceUsers and subsequently empty from usersByIds", async () => {
+  it("should handle empty user list from getFilteredServiceUsersRaw and subsequently empty from getUsersRaw", async () => {
     mockReq.query = {
       from: "2023-01-01T00:00:00.000Z",
       to: "2023-01-05T00:00:00.000Z",
@@ -499,13 +394,13 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 0,
     };
-    listServiceUsers.mockResolvedValue(pageOfServiceUsersEmpty);
-    usersByIds.mockResolvedValue([]); // usersByIds called with "" and returns []
+    getFilteredServiceUsersRaw.mockResolvedValue(pageOfServiceUsersEmpty);
+    getUsersRaw.mockResolvedValue([]); // getUsersRaw called with "" and returns []
 
     const expectedResponseBody = {
       users: [],
       numberOfRecords: 0,
-      page: 1,
+      page: 0,
       numberOfPages: 0,
       dateRange:
         "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
@@ -513,8 +408,8 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalled();
-    expect(usersByIds).toHaveBeenCalledWith("", mockReq.correlationId);
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
+    expect(getUsersRaw).not.toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
@@ -530,9 +425,9 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 1,
     };
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
     const usersData = [{ sub: "s1", email: "e1" }];
-    usersByIds.mockResolvedValue(usersData);
+    getUsersRaw.mockResolvedValue(usersData);
     const preparedResponse = {
       users: [
         {
@@ -560,8 +455,8 @@ describe("listUsersWithFilters", () => {
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
 
-    expect(listServiceUsers).toHaveBeenCalled();
-    expect(usersByIds).toHaveBeenCalled();
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
+    expect(getUsersRaw).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
   });
 
@@ -576,9 +471,9 @@ describe("listUsersWithFilters", () => {
       page: 1,
       totalNumberOfPages: 1,
     };
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
     const usersData = [{ sub: "s2", email: "e2" }];
-    usersByIds.mockResolvedValue(usersData);
+    getUsersRaw.mockResolvedValue(usersData);
     const preparedResponse = {
       users: [
         {
@@ -606,7 +501,7 @@ describe("listUsersWithFilters", () => {
 
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
 
-    expect(listServiceUsers).toHaveBeenCalled();
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(preparedResponse);
   });
 });
@@ -627,9 +522,29 @@ describe("listUsersWithoutFilters", () => {
       send: jest.fn(),
     };
 
-    listServiceUsers.mockResolvedValue(exampleListServiceUsersData);
-    usersByIds.mockResolvedValue(exampleUsersByIdsData);
-    getServiceUsers.mockResolvedValue(exampleGetServiceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue({
+      users: [
+        {
+          id: "user1",
+          createdAt: "2023-01-01",
+          updatedAt: "2023-01-02",
+          organisation: "OrgA",
+          role: { name: "Admin", id: "role1" },
+        },
+      ],
+      totalNumberOfRecords: 1,
+      page: 1,
+      totalNumberOfPages: 1,
+    });
+    getUsersRaw.mockResolvedValue([
+      {
+        sub: "user1",
+        email: "test@education.gov.uk",
+        family_name: "Test",
+        given_name: "User",
+        status: "Active",
+      },
+    ]);
   });
 
   it("should return 400 if pageSize is not a number", async () => {
@@ -655,21 +570,21 @@ describe("listUsersWithoutFilters", () => {
           id: "user1",
           createdAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { id: "org1" },
+          organisation: { name: "Org It" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
           createdAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { id: "org2" },
+          organisation: { name: "Org Dev" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
           createdAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { id: "org3" },
+          organisation: { name: "Org Main" },
           role: null,
         }, // No role
       ],
@@ -678,7 +593,7 @@ describe("listUsersWithoutFilters", () => {
       totalNumberOfPages: 1,
     };
 
-    listServiceUsers.mockResolvedValue(serviceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(serviceUsersData);
 
     const usersData = [
       {
@@ -695,32 +610,16 @@ describe("listUsersWithoutFilters", () => {
         given_name: "Dev",
         status: "Inactive",
       },
-      // User3 has no match in usersByIds result
+      // User3 has no match in getUsersRaw result
     ];
-    usersByIds.mockResolvedValue(usersData);
+    getUsersRaw.mockResolvedValue(usersData);
 
     const expectedResponseBody = {
       users: [
         {
           approvedAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { id: "org1" },
-          roles: [
-            {
-              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
-              name: "Submit Learner Data - Standard Submissions",
-              code: "DCFT",
-              numericId: "21818",
-              status: 1,
-            },
-            {
-              id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
-              name: "Submit Learner Data - FE Workforce Governor",
-              code: "FEWG",
-              numericId: "21819",
-              status: 1,
-            },
-          ],
+          organisation: { name: "Org It" },
           roleName: "Tester",
           roleId: "role1",
           userId: "user1",
@@ -732,16 +631,7 @@ describe("listUsersWithoutFilters", () => {
         {
           approvedAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { id: "org2" },
-          roles: [
-            {
-              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
-              name: "Submit Learner Data - Advanced Support Resubmit File",
-              code: "RSF",
-              numericId: "21824",
-              status: 1,
-            },
-          ],
+          organisation: { name: "Org Dev" },
           roleName: "Dev",
           roleId: "role2",
           userId: "user2",
@@ -753,8 +643,7 @@ describe("listUsersWithoutFilters", () => {
         {
           approvedAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { id: "org3" },
-          roles: [],
+          organisation: { name: "Org Main" },
           roleName: undefined,
           roleId: undefined,
           userId: "user3",
@@ -768,20 +657,14 @@ describe("listUsersWithoutFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
-    expect(listServiceUsers).toHaveBeenCalledWith(
-      mockReq.client.id,
-      null,
-      undefined,
-      undefined,
-      undefined,
-      1,
-      25,
-      mockReq.correlationId,
-    );
-    expect(usersByIds).toHaveBeenCalledWith(
-      "user1,user2,user3",
-      mockReq.correlationId,
-    );
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      pageNumber: 1,
+      pageSize: 25,
+      serviceId: mockReq.client.id,
+    });
+    expect(getUsersRaw).toHaveBeenCalledWith({
+      by: { userIds: ["user1", "user2", "user3"] },
+    });
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
     // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
