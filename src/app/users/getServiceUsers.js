@@ -61,11 +61,8 @@ const listUsersWithOutFilters = async (req, res) => {
   const users = await getUsersRaw({ by: { userIds: userIds } });
   const userDataWithRoles = await getServiceUsersRaw({
     serviceId: req.client.id,
+    userIds,
   });
-  // const userDataWithRoles = await getServiceUsersRaw({
-  //   serviceId: req.client.id,
-  //   userIds: userIds.join(",")
-  // });
 
   const responseBody = prepareUserResponse(
     pageOfUserServices,
@@ -160,6 +157,7 @@ const listUsersWithFilters = async (req, res) => {
     : undefined;
   const userDataWithRoles = await getServiceUsersRaw({
     serviceId: req.client.id,
+    userIds,
   });
 
   let responseBody;
