@@ -70,22 +70,28 @@ const listUsersWithFilters = async (req, res) => {
       }
     }
 
-    if (to && isNaN(Date.parse(to))) {
-      return res.status(400).send("To date is not a valid date.");
-    } else if (to) {
-      toDate = new Date(Date.parse(to));
+    if (to) {
+      const parsedTo = Date.parse(to);
+      if (isNaN(parsedTo)) {
+        return res.status(400).send("To date is not a valid date.");
+      }
+      toDate = new Date(parsedTo);
     }
 
-    if (from && isNaN(Date.parse(from))) {
-      return res.status(400).send("From date is not a valid date.");
-    } else if (from) {
-      fromDate = new Date(Date.parse(from));
+    if (from) {
+      const parsedFrom = Date.parse(from);
+      if (isNaN(parsedFrom)) {
+        return res.status(400).send("From date is not a valid date.");
+      }
+      fromDate = new Date(parsedFrom);
     }
 
     if (fromDate && toDate) {
       if (isFutureDate(fromDate) && isFutureDate(toDate)) {
         return res.status(400).send("Date range should not be in the future");
-      } else if (fromDate.getTime() > toDate.getTime()) {
+      }
+
+      if (fromDate.getTime() > toDate.getTime()) {
         return res.status(400).send("From date greater than to date");
       }
 
@@ -97,8 +103,8 @@ const listUsersWithFilters = async (req, res) => {
           .send(`Only ${duration} days are allowed between dates`);
       }
     } else if (fromDate || toDate) {
-      const selectedDate = fromDate ? fromDate : toDate;
-      if (isFutureDate(selectedDate)) {
+      const selectedDate = fromDate ?? toDate;
+      if (selectedDate && isFutureDate(selectedDate)) {
         return res.status(400).send("Date range should not be in the future");
       }
     }
@@ -114,7 +120,7 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
-  // Convert to UTC ISO strings if needed
+  // Convert to UTC ISO strings if defined
   const dateFromUTC = fromDate ? new Date(fromDate.toISOString()) : undefined;
   const dateToUTC = toDate ? new Date(toDate.toISOString()) : undefined;
 
@@ -154,8 +160,12 @@ const prepareUserResponse = (pageOfUserServices, users) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
     const user = users.find((u) => u.sub === userService.id);
     let mappedUserService = {
-      approvedAt: new Date(userService.createdAt).toISOString(),
-      updatedAt: new Date(userService.updatedAt).toISOString(),
+      approvedAt: userService.createdAt
+        ? new Date(userService.createdAt).toISOString()
+        : undefined,
+      updatedAt: userService.updatedAt
+        ? new Date(userService.updatedAt).toISOString()
+        : undefined,
       organisation: userService.organisation,
       roleName:
         userService.role && userService.role.name
