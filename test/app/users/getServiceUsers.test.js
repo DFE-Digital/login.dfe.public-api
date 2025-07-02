@@ -306,9 +306,9 @@ describe("listUsersWithFilters", () => {
   });
 
   it("should successfully list users when no date parameters are provided", async () => {
-    // Mock current date to a fixed point in time
-    // const fixedNow = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // Jan 1, 2024 UTC
-    // jest.useFakeTimers().setSystemTime(fixedNow);
+    // Mock current date to a fixed UTC time
+    const fixedNow = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // Jan 1, 2024 UTC
+    jest.useFakeTimers().setSystemTime(fixedNow);
 
     mockReq.query = {
       status: "1",
@@ -335,22 +335,19 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 02 Oct 2023 23:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+        "Users between Tue, 03 Oct 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
       warning: "Only 90 days of data can be fetched",
     };
 
-    // const expectedDateTo = fixedNow;
-    // //const expectedDateFrom = new Date("2023-10-02T00:00:00.000Z");
-    // const expectedDateFrom = new Date(Date.UTC(2023, 9, 2, 0, 0, 0)); // Oct 2, 2023 UTC
-
     await listUsers(mockReq, mockRes);
 
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 90);
+    const dateTo = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // fixedNow
+    const dateFrom = new Date(dateTo);
+    dateFrom.setUTCDate(dateFrom.getUTCDate() - 90); // 90 days before in UTC
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
-      dateFrom: pastDate,
-      dateTo: new Date(),
+      dateFrom,
+      dateTo,
       pageNumber: 1,
       pageSize: 25,
       serviceId: mockReq.client.id,
@@ -459,7 +456,7 @@ describe("listUsersWithFilters", () => {
       numberOfPages: 1,
       warning: "Only 90 days of data can be fetched",
       dateRange:
-        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Fri, 02 Jun 2023 23:00:00 GMT",
+        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sat, 03 Jun 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);

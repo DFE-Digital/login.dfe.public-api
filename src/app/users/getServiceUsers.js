@@ -227,16 +227,16 @@ const isFutureDate = (inputDate) => {
 const findDateRange = (toDate, fromDate, duration, isWarning) => {
   if (toDate && !fromDate) {
     fromDate = new Date(toDate);
-    fromDate.setDate(toDate.getDate() - duration);
+    fromDate.setUTCDate(toDate.getUTCDate() - duration);
     isWarning = true;
   } else if (!toDate && fromDate) {
     toDate = new Date(fromDate);
-    toDate.setDate(fromDate.getDate() + duration);
+    toDate.setUTCDate(fromDate.getUTCDate() + duration);
     isWarning = true;
   } else if (!toDate && !fromDate) {
     toDate = new Date();
     fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - duration);
+    fromDate.setUTCDate(fromDate.getUTCDate() - duration);
     isWarning = true;
   }
   return { toDate, fromDate, isWarning };
