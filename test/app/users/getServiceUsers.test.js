@@ -3,14 +3,110 @@ jest.mock("login.dfe.api-client/users", () => ({
 }));
 jest.mock("login.dfe.api-client/services", () => ({
   getFilteredServiceUsersRaw: jest.fn(),
+  getServiceUsersRaw: jest.fn(),
 }));
 
 const { getUsersRaw } = require("login.dfe.api-client/users");
-const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
+const {
+  getFilteredServiceUsersRaw,
+  getServiceUsersRaw,
+} = require("login.dfe.api-client/services");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
 
 jest.useFakeTimers().setSystemTime(new Date("2024-01-01"));
+
+// Example data in a global context because this file has 2 sets of tests in it
+const exampleListServiceUsersData = {
+  users: [
+    {
+      id: "user1",
+      createdAt: "2023-01-01",
+      updatedAt: "2023-01-02",
+      organisation: "OrgA",
+      role: { name: "Admin", id: "role1" },
+    },
+  ],
+  totalNumberOfRecords: 1,
+  page: 1,
+  totalNumberOfPages: 1,
+};
+
+const exampleUsersByIdsData = [
+  {
+    sub: "user1",
+    email: "test@education.gov.uk",
+    family_name: "Test",
+    given_name: "User",
+    status: "Active",
+  },
+];
+
+const exampleGetServiceUsersData = {
+  services: [
+    {
+      userId: "user1",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org1",
+      roles: [
+        {
+          id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
+          name: "Submit Learner Data - Standard Submissions",
+          code: "DCFT",
+          numericId: "21818",
+          status: {
+            id: 1,
+          },
+        },
+        {
+          id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
+          name: "Submit Learner Data - FE Workforce Governor",
+          code: "FEWG",
+          numericId: "21819",
+          status: {
+            id: 1,
+          },
+        },
+      ],
+      identifiers: [
+        {
+          key: "groups",
+          value: "FEWG,DCFT",
+        },
+      ],
+      accessGrantedOn: "2023-06-01T12:03:10.866Z",
+    },
+    {
+      userId: "user2",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org2",
+      roles: [
+        {
+          id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
+          name: "Submit Learner Data - Advanced Support Resubmit File",
+          code: "RSF",
+          numericId: "21824",
+          status: {
+            id: 1,
+          },
+        },
+      ],
+      identifiers: [],
+      accessGrantedOn: "2023-02-22T14:50:01.691Z",
+    },
+    {
+      userId: "user3",
+      serviceId: "4CD4B183-0EB5-40DE-94E3-1C7484A0AD43",
+      organisationId: "org3",
+      roles: [],
+      identifiers: [],
+      accessGrantedOn: "2023-02-22T14:50:01.360Z",
+    },
+  ],
+  page: 1,
+  totalNumberOfPages: 1,
+  totalNumberOfRecords: 3,
+};
 
 describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
@@ -29,29 +125,9 @@ describe("listUsersWithFilters", () => {
       send: jest.fn(),
     };
 
-    getFilteredServiceUsersRaw.mockResolvedValue({
-      users: [
-        {
-          id: "user1",
-          createdAt: "2023-01-01",
-          updatedAt: "2023-01-02",
-          organisation: "OrgA",
-          role: { name: "Admin", id: "role1" },
-        },
-      ],
-      totalNumberOfRecords: 1,
-      page: 1,
-      totalNumberOfPages: 1,
-    });
-    getUsersRaw.mockResolvedValue([
-      {
-        sub: "user1",
-        email: "test@education.gov.uk",
-        family_name: "Test",
-        given_name: "User",
-        status: "Active",
-      },
-    ]);
+    getServiceUsersRaw.mockResolvedValue(exampleGetServiceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(exampleListServiceUsersData);
+    getUsersRaw.mockResolvedValue(exampleUsersByIdsData);
   });
 
   it('should return 400 if status is not "0"', async () => {
@@ -177,21 +253,21 @@ describe("listUsersWithFilters", () => {
           id: "user1",
           createdAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
           createdAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
           createdAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
+          organisation: { id: "org3" },
           role: null,
         }, // No role
       ],
@@ -226,7 +302,23 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-01-01",
           updatedAt: "2023-01-02",
-          organisation: { name: "Org It" },
+          organisation: { id: "org1" },
+          roles: [
+            {
+              id: "FA3DDF63-6D48-41BB-8706-1048B24D4744",
+              name: "Submit Learner Data - Standard Submissions",
+              code: "DCFT",
+              numericId: "21818",
+              status: 1,
+            },
+            {
+              id: "70168373-41CC-4DF7-9CBC-DA7C9B2B2AE3",
+              name: "Submit Learner Data - FE Workforce Governor",
+              code: "FEWG",
+              numericId: "21819",
+              status: 1,
+            },
+          ],
           roleName: "Tester",
           roleId: "role1",
           userId: "user1",
@@ -238,7 +330,16 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-02-01",
           updatedAt: "2023-02-02",
-          organisation: { name: "Org Dev" },
+          organisation: { id: "org2" },
+          roles: [
+            {
+              id: "FDEE86CD-05DA-47B8-80D1-BC56D92A991B",
+              name: "Submit Learner Data - Advanced Support Resubmit File",
+              code: "RSF",
+              numericId: "21824",
+              status: 1,
+            },
+          ],
           roleName: "Dev",
           roleId: "role2",
           userId: "user2",
@@ -250,7 +351,8 @@ describe("listUsersWithFilters", () => {
         {
           approvedAt: "2023-03-01",
           updatedAt: "2023-03-02",
-          organisation: { name: "Org Main" },
+          organisation: { id: "org3" },
+          roles: [],
           roleName: undefined,
           roleId: undefined,
           userId: "user3",
@@ -522,29 +624,9 @@ describe("listUsersWithoutFilters", () => {
       send: jest.fn(),
     };
 
-    getFilteredServiceUsersRaw.mockResolvedValue({
-      users: [
-        {
-          id: "user1",
-          createdAt: "2023-01-01",
-          updatedAt: "2023-01-02",
-          organisation: "OrgA",
-          role: { name: "Admin", id: "role1" },
-        },
-      ],
-      totalNumberOfRecords: 1,
-      page: 1,
-      totalNumberOfPages: 1,
-    });
-    getUsersRaw.mockResolvedValue([
-      {
-        sub: "user1",
-        email: "test@education.gov.uk",
-        family_name: "Test",
-        given_name: "User",
-        status: "Active",
-      },
-    ]);
+    getServiceUsersRaw.mockResolvedValue(exampleGetServiceUsersData);
+    getFilteredServiceUsersRaw.mockResolvedValue(exampleListServiceUsersData);
+    getUsersRaw.mockResolvedValue(exampleUsersByIdsData);
   });
 
   it("should return 400 if pageSize is not a number", async () => {
