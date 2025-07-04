@@ -13,7 +13,7 @@ const {
 
 const mapRoleData = (roleData) => {
   if (!roleData) {
-    return undefined;
+    return [];
   }
   const roles = [];
   roleData.roles.forEach((role) => {
