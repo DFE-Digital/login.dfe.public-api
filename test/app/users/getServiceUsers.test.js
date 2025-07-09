@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
@@ -112,7 +113,7 @@ describe("listUsersWithFilters", () => {
   // listUsersWithFilters called when status, from OR to are provided as query parameters
   let mockReq;
   let mockRes;
-  const DURATION = 7; // Consistent duration
+  const DURATION = 90; // Consistent duration
 
   beforeEach(() => {
     mockReq = {
@@ -214,7 +215,7 @@ describe("listUsersWithFilters", () => {
   it("should return 400 if date range exceeds duration", async () => {
     mockReq.query = {
       from: "2023-01-01",
-      to: "2023-01-09",
+      to: "2023-04-02",
     };
 
     await listUsers(mockReq, mockRes);
@@ -240,8 +241,8 @@ describe("listUsersWithFilters", () => {
 
   it("should successfully list users with valid parameters (from and to dates provided)", async () => {
     mockReq.query = {
-      from: "2023-01-01T00:00:00.000Z",
-      to: "2023-01-05T00:00:00.000Z",
+      from: "2023-01-01",
+      to: "2023-01-05",
       page: 2,
       pageSize: 25,
       status: "0",
@@ -300,8 +301,8 @@ describe("listUsersWithFilters", () => {
     const expectedResponseBody = {
       users: [
         {
-          approvedAt: "2023-01-01",
-          updatedAt: "2023-01-02",
+          approvedAt: "2023-01-01T00:00:00.000Z",
+          updatedAt: "2023-01-02T00:00:00.000Z",
           organisation: { id: "org1" },
           roles: [
             {
@@ -328,8 +329,8 @@ describe("listUsersWithFilters", () => {
           userStatus: "Active",
         },
         {
-          approvedAt: "2023-02-01",
-          updatedAt: "2023-02-02",
+          approvedAt: "2023-02-01T00:00:00.000Z",
+          updatedAt: "2023-02-02T00:00:00.000Z",
           organisation: { id: "org2" },
           roles: [
             {
@@ -349,8 +350,8 @@ describe("listUsersWithFilters", () => {
           userStatus: "Inactive",
         },
         {
-          approvedAt: "2023-03-01",
-          updatedAt: "2023-03-02",
+          approvedAt: "2023-03-01T00:00:00.000Z",
+          updatedAt: "2023-03-02T00:00:00.000Z",
           organisation: { id: "org3" },
           roles: [],
           roleName: undefined,
@@ -407,8 +408,12 @@ describe("listUsersWithFilters", () => {
   });
 
   it("should successfully list users when no date parameters are provided", async () => {
+    // Mock current date to a fixed UTC time
+    const fixedNow = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // Jan 1, 2024 UTC
+    jest.useFakeTimers().setSystemTime(fixedNow);
+
     mockReq.query = {
-      status: "0",
+      status: "1",
       page: 1,
       pageSize: 25,
     };
@@ -418,14 +423,14 @@ describe("listUsersWithFilters", () => {
         {
           userId: "user1",
           email: "test@education.gov.uk",
-          approvedAt: "2023-01-01",
+          approvedAt: "2023-01-01T00:00:00.000Z",
           familyName: "Test",
           givenName: "User",
           organisation: "OrgA",
           roleId: "role1",
           roleName: "Admin",
           roles: [],
-          updatedAt: "2023-01-02",
+          updatedAt: "2023-01-02T00:00:00.000Z",
           userStatus: "Active",
         },
       ],
@@ -433,25 +438,28 @@ describe("listUsersWithFilters", () => {
       page: 1,
       numberOfPages: 1,
       dateRange:
-        "Users between Mon, 25 Dec 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
-      warning: "Only 7 days of data can be fetched",
+        "Users between Tue, 03 Oct 2023 00:00:00 GMT and Mon, 01 Jan 2024 00:00:00 GMT",
+      warning: "Only 90 days of data can be fetched",
     };
 
     await listUsers(mockReq, mockRes);
 
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 7);
+    const dateTo = new Date(Date.UTC(2024, 0, 1, 0, 0, 0)); // fixedNow
+    const dateFrom = new Date(dateTo);
+    dateFrom.setUTCDate(dateFrom.getUTCDate() - 90); // 90 days before in UTC
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
-      dateFrom: pastDate,
-      dateTo: new Date(),
+      dateFrom,
+      dateTo,
       pageNumber: 1,
       pageSize: 25,
       serviceId: mockReq.client.id,
-      userStatus: "0",
+      userStatus: "1",
     });
-    expect(mockRes.send).toHaveBeenCalled();
+
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+
+    jest.useRealTimers(); // Clean up
   });
 
   it("should return empty users array if getUsersRaw returns null", async () => {
@@ -550,9 +558,9 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: 1,
       numberOfPages: 1,
-      warning: "Only 7 days of data can be fetched",
+      warning: "Only 90 days of data can be fetched",
       dateRange:
-        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sun, 12 Mar 2023 00:00:00 GMT",
+        "Users between Sun, 05 Mar 2023 00:00:00 GMT and Sat, 03 Jun 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -597,9 +605,9 @@ describe("listUsersWithFilters", () => {
       numberOfRecords: 1,
       page: 1,
       numberOfPages: 1,
-      warning: "Only 7 days of data can be fetched",
+      warning: "Only 90 days of data can be fetched",
       dateRange:
-        "Users between Mon, 13 Mar 2023 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
+        "Users between Tue, 20 Dec 2022 00:00:00 GMT and Mon, 20 Mar 2023 00:00:00 GMT",
     };
 
     await listUsers(mockReq, mockRes);
@@ -653,22 +661,22 @@ describe("listUsersWithoutFilters", () => {
       users: [
         {
           id: "user1",
-          createdAt: "2023-01-01",
-          updatedAt: "2023-01-02",
+          createdAt: "2023-01-01T00:00:00.000Z",
+          updatedAt: "2023-01-02T00:00:00.000Z",
           organisation: { name: "Org It" },
           role: { name: "Tester", id: "role1" },
         },
         {
           id: "user2",
-          createdAt: "2023-02-01",
-          updatedAt: "2023-02-02",
+          createdAt: "2023-02-01T00:00:00.000Z",
+          updatedAt: "2023-02-02T00:00:00.000Z",
           organisation: { name: "Org Dev" },
           role: { name: "Dev", id: "role2" },
         },
         {
           id: "user3",
-          createdAt: "2023-03-01",
-          updatedAt: "2023-03-02",
+          createdAt: "2023-03-01T00:00:00.000Z",
+          updatedAt: "2023-03-02T00:00:00.000Z",
           organisation: { name: "Org Main" },
           role: null,
         }, // No role
@@ -702,8 +710,8 @@ describe("listUsersWithoutFilters", () => {
     const expectedResponseBody = {
       users: [
         {
-          approvedAt: "2023-01-01",
-          updatedAt: "2023-01-02",
+          approvedAt: "2023-01-01T00:00:00.000Z",
+          updatedAt: "2023-01-02T00:00:00.000Z",
           organisation: { name: "Org It" },
           roleName: "Tester",
           roles: [],
@@ -715,8 +723,8 @@ describe("listUsersWithoutFilters", () => {
           userStatus: "Active",
         },
         {
-          approvedAt: "2023-02-01",
-          updatedAt: "2023-02-02",
+          approvedAt: "2023-02-01T00:00:00.000Z",
+          updatedAt: "2023-02-02T00:00:00.000Z",
           organisation: { name: "Org Dev" },
           roleName: "Dev",
           roles: [],
@@ -728,8 +736,8 @@ describe("listUsersWithoutFilters", () => {
           userStatus: "Inactive",
         },
         {
-          approvedAt: "2023-03-01",
-          updatedAt: "2023-03-02",
+          approvedAt: "2023-03-01T00:00:00.000Z",
+          updatedAt: "2023-03-02T00:00:00.000Z",
           organisation: { name: "Org Main" },
           roleId: undefined,
           roleName: undefined,

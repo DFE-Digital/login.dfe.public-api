@@ -703,7 +703,7 @@ _Response Example_
   "numberOfRecords": 1,
   "page": 1,
   "numberOfPages": 1,
-  "warning": "Only 7 days of data can be fetched",
+  "warning": "Only 90 days of data can be fetched",
   "dateRange": "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT"
 }
 ```

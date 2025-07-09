@@ -81,7 +81,7 @@ const listUsersWithFilters = async (req, res) => {
   let from;
   let fromDate;
   let toDate;
-  const duration = 7;
+  const duration = 90;
 
   try {
     page = extractPageParam(req);
@@ -91,7 +91,6 @@ const listUsersWithFilters = async (req, res) => {
     from = extractFromParam(req);
 
     if (status !== undefined && status !== null) {
-      // Check if status is provided at all
       if (status !== "0" && status !== "1") {
         return res
           .status(400)
@@ -99,21 +98,28 @@ const listUsersWithFilters = async (req, res) => {
       }
     }
 
-    if (to && isNaN(Date.parse(to))) {
-      return res.status(400).send("To date is not a valid date.");
-    } else if (to) {
-      toDate = new Date(to);
+    if (to) {
+      const parsedTo = Date.parse(to);
+      if (isNaN(parsedTo)) {
+        return res.status(400).send("To date is not a valid date.");
+      }
+      toDate = new Date(parsedTo);
     }
-    if (from && isNaN(Date.parse(from))) {
-      return res.status(400).send("From date is not a valid date.");
-    } else if (from) {
-      fromDate = new Date(from);
+
+    if (from) {
+      const parsedFrom = Date.parse(from);
+      if (isNaN(parsedFrom)) {
+        return res.status(400).send("From date is not a valid date.");
+      }
+      fromDate = new Date(parsedFrom);
     }
 
     if (fromDate && toDate) {
       if (isFutureDate(fromDate) && isFutureDate(toDate)) {
         return res.status(400).send("Date range should not be in the future");
-      } else if (fromDate.getTime() > toDate.getTime()) {
+      }
+
+      if (fromDate.getTime() > toDate.getTime()) {
         return res.status(400).send("From date greater than to date");
       }
 
@@ -125,8 +131,8 @@ const listUsersWithFilters = async (req, res) => {
           .send(`Only ${duration} days are allowed between dates`);
       }
     } else if (fromDate || toDate) {
-      const selectedDate = fromDate ? fromDate : toDate;
-      if (isFutureDate(selectedDate)) {
+      const selectedDate = fromDate ?? toDate;
+      if (selectedDate && isFutureDate(selectedDate)) {
         return res.status(400).send("Date range should not be in the future");
       }
     }
@@ -142,11 +148,15 @@ const listUsersWithFilters = async (req, res) => {
     isWarning,
   ));
 
+  // Convert to UTC ISO strings if defined
+  const dateFromUTC = fromDate ? new Date(fromDate.toISOString()) : undefined;
+  const dateToUTC = toDate ? new Date(toDate.toISOString()) : undefined;
+
   const pageOfUserServices = await getFilteredServiceUsersRaw({
     serviceId: req.client.id,
     userStatus: status,
-    dateFrom: fromDate,
-    dateTo: toDate,
+    dateFrom: dateFromUTC,
+    dateTo: dateToUTC,
     pageNumber: page,
     pageSize,
   });
@@ -177,7 +187,7 @@ const listUsersWithFilters = async (req, res) => {
     );
   }
 
-  addDateRangeValue(responseBody, fromDate, toDate);
+  addDateRangeValue(responseBody, dateFromUTC, dateToUTC);
   addWarningValue(responseBody, duration, isWarning);
   return res.send(responseBody);
 };
@@ -193,8 +203,12 @@ const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
       ),
     );
     let mappedUserService = {
-      approvedAt: userService.createdAt,
-      updatedAt: userService.updatedAt,
+      approvedAt: userService.createdAt
+        ? new Date(userService.createdAt).toISOString()
+        : undefined,
+      updatedAt: userService.updatedAt
+        ? new Date(userService.updatedAt).toISOString()
+        : undefined,
       organisation: userService.organisation,
       roles: serviceRoles,
       roleName:
@@ -222,14 +236,13 @@ const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
     }
     return mappedUserService;
   });
-  const responseBody = {
+
+  return {
     users: mappedRecords,
     numberOfRecords: pageOfUserServices.totalNumberOfRecords,
     page: pageOfUserServices.page,
     numberOfPages: pageOfUserServices.totalNumberOfPages,
   };
-
-  return responseBody;
 };
 
 /**
@@ -258,16 +271,16 @@ const isFutureDate = (inputDate) => {
 const findDateRange = (toDate, fromDate, duration, isWarning) => {
   if (toDate && !fromDate) {
     fromDate = new Date(toDate);
-    fromDate.setDate(toDate.getDate() - duration);
+    fromDate.setUTCDate(toDate.getUTCDate() - duration);
     isWarning = true;
   } else if (!toDate && fromDate) {
     toDate = new Date(fromDate);
-    toDate.setDate(fromDate.getDate() + duration);
+    toDate.setUTCDate(fromDate.getUTCDate() + duration);
     isWarning = true;
   } else if (!toDate && !fromDate) {
     toDate = new Date();
     fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - duration);
+    fromDate.setUTCDate(fromDate.getUTCDate() - duration);
     isWarning = true;
   }
   return { toDate, fromDate, isWarning };
