@@ -69,6 +69,56 @@ const organisationStatusData = [
   { id: 4, name: "Proposed to open", tagColor: "blue" },
 ];
 
+const createOrg = (status) => {
+  const organisation = {
+    id: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
+    name: "Department for Education",
+    LegalName: null,
+    Category: "002",
+    Type: null,
+    URN: null,
+    UID: "123",
+    UKPRN: null,
+    EstablishmentNumber: "001",
+    Status: status,
+    ClosedOn: null,
+    Address: null,
+    phaseOfEducation: null,
+    statutoryLowAge: null,
+    statutoryHighAge: null,
+    telephone: null,
+    regionCode: null,
+    legacyId: "1031237",
+    companyRegistrationNumber: null,
+    DistrictAdministrativeName: null,
+    DistrictAdministrativeCode: null,
+    DistrictAdministrative_code: null,
+    ProviderProfileID: null,
+    UPIN: null,
+    ProviderTypeName: null,
+    ProviderTypeCode: null,
+    SourceSystem: null,
+    GIASProviderType: null,
+    PIMSProviderType: null,
+    PIMSProviderTypeCode: null,
+    PIMSStatus: null,
+    masteringCode: null,
+    OpenedOn: null,
+    PIMSStatusName: null,
+    GIASStatus: null,
+    GIASStatusName: null,
+    MasterProviderStatusCode: null,
+    MasterProviderStatusName: null,
+    IsOnAPAR: null,
+  };
+
+  if (status === 0) {
+    organisation.name = "Placeholder Org";
+    organisation.id = "7E372A5B-284D-4C03-B44F-80C31894BC60";
+  }
+  return organisation;
+};
+
 describe("when getting users organisations and services", () => {
   let req;
 
@@ -101,47 +151,7 @@ describe("when getting users organisations and services", () => {
           role: { id: 10000, name: "Approver" },
           createdAt: "2025-01-23T12:04:07.455Z",
           updatedAt: "2025-01-23T12:04:07.455Z",
-          organisation: {
-            id: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
-            name: "Department for Education",
-            LegalName: null,
-            Category: "002",
-            Type: null,
-            URN: null,
-            UID: "123",
-            UKPRN: null,
-            EstablishmentNumber: "001",
-            Status: 1,
-            ClosedOn: null,
-            Address: null,
-            phaseOfEducation: null,
-            statutoryLowAge: null,
-            statutoryHighAge: null,
-            telephone: null,
-            regionCode: null,
-            legacyId: "1031237",
-            companyRegistrationNumber: null,
-            DistrictAdministrativeName: null,
-            DistrictAdministrativeCode: null,
-            DistrictAdministrative_code: null,
-            ProviderProfileID: null,
-            UPIN: null,
-            ProviderTypeName: null,
-            ProviderTypeCode: null,
-            SourceSystem: null,
-            GIASProviderType: null,
-            PIMSProviderType: null,
-            PIMSProviderTypeCode: null,
-            PIMSStatus: null,
-            masteringCode: null,
-            OpenedOn: null,
-            PIMSStatusName: null,
-            GIASStatus: null,
-            GIASStatusName: null,
-            MasterProviderStatusCode: null,
-            MasterProviderStatusName: null,
-            IsOnAPAR: null,
-          },
+          organisation: createOrg(1),
         },
       ],
       page: 1,
@@ -238,6 +248,96 @@ describe("when getting users organisations and services", () => {
   });
 
   it("then it should return 200 if the user is found", async () => {
+    await getUsersOrganisationsAndServices(req, res);
+
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
+      pageNumber: 1,
+      pageSize: 200,
+      serviceId: "serviceId",
+      userIds: ["user-1"],
+    });
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send.mock.calls[0][0]).toMatchObject({
+      userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+      userStatus: 1,
+      email: "test@example.com",
+      familyName: "User",
+      givenName: "Test",
+      organisations: [
+        {
+          DistrictAdministrativeName: null,
+          GIASProviderType: null,
+          OpenedOn: null,
+          PIMSProviderType: null,
+          PIMSProviderTypeCode: null,
+          PIMSStatus: null,
+          ProviderProfileID: null,
+          ProviderTypeName: null,
+          SourceSystem: null,
+          UPIN: null,
+          address: null,
+          category: { id: "002", name: "Local Authority" },
+          closedOn: null,
+          companyRegistrationNumber: null,
+          establishmentNumber: "001",
+          id: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
+          legacyId: "1031237",
+          name: "Department for Education",
+          orgRoleId: 10000,
+          orgRoleName: "Approver",
+          services: [
+            {
+              description: "DfE Sign-in Manage",
+              name: "DfE Sign-in manage",
+              roles: [
+                {
+                  code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+                  name: "School Experience - Service Configuration",
+                },
+              ],
+            },
+            {
+              description: "DfE Sign-in Manage",
+              name: "DfE Sign-in manage",
+              roles: [],
+            },
+          ],
+          status: { id: 1, name: "Open" },
+          statutoryHighAge: null,
+          statutoryLowAge: null,
+          telephone: null,
+          uid: "123",
+          ukprn: null,
+          urn: null,
+        },
+      ],
+    });
+  });
+
+  it("should filter out hidden organisations", async () => {
+    getFilteredServiceUsersRaw.mockReset().mockReturnValue({
+      users: [
+        {
+          id: "1C753C37-3202-482B-AF4E-A847BB4B2C34",
+          status: 1,
+          role: { id: 10000, name: "Approver" },
+          createdAt: "2025-01-23T12:04:07.455Z",
+          updatedAt: "2025-01-23T12:04:07.455Z",
+          organisation: createOrg(0),
+        },
+        {
+          id: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+          status: 1,
+          role: { id: 10000, name: "Approver" },
+          createdAt: "2025-01-23T12:04:07.455Z",
+          updatedAt: "2025-01-23T12:04:07.455Z",
+          organisation: createOrg(1),
+        },
+      ],
+      page: 1,
+      totalNumberOfPages: 1,
+      totalNumberOfRecords: 2,
+    });
     await getUsersOrganisationsAndServices(req, res);
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
