@@ -102,6 +102,11 @@ const getUsersOrganisationsAndServices = async (req, res) => {
     });
     response.organisations = mappedOrgs;
 
+    // Filter out orgs with status of 0.  This is mostly to remove the hidden id-only org, if present.
+    response.organisations = response.organisations.filter(
+      (org) => org.status.id !== 0,
+    );
+
     // Get list of ALL services for the user.  We need this because it has all the the service
     // specific roles for the user against each service for each organisationId.
     // We need this because that role information isn't provided in the getFilteredServiceUsersRaw call.

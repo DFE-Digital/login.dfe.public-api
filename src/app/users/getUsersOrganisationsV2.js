@@ -13,8 +13,14 @@ const getUserOrganisationsV2 = async (req, res) => {
       },
     );
 
-    const userOrganisations = await getUserOrganisationsRaw({ userId: uid });
-    if (!userOrganisations) {
+    let userOrganisations = await getUserOrganisationsRaw({ userId: uid });
+    // Filter out orgs with status of 0.  This is mostly to remove the hidden id-only org, if present.
+    if (userOrganisations.length > 0) {
+      userOrganisations = userOrganisations.filter(
+        (org) => org.organisation.status.id !== 0,
+      );
+    }
+    if (!userOrganisations || userOrganisations.length === 0) {
       return res.status(404).send();
     }
     const organisations = userOrganisations.map((x) => x.organisation);
