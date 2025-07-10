@@ -6,7 +6,27 @@ const {
   extractToParam,
 } = require("../utils");
 const { getUsersRaw } = require("login.dfe.api-client/users");
-const { getFilteredServiceUsersRaw } = require("login.dfe.api-client/services");
+const {
+  getFilteredServiceUsersRaw,
+  getServiceUsersRaw,
+} = require("login.dfe.api-client/services");
+
+const mapRoleData = (roleData) => {
+  if (!roleData) {
+    return [];
+  }
+  const roles = [];
+  roleData.roles.forEach((role) => {
+    roles.push({
+      id: role.id,
+      name: role.name,
+      code: role.code,
+      numericId: role.numericId,
+      status: role.status.id,
+    });
+  });
+  return roles;
+};
 
 const listUsers = async (req, res) => {
   const status = extractStatusParam(req);
@@ -39,8 +59,16 @@ const listUsersWithOutFilters = async (req, res) => {
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
   const users = await getUsersRaw({ by: { userIds: userIds } });
+  const userDataWithRoles = await getServiceUsersRaw({
+    serviceId: req.client.id,
+    userIds,
+  });
 
-  const responseBody = prepareUserResponse(pageOfUserServices, users);
+  const responseBody = prepareUserResponse(
+    pageOfUserServices,
+    users,
+    userDataWithRoles,
+  );
 
   return res.send(responseBody);
 };
@@ -137,6 +165,10 @@ const listUsersWithFilters = async (req, res) => {
   const users = userIds.length
     ? await getUsersRaw({ by: { userIds } })
     : undefined;
+  const userDataWithRoles = await getServiceUsersRaw({
+    serviceId: req.client.id,
+    userIds,
+  });
 
   let responseBody;
 
@@ -148,7 +180,11 @@ const listUsersWithFilters = async (req, res) => {
       numberOfPages: 0,
     };
   } else {
-    responseBody = prepareUserResponse(pageOfUserServices, users);
+    responseBody = prepareUserResponse(
+      pageOfUserServices,
+      users,
+      userDataWithRoles,
+    );
   }
 
   addDateRangeValue(responseBody, dateFromUTC, dateToUTC);
@@ -156,9 +192,16 @@ const listUsersWithFilters = async (req, res) => {
   return res.send(responseBody);
 };
 
-const prepareUserResponse = (pageOfUserServices, users) => {
+const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
     const user = users.find((u) => u.sub === userService.id);
+    const serviceRoles = mapRoleData(
+      userDataWithRoles.services.find(
+        (role) =>
+          role.userId === userService.id &&
+          role.organisationId === userService.organisation.id,
+      ),
+    );
     let mappedUserService = {
       approvedAt: userService.createdAt
         ? new Date(userService.createdAt).toISOString()
@@ -167,6 +210,7 @@ const prepareUserResponse = (pageOfUserServices, users) => {
         ? new Date(userService.updatedAt).toISOString()
         : undefined,
       organisation: userService.organisation,
+      roles: serviceRoles,
       roleName:
         userService.role && userService.role.name
           ? userService.role.name
