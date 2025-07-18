@@ -8,7 +8,7 @@ const {
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getFilteredServiceUsersRaw,
-  getServiceUsersRaw,
+  getServiceUsersPostRaw,
 } = require("login.dfe.api-client/services");
 
 const mapRoleData = (roleData) => {
@@ -59,7 +59,7 @@ const listUsersWithOutFilters = async (req, res) => {
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
   const users = await getUsersRaw({ by: { userIds: userIds } });
-  const userDataWithRoles = await getServiceUsersRaw({
+  const userDataWithRoles = await getServiceUsersPostRaw({
     serviceId: req.client.id,
     userIds,
   });
@@ -165,7 +165,7 @@ const listUsersWithFilters = async (req, res) => {
   const users = userIds.length
     ? await getUsersRaw({ by: { userIds } })
     : undefined;
-  const userDataWithRoles = await getServiceUsersRaw({
+  const userDataWithRoles = await getServiceUsersPostRaw({
     serviceId: req.client.id,
     userIds,
   });

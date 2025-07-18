@@ -4,13 +4,13 @@ jest.mock("login.dfe.api-client/users", () => ({
 }));
 jest.mock("login.dfe.api-client/services", () => ({
   getFilteredServiceUsersRaw: jest.fn(),
-  getServiceUsersRaw: jest.fn(),
+  getServiceUsersPostRaw: jest.fn(),
 }));
 
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
   getFilteredServiceUsersRaw,
-  getServiceUsersRaw,
+  getServiceUsersPostRaw,
 } = require("login.dfe.api-client/services");
 
 const listUsers = require("./../../../src/app/users/getServiceUsers");
@@ -126,7 +126,7 @@ describe("listUsersWithFilters", () => {
       send: jest.fn(),
     };
 
-    getServiceUsersRaw.mockResolvedValue(exampleGetServiceUsersData);
+    getServiceUsersPostRaw.mockResolvedValue(exampleGetServiceUsersData);
     getFilteredServiceUsersRaw.mockResolvedValue(exampleListServiceUsersData);
     getUsersRaw.mockResolvedValue(exampleUsersByIdsData);
   });
@@ -635,7 +635,7 @@ describe("listUsersWithoutFilters", () => {
       send: jest.fn(),
     };
 
-    getServiceUsersRaw.mockResolvedValue(exampleGetServiceUsersData);
+    getServiceUsersPostRaw.mockResolvedValue(exampleGetServiceUsersData);
     getFilteredServiceUsersRaw.mockResolvedValue(exampleListServiceUsersData);
     getUsersRaw.mockResolvedValue(exampleUsersByIdsData);
   });
