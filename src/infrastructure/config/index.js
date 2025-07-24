@@ -13,8 +13,8 @@ const config = {
     env: process.env.LOCAL_ENV || "azure",
     host: process.env.LOCAL_HOST || process.env.STANDALONE_PUBLIC_API_HOST_NAME,
     port: process.env.LOCAL_PORT_PUBLIC_API || 443,
-    sslCert: process.env.LOCAL_SSL_CERT || "",
-    sslKey: process.env.LOCAL_SSL_KEY || "",
+    sslCert: process.env.LOCAL_SSL_CERT ? process.env.LOCAL_SSL_CERT.replace(/\\n/g, '\n') : "",
+    sslKey: process.env.LOCAL_SSL_KEY ? process.env.LOCAL_SSL_KEY.replace(/\\n/g, '\n') : "",
     protocol: "https",
     applicationInsights: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
     agentKeepAlive: {
@@ -29,10 +29,10 @@ const config = {
     secret: process.env.PAPI_AUTH_SECRET
   },
   queue: {
-    connectionString: process.env.REDIS_CONN + "/4?tls=true"
+    connectionString: process.env.LOCAL_REDIS_CONN ? process.env.LOCAL_REDIS_CONN + "/4" : process.env.REDIS_CONN + "/4?tls=true"
   },
   notifications: {
-    connectionString: process.env.REDIS_CONN + "/4?tls=true"
+    connectionString: process.env.LOCAL_REDIS_CONN ? process.env.LOCAL_REDIS_CONN + "/4" : process.env.REDIS_CONN + "/4?tls=true"
   },
   adapter: {
     type: "sequelize",
@@ -139,4 +139,4 @@ function mimicLegacySettings(config) {
 
 mimicLegacySettings(config);
 
-module.exports = config; 
+module.exports = config;
