@@ -61,7 +61,6 @@ junit.xml
 
 # Dev env
 /config/
-!/config/PROJECT-NAME.dev.json
 
 .idea/workspace.xml
 .idea/watcherTasks.xml
