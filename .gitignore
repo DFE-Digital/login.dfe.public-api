@@ -61,14 +61,7 @@ junit.xml
 
 # Dev env
 /config/
-!/config/PROJECT-NAME.dev.json
 
-.idea/workspace.xml
-.idea/watcherTasks.xml
 access.log
-\.idea/markdown-navigator\.xml
-
-\.idea/markdown-navigator/
-
 .vscode
 .npmrc
