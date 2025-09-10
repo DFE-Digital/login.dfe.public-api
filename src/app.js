@@ -41,7 +41,7 @@ const allowedOrigin = "*.signin.education.gov.uk";
 app.use(
   helmet({
     strictTransportSecurity: {
-      maxAge: 86400,
+      maxAge: parseInt(config.hostingEnvironment.hstsMaxAge, 10),
       preload: true,
       includeSubDomains: true,
     },
@@ -49,13 +49,8 @@ app.use(
 );
 
 // Setting helmet Content Security Policy
-const scriptSources = [
-  self,
-  "'unsafe-inline'",
-  "'unsafe-eval'",
-  allowedOrigin,
-  "https://code.jquery.com",
-];
+const scriptSources = [self, allowedOrigin];
+
 const styleSources = [self, allowedOrigin];
 const imgSources = [self, allowedOrigin, "data:", "blob:"];
 
@@ -67,6 +62,7 @@ if (config.hostingEnvironment.env === "dev") {
 
 app.use(
   helmet.contentSecurityPolicy({
+    useDefaults: true,
     directives: {
       defaultSrc: [self],
       scriptSrc: scriptSources,
@@ -74,7 +70,11 @@ app.use(
       imgSrc: imgSources,
       fontSrc: [self, "data:", allowedOrigin],
       connectSrc: [self],
-      formAction: [self, "*"],
+      formAction: [self],
+      baseUri: [self],
+      frameAncestors: [self],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
     },
   }),
 );
