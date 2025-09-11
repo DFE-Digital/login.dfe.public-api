@@ -41,7 +41,7 @@ const allowedOrigin = "*.signin.education.gov.uk";
 app.use(
   helmet({
     strictTransportSecurity: {
-      maxAge: parseInt(config.hostingEnvironment.hstsMaxAge, 10),
+      maxAge: config.hostingEnvironment.hstsMaxAge,
       preload: true,
       includeSubDomains: true,
     },
