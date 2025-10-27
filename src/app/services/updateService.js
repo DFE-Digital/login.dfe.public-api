@@ -2,6 +2,7 @@ const {
   getServiceRaw,
   updateService: updateServiceDetails,
 } = require("login.dfe.api-client/services");
+const sanitizeHtml = require("sanitize-html");
 
 const patchableProperties = [
   "name",
@@ -39,6 +40,14 @@ const updateService = async (req, res) => {
   }
   if (service.parentId !== req.client.id) {
     return res.status(403).send();
+  }
+
+  if (req.body.consentTitle !== undefined) {
+    req.body.consentTitle = sanitizeHtml(req.body.consentTitle);
+  }
+
+  if (req.body.consentBody !== undefined) {
+    req.body.consentBody = sanitizeHtml(req.body.consentBody);
   }
 
   const validation = validate(req);

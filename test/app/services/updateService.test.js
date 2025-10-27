@@ -54,7 +54,45 @@ describe("when updating child service", () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
-  it("then it should update service with patched detalis", async () => {
+  it("should sanitize consentTitle and consentBody", async () => {
+    req.body.consentTitle = "<script>alert('xss')</script>Welcome";
+    req.body.consentBody = "Click <img src=x onerror=alert(1)> here";
+
+    await updateService(req, res);
+
+    expect(updateServiceDetails).toHaveBeenCalledTimes(1);
+    expect(updateServiceDetails).toHaveBeenCalledWith({
+      serviceId: "service-1",
+      update: {
+        name: "updated name",
+        description: "updated description",
+        redirectUris: ["https://updated.uri/auth/cb"],
+        consentTitle: "Welcome",
+        consentBody: "Click  here",
+      },
+    });
+  });
+
+  it("should retain valid html in consentTitle and consentBody", async () => {
+    req.body.consentTitle = "<b>Welcome</b>";
+    req.body.consentBody = "Here";
+
+    await updateService(req, res);
+
+    expect(updateServiceDetails).toHaveBeenCalledTimes(1);
+    expect(updateServiceDetails).toHaveBeenCalledWith({
+      serviceId: "service-1",
+      update: {
+        name: "updated name",
+        description: "updated description",
+        redirectUris: ["https://updated.uri/auth/cb"],
+        consentTitle: "<b>Welcome</b>",
+        consentBody: "Here",
+      },
+    });
+  });
+
+  it("then it should update service with patched details", async () => {
     await updateService(req, res);
 
     expect(updateServiceDetails).toHaveBeenCalledTimes(1);
