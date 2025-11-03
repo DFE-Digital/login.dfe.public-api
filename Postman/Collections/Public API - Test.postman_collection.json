@@ -456,62 +456,6 @@
       "response": []
     },
     {
-      "name": "Manage Announcements",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Successful POST request\", function () {",
-              "    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
-              "});",
-              "",
-              "const response = JSON.parse(responseBody);",
-              "const messageId = response.originId;",
-              "pm.environment.set('message-id', messageId);"
-            ],
-            "type": "text/javascript"
-          }
-        },
-        {
-          "listen": "prerequest",
-          "script": {
-            "exec": [
-              "let date = Date.now();",
-              "pm.environment.set('date' , date);"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "{{bearer}}",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"messageId\": \"{{$guid}}\",\n\t\"urn\": \"120063\",\n\t\"type\": 1,\n\t\"title\": \"Test announcement\",\n\t\"summary\": \"Announcement summary\",\n\t\"body\": \"Announcement body\",\n\t\"publishedAt\": {{date}},\n\t\"expiresAt\": {{future-epoch}}\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{public-api-url}}/organisations/announcements",
-          "host": ["{{public-api-url}}"],
-          "path": ["organisations", "announcements"]
-        },
-        "description": "Stored in the organisation_announcement tables, can check this to verify"
-      },
-      "response": []
-    },
-    {
       "name": "Create Child Applications",
       "event": [
         {
@@ -671,31 +615,6 @@
           ]
         },
         "description": "Get all users with a service"
-      },
-      "response": []
-    },
-    {
-      "name": "Manage Announcement",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "{{bearer}}",
-            "type": "text"
-          }
-        ],
-        "url": {
-          "raw": "{{public-api-url}}/organisations/announcements/:mid",
-          "host": ["{{public-api-url}}"],
-          "path": ["organisations", "announcements", ":mid"],
-          "variable": [
-            {
-              "key": "mid",
-              "value": "{{message-id}}"
-            }
-          ]
-        }
       },
       "response": []
     },
