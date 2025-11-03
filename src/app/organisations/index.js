@@ -1,7 +1,6 @@
 const express = require("express");
 const { asyncWrapper } = require("login.dfe.express-error-handling");
 const { body } = require("express-validator");
-const getOrganisationByTypeAndIdentifier = require("./getOrganisationByTypeAndIdentifier");
 const upsertAnnouncement = require("./upsertAnnouncement");
 const deleteAnnouncement = require("./deleteAnnouncement");
 const getUsersByRoles = require("./getUsersByRoles");
@@ -10,11 +9,6 @@ const getUserOverview = require("./getUserOverview");
 
 const area = () => {
   const router = express.Router();
-
-  router.get(
-    "/find-by-type/:type/:identifier",
-    asyncWrapper(getOrganisationByTypeAndIdentifier),
-  );
 
   router.post(
     "/announcements",
