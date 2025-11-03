@@ -2,7 +2,6 @@ const express = require("express");
 const { asyncWrapper } = require("login.dfe.express-error-handling");
 
 const getService = require("./getService");
-const updateService = require("./updateService");
 const regenerateSecret = require("./regenerateSecret");
 const inviteUser = require("./inviteUser");
 const getUsersAccess = require("./getUsersAccess");
@@ -13,7 +12,6 @@ const area = () => {
   const router = express.Router();
 
   router.get("/:clientid", asyncWrapper(getService));
-  router.patch("/:clientid", asyncWrapper(updateService));
   router.delete("/:clientid", asyncWrapper(deleteService));
   router.post("/:clientid/regenerate-secret", asyncWrapper(regenerateSecret));
   router.get("/:clientid/roles", asyncWrapper(getServiceRoles));
