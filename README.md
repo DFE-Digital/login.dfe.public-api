@@ -974,46 +974,47 @@ The response format remains the same as the previous API call, allowing for filt
 
 | id  | Description                                       |
 | --- | ------------------------------------------------- |
-| 001 | Community School                                  |
-| 002 | Voluntary Aided School                            |
-| 003 | Voluntary Controlled School                       |
-| 005 | Foundation School                                 |
-| 006 | City Technology College                           |
-| 007 | Community Special School                          |
-| 008 | Non-Maintained Special School                     |
-| 010 | Other Independent Special School                  |
-| 011 | Other INdependent School                          |
-| 012 | Fondation Special School                          |
-| 014 | Pupil Referral Unit                               |
-| 015 | LA Nursery School                                 |
-| 018 | Further Education                                 |
-| 024 | Secure Units                                      |
-| 025 | Offshore Schools                                  |
-| 026 | Service Childrens Education                       |
-| 027 | Miscellanenous                                    |
-| 028 | Academy Sponsor Led                               |
-| 029 | Higher Education Institution                      |
-| 030 | Welsh Establishment                               |
-| 031 | Sixth Form Centres                                |
-| 032 | Special Post 16 Institution                       |
-| 033 | Academy Special Sponsor Led                       |
-| 034 | Academy Converter                                 |
-| 035 | Free Schools                                      |
-| 036 | Free Schools Special                              |
-| 037 | British Overseas Schools                          |
-| 038 | Free Schools - Alternative Provision              |
-| 039 | Free Schools - 16-19                              |
-| 040 | University Teachnical College                     |
-| 041 | Studio Schools                                    |
-| 042 | Academy Alternative Provision Converter           |
-| 043 | Academy Alternative Provision Sponsor Led         |
-| 044 | Academy Special Converter                         |
-| 045 | Academy 16-19 Converter                           |
-| 046 | Academy 16-19 Sponsor Led                         |
-| 047 | Children's Centre                                 |
-| 048 | Children's Centre Linked Site                     |
-| 056 | Institution funded by other government department |
-| 057 | Academy secure 16 to 19                           |
+| 01  | Community School                                  |
+| 02  | Voluntary Aided School                            |
+| 03  | Voluntary Controlled School                       |
+| 05  | Foundation School                                 |
+| 06  | City Technology College                           |
+| 07  | Community Special School                          |
+| 08  | Non-Maintained Special School                     |
+| 10  | Other Independent Special School                  |
+| 11  | Other INdependent School                          |
+| 12  | Fondation Special School                          |
+| 14  | Pupil Referral Unit                               |
+| 15  | LA Nursery School                                 |
+| 18  | Further Education                                 |
+| 24  | Secure Units                                      |
+| 25  | Offshore Schools                                  |
+| 26  | Service Childrens Education                       |
+| 27  | Miscellanenous                                    |
+| 28  | Academy Sponsor Led                               |
+| 29  | Higher Education Institution                      |
+| 30  | Welsh Establishment                               |
+| 31  | Sixth Form Centres                                |
+| 32  | Special Post 16 Institution                       |
+| 33  | Academy Special Sponsor Led                       |
+| 34  | Academy Converter                                 |
+| 35  | Free Schools                                      |
+| 36  | Free Schools Special                              |
+| 37  | British Overseas Schools                          |
+| 38  | Free Schools - Alternative Provision              |
+| 39  | Free Schools - 16-19                              |
+| 40  | University Teachnical College                     |
+| 41  | Studio Schools                                    |
+| 42  | Academy Alternative Provision Converter           |
+| 43  | Academy Alternative Provision Sponsor Led         |
+| 44  | Academy Special Converter                         |
+| 45  | Academy 16-19 Converter                           |
+| 46  | Academy 16-19 Sponsor Led                         |
+| 47  | Children's Centre                                 |
+| 48  | Children's Centre Linked Site                     |
+| 49  | Online Provider                                   |
+| 56  | Institution funded by other government department |
+| 57  | Academy secure 16 to 19                           |
 
 ## Postman collection
 
