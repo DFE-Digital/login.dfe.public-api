@@ -3,6 +3,15 @@ const https = require("https");
 const { app } = require("./app");
 const config = require("./infrastructure/config");
 const logger = require("./infrastructure/logger");
+const { setupEncryption } = require("login.dfe.api-client/encryption");
+
+setupEncryption({
+  providers: {
+    AES256_GCM_V1: {
+      key: config.encryption.Aes256GcmV1Key,
+    },
+  },
+});
 
 http.globalAgent.maxSockets =
   config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
