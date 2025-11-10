@@ -1,8 +1,6 @@
 # DfE Login Public API
 
-**DfE Login Public API** provides secure, RESTful endpoints for external consumers and relying parties to integrate with the DfE Sign-in platform. It enables access to user, organisation, and service data, supporting operations such as invitations, access management, and announcements.
-
-This API allows external systems to communicate directly with DfE Sign-in, facilitating secure, standards-based authentication and authorisation processes. It is part of the wider **login.dfe** project.
+**DfE Login Public API** provides secure, RESTful endpoints for external consumers and relying parties to integrate with the DfE Sign-in platform. It enables access to user, organisation, and service data, supporting operations such as invitations, access management, and announcements. This service is part of the wider **login.dfe** project.
 
 ## Environment Configuration
 
@@ -24,21 +22,9 @@ Install deps
 npm install
 ```
 
-Setup Keystore & development ssl certs
-
-```
-npm run setup
-```
-
 ### Run application
 
-This application requires redis to run. If running locally, the easiest way is to create an instance of redis using docker:
-
-```
-docker run -d -p 6379:6379 redis
-```
-
-Once redis is running, start it with:
+Start the application with:
 
 ```
 npm run dev
