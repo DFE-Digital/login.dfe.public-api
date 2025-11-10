@@ -1053,7 +1053,3 @@ The response format remains the same as the previous API call, allowing for filt
 | 49  | Online Provider                                   |
 | 56  | Institution funded by other government department |
 | 57  | Academy secure 16 to 19                           |
-
-## Postman collection
-
-We do have a Postman workspace with some sample requests, which is available upon request on the Slack channel `dfe-sign-in`.
