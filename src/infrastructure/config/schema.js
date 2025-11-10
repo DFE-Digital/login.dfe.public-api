@@ -22,6 +22,12 @@ const adapterSchema = new SimpleSchema({
   },
 });
 
+const encryptionSchema = new SimpleSchema({
+  Aes256GcmV1Key: {
+    type: String,
+  },
+});
+
 const schema = new SimpleSchema({
   loggerSettings: schemas.loggerSettings,
   hostingEnvironment: schemas.hostingEnvironment,
@@ -34,6 +40,7 @@ const schema = new SimpleSchema({
   notifications: notificationsSchema,
   adapter: adapterSchema,
   assets: schemas.assets,
+  encryption: encryptionSchema,
 });
 
 module.exports.validate = () => {
