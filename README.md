@@ -57,7 +57,7 @@ The token body will require and issuer (your service client id) and an audience 
 }
 ```
 
-The token must be signed using the HS256 algorythm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are seervice/env specific.)
+The token must be signed using the HS256 algorithm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are service/env specific.)
 
 ## Using Postman for evaluating and testing the APIs
 
@@ -155,7 +155,7 @@ POST https://environment-url/organisations/announcements
 Authorization: bearer {jwt-token}
 
 {
-    "messageId": "your-unique-idenitifer",
+    "messageId": "your-unique-identifier",
 	"urn": "12345",
 	"type": 1,
 	"title": "Title of announcement",
@@ -205,7 +205,7 @@ DELETE https://environment-url/organisations/announcements/your-unique-idenitife
 Authorization: bearer {jwt-token}
 ```
 
-Where `your-unique-idenitifer` is the messageId that was sent when publishing the message.
+Where `your-unique-identifier` is the messageId that was sent when publishing the message.
 
 Possible response codes are:
 
@@ -1021,14 +1021,14 @@ The response format remains the same as the previous API call, allowing for filt
 | 08  | Non-Maintained Special School                     |
 | 10  | Other Independent Special School                  |
 | 11  | Other INdependent School                          |
-| 12  | Fondation Special School                          |
+| 12  | Foundation Special School                         |
 | 14  | Pupil Referral Unit                               |
 | 15  | LA Nursery School                                 |
 | 18  | Further Education                                 |
 | 24  | Secure Units                                      |
 | 25  | Offshore Schools                                  |
-| 26  | Service Childrens Education                       |
-| 27  | Miscellanenous                                    |
+| 26  | Service children's Education                      |
+| 27  | Miscellaneous                                     |
 | 28  | Academy Sponsor Led                               |
 | 29  | Higher Education Institution                      |
 | 30  | Welsh Establishment                               |
@@ -1041,7 +1041,7 @@ The response format remains the same as the previous API call, allowing for filt
 | 37  | British Overseas Schools                          |
 | 38  | Free Schools - Alternative Provision              |
 | 39  | Free Schools - 16-19                              |
-| 40  | University Teachnical College                     |
+| 40  | University Technical College                      |
 | 41  | Studio Schools                                    |
 | 42  | Academy Alternative Provision Converter           |
 | 43  | Academy Alternative Provision Sponsor Led         |
