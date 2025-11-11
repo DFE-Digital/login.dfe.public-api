@@ -6,7 +6,7 @@
 
 ### Development prerequisites
 
-Before setting up your local environment, review the [Development Prerequisites documentation](https://dfe-secureaccess.atlassian.net/wiki/spaces/NSA/pages/4643454992/Development+prerequisites) available on confluence. This guide outlines the required tools, dependencies, and permissions needed to work on DfE Sign-in services.
+Before setting up your local environment, review the [Development Prerequisites documentation](https://dfe-secureaccess.atlassian.net/wiki/spaces/NSA/pages/4643454992/Development+prerequisites) available on Confluence. This guide outlines the required tools, dependencies, and permissions needed to work on DfE Sign-in services.
 
 ### Local environment
 
@@ -24,7 +24,7 @@ Once completed, your local environment will be configured to connect to the DfE 
 
 ## Getting Started
 
-Install deps
+Install dependencies
 
 ```
 npm install
