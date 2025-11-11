@@ -10,9 +10,17 @@ Before setting up your local environment, review the [Development Prerequisites 
 
 ### Local environment
 
-To set up your local environment run the PowerShell tokenization script provided in the **login.dfe.dsi-config** repository to generate local environment values for connecting to the DfE Sign-in dev environment.
+To set up your local environment, run the PowerShell tokenization script provided in the **login.dfe.dsi-config** repository.  
+This script generates the environment variables required to connect to the **DfE Sign-in (Dev)** environment.
 
-This script will create or update the necessary local configuration files (e.g., .env) used by this service.
+**Steps**
+
+1. Clone or navigate to the `login.dfe.dsi-config` repository.
+2. Run the PowerShell tokenization script provided in that repository.
+3. The script will create or update the necessary configuration files (e.g. `.env`) for this service.
+4. Ensure that the generated `.env` file is placed in the **root directory** of this project.
+
+Once completed, your local environment will be configured to connect to the DfE Sign-in dev environment.
 
 ## Getting Started
 
