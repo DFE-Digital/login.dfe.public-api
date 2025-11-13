@@ -1,8 +1,62 @@
 # DfE Login Public API
 
-[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest) [![jest](https://jestjs.io/img/jest-badge.svg)](https://github.com/facebook/jest)
+**DfE Login Public API** provides secure, RESTful endpoints for external consumers and relying parties to integrate with the DfE Sign-in platform. It enables access to user, organisation, and service data, supporting operations such as invitations, access management, and announcements. This service is part of the wider **login.dfe** project.
 
-API for external consumers to interact with DfE login
+## Getting Started
+
+### Install Dependencies
+
+```
+npm install
+```
+
+### Run application
+
+Start the application with:
+
+```
+npm run dev
+```
+
+Once the application has started, you can view it in the browser by going to:
+
+```
+https://localhost:43890
+```
+
+### Run Tests
+
+Run all tests with:
+
+```
+npm run test
+```
+
+### Code Quality and Formatting
+
+Run ESLint:
+
+```
+npm run lint
+```
+
+Automatically fix lint issues:
+
+```
+npm run lint:fix
+```
+
+### Development Checks
+
+Run linting and tests together:
+
+```
+npm run dev:checks
+```
+
+### Pre-commit Hooks
+
+Pre-commit hooks are handled automatically via Husky. No additional setup is required.
 
 ## You need to authenticate with these APIs
 
@@ -19,7 +73,7 @@ The token body will require and issuer (your service client id) and an audience 
 }
 ```
 
-The token must be signed using the HS256 algorythm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are seervice/env specific.)
+The token must be signed using the HS256 algorithm with your API_SECRET. At the point of integration with DfE Sign-in you would have been given an API_SECRET (not to mistaken with your CLIENT_SECRET), if you don't have this contact the DfE Sign-in team and we will regenerate one for you (these are service/env specific.)
 
 ## Using Postman for evaluating and testing the APIs
 
@@ -105,6 +159,103 @@ The data items in the request are:
 | jwt-token | Header   | A jwt token, signed with same secret as request                                                          |
 | sub       | Body     | DfE Sign-in identifier for user. This will not change and will be included in OIDC response as sub claim |
 | sourceId  | Body     | The sourceId used in original request                                                                    |
+
+## Manage announcements
+
+Announcements can be published and unpublished for an organisation.
+
+Announcements can be published by:
+
+```
+POST https://environment-url/organisations/announcements
+Authorization: bearer {jwt-token}
+
+{
+    "messageId": "your-unique-identifier",
+	"urn": "12345",
+	"type": 1,
+	"title": "Title of announcement",
+	"summary": "summary of announcement",
+	"body": "body of announcement",
+	"publishedAt": "2019-01-31T20:30:40Z",
+	"expiresAt": "2020-01-31T20:30:40Z"
+}
+```
+
+The structure of an announcement is as follows:
+
+| Attribute   | Required   | Description                                             | Type         |
+| ----------- | ---------- | ------------------------------------------------------- | ------------ |
+| messageId   | Y          | Identifier for message in origin system. Must be unique | UUID         |
+| urn         | Y (Or uid) | Establishment URN                                       | Numeric      |
+| uid         | Y (Or urn) | Group UID                                               | UUID         |
+| type        | Y          | The numeric type code of the message (see below)        | Integer      |
+| title       | Y          | Title of the announcement. Max characters limit 255     | Text or HTML |
+| summary     | Y          | Summary of the announcement. Max characters Limit 340   | Text or HTML |
+| body        | Y          | Body of the announcement. Max characters Limit 5000     | Text or HTML |
+| publishedAt | Y          | Date/time announcement published at                     | ISO8601      |
+| expiresAt   |            | Date/time announcement should expire at                 | ISO8601      |
+
+possible response codes are:
+
+| HTTP Status Code | Reason                                                                                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 202              | Your request has been accepted                                                                                                                                                                      |
+| 400              | Your request is invalid. Additional details will be provided in the response body                                                                                                                   |
+| 401              | Your JWT is missing or not valid.                                                                                                                                                                   |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+
+The valid types of announcement are:
+
+| code | meaning                            |
+| ---- | ---------------------------------- |
+| 1    | Warning about establishment record |
+| 2    | Issue with establishment record    |
+| 4    | Warning about governance record    |
+| 5    | Issue with governance record       |
+
+Announcements can subsequently be unpublished by:
+
+```
+DELETE https://environment-url/organisations/announcements/your-unique-idenitifer
+Authorization: bearer {jwt-token}
+```
+
+Where `your-unique-identifier` is the messageId that was sent when publishing the message.
+
+Possible response codes are:
+
+| HTTP Status Code | Reason                                                                                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 204              | Announcement has been unpublished                                                                                                                                                                   |
+| 401              | Your JWT is missing or not valid.                                                                                                                                                                   |
+| 404              | The message id in the uri does not exist                                                                                                                                                            |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+
+## Regenerate child application secret
+
+If a child application's secret get compromised, you can request that the secret be regenerated by:
+
+```
+POST https://environment-url/services/client-id-of-child-application/regenerate-secret
+Authorization: bearer {jwt-token}
+```
+
+Possible response codes are:
+
+| HTTP Status Code | Reason                                                     |
+| ---------------- | ---------------------------------------------------------- |
+| 200              | Secret has been regenerated                                |
+| 403              | The specified client id is not a child of your application |
+| 404              | No application can be found with the specified client id   |
+
+Upon successful regeneration of the secret, you will receive a response like:
+
+```
+{
+    "clientSecret": "regenerated-client-secret"
+}
+```
 
 ## Get user access to service
 
@@ -886,14 +1037,14 @@ The response format remains the same as the previous API call, allowing for filt
 | 08  | Non-Maintained Special School                     |
 | 10  | Other Independent Special School                  |
 | 11  | Other INdependent School                          |
-| 12  | Fondation Special School                          |
+| 12  | Foundation Special School                         |
 | 14  | Pupil Referral Unit                               |
 | 15  | LA Nursery School                                 |
 | 18  | Further Education                                 |
 | 24  | Secure Units                                      |
 | 25  | Offshore Schools                                  |
-| 26  | Service Childrens Education                       |
-| 27  | Miscellanenous                                    |
+| 26  | Service children's Education                      |
+| 27  | Miscellaneous                                     |
 | 28  | Academy Sponsor Led                               |
 | 29  | Higher Education Institution                      |
 | 30  | Welsh Establishment                               |
@@ -906,7 +1057,7 @@ The response format remains the same as the previous API call, allowing for filt
 | 37  | British Overseas Schools                          |
 | 38  | Free Schools - Alternative Provision              |
 | 39  | Free Schools - 16-19                              |
-| 40  | University Teachnical College                     |
+| 40  | University Technical College                      |
 | 41  | Studio Schools                                    |
 | 42  | Academy Alternative Provision Converter           |
 | 43  | Academy Alternative Provision Sponsor Led         |
@@ -918,7 +1069,3 @@ The response format remains the same as the previous API call, allowing for filt
 | 49  | Online Provider                                   |
 | 56  | Institution funded by other government department |
 | 57  | Academy secure 16 to 19                           |
-
-## Postman collection
-
-We do have a Postman workspace with some sample requests, which is available upon request on the Slack channel `dfe-sign-in`.
