@@ -81,11 +81,11 @@ variables:
   - name: tran
     value: ${{ parameters.tran }}
   - name: dev
-    value: ${{ or(parameters.dev, contains(variables['Build.SourceBranch'],'feature')) }}
+    value: ${{ or(parameters.dev, and(contains(variables['Build.SourceBranch'],'feature'), not(eq(variables['Build.Reason'], 'Manual')))) }}
   - name: test
-    value: ${{ or(parameters.test, contains(variables['Build.SourceBranch'],'feature')) }}
+    value: ${{ or(parameters.test, and(contains(variables['Build.SourceBranch'],'feature'), not(eq(variables['Build.Reason'], 'Manual')))) }}
   - name: pp
-    value: ${{ and(or(parameters.pp, contains(variables['Build.SourceBranch'],'main')), eq(variables.buildNotNeeded, 'false')) }}
+    value: ${{ and(or(parameters.pp, and(contains(variables['Build.SourceBranch'],'main'), not(eq(variables['Build.Reason'], 'Manual')))), eq(variables.buildNotNeeded, 'false')) }}
   - name: pr
     value: ${{ or(and(parameters.pr, ne(parameters.existTag, ' ')),eq(variables.pp, 'true')) }}
   - name: ContRegServerTran
@@ -125,13 +125,28 @@ stages:
               - stage: Deployment_${{env}}_${{location}}
                 displayName: "Deployment [${{env}}] ${{location}}"
                 ${{ if eq(env, 'pr') }}:
-                  dependsOn:
-                    - Deployment_pp_westeurope
-                  condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
-                ${{ elseif eq(parameters.existTag, ' ') }}:
-                  dependsOn:
-                    - scanBuildApp
-                  condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+                  ${{ if eq(location,'northeurope') }}:
+                    dependsOn:
+                      - Deployment_${{env}}_westeurope
+                    condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+                  ${{ else }}:
+                    dependsOn:
+                      - Deployment_pp_westeurope
+                    condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+                ${{ elseif eq(location,'westeurope') }}:
+                  ${{ if eq(parameters.existTag, ' ') }}:
+                    dependsOn:
+                      - scanBuildApp
+                    condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+                ${{ elseif eq(location,'northeurope') }}:
+                  ${{ if eq(length(parameters.location), 2) }}:
+                    dependsOn:
+                      - Deployment_${{env}}_westeurope
+                    condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
+                  ${{ elseif eq(parameters.existTag, ' ') }}:
+                    dependsOn:
+                      - scanBuildApp
+                    condition: in(dependencies.scanBuildApp.result, 'Succeeded', 'Skipped')
                 variables:
                   - name: secRegionId
                     value: $(${{ format('{0}{1}', location, 'Id') }})
