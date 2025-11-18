@@ -123,6 +123,9 @@ const config = {
         resource: process.env.AAD_SHD_APP_ID
       }
     }
+  },
+  encryption: {
+    Aes256GcmV1Key: process.env.ENCRYPT_AES256GCM_KEY,
   }
 }
 
