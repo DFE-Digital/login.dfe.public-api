@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { decrypt } = require("login.dfe.api-client/encryption");
 
 const validateOpts = (audience, clockTolerance, clientLookup) => {
   if (!audience) {
@@ -34,10 +35,11 @@ const getClient = async (decoded, clientLookup) => {
 };
 
 const verifyToken = (token, client, audience, clockTolerance) => {
-  const secret = client.relyingParty.api_secret;
-  if (!secret) {
+  if (!client.relyingParty.api_secret) {
     return "Your client is not authorized to use this api";
   }
+
+  const secret = decrypt(client.relyingParty.api_secret);
 
   try {
     const opts = {
