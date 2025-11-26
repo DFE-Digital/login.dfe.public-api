@@ -298,6 +298,7 @@ describe("listUsersWithFilters", () => {
     ];
     getUsersRaw.mockResolvedValue(usersData);
 
+    // eslint-disable-next-line no-unused-vars
     const expectedResponseBody = {
       users: [
         {
@@ -507,6 +508,7 @@ describe("listUsersWithFilters", () => {
     getFilteredServiceUsersRaw.mockResolvedValue(pageOfServiceUsersEmpty);
     getUsersRaw.mockResolvedValue([]); // getUsersRaw called with "" and returns []
 
+    // eslint-disable-next-line no-unused-vars
     const expectedResponseBody = {
       users: [],
       numberOfRecords: 0,
