@@ -28,6 +28,15 @@ const mapRoleData = (roleData) => {
   return roles;
 };
 
+const handleInternalError = (res, err, fallbackMessage) => {
+  console.error(err);
+  const message =
+    err && err.message
+      ? err.message
+      : fallbackMessage || "Internal server error";
+  return res.status(500).send(message);
+};
+
 const listUsers = async (req, res) => {
   const status = extractStatusParam(req);
   const to = extractToParam(req);
@@ -51,26 +60,58 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfUserServices = await getFilteredServiceUsersRaw({
-    serviceId: req.client.id,
-    pageNumber: page,
-    pageSize,
-  });
+  let pageOfUserServices;
+  try {
+    pageOfUserServices = await getFilteredServiceUsersRaw({
+      serviceId: req.client.id,
+      pageNumber: page,
+      pageSize,
+    });
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch service users");
+  }
 
-  const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await getUsersRaw({ by: { userIds: userIds } });
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
+  // Validate requested page is within the available range
+  if (
+    typeof page === "number" &&
+    Number.isFinite(page) &&
+    typeof pageOfUserServices?.totalNumberOfPages === "number" &&
+    page > pageOfUserServices.totalNumberOfPages
+  ) {
+    return res
+      .status(400)
+      .send("Page number is greater than total number of pages");
+  }
 
-  const responseBody = prepareUserResponse(
-    pageOfUserServices,
-    users,
-    userDataWithRoles,
-  );
+  const userIds = Array.isArray(pageOfUserServices?.users)
+    ? pageOfUserServices.users.map((u) => u.id).filter(Boolean)
+    : [];
 
-  return res.send(responseBody);
+  const fetchUsersAndRoles = async (ids) => {
+    if (!ids || ids.length === 0) {
+      return { users: [], userDataWithRoles: { services: [] } };
+    }
+    const users = await getUsersRaw({ by: { userIds: ids } });
+    const userDataWithRoles = await getServiceUsersPostRaw({
+      serviceId: req.client.id,
+      userIds: ids,
+    });
+    return { users, userDataWithRoles };
+  };
+
+  try {
+    const { users, userDataWithRoles } = await fetchUsersAndRoles(userIds);
+
+    const responseBody = prepareUserResponse(
+      pageOfUserServices,
+      users,
+      userDataWithRoles,
+    );
+
+    return res.send(responseBody);
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch user data");
+  }
 };
 
 const listUsersWithFilters = async (req, res) => {
@@ -161,14 +202,25 @@ const listUsersWithFilters = async (req, res) => {
     pageSize,
   });
 
+  // Validate requested page is within the available range
+  if (
+    typeof page === "number" &&
+    Number.isFinite(page) &&
+    typeof pageOfUserServices?.totalNumberOfPages === "number" &&
+    page > pageOfUserServices.totalNumberOfPages
+  ) {
+    return res
+      .status(400)
+      .send("Page number is greater than total number of pages");
+  }
+
   const userIds = pageOfUserServices.users.map((user) => user.id);
   const users = userIds.length
     ? await getUsersRaw({ by: { userIds } })
     : undefined;
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
+  const userDataWithRoles = userIds.length
+    ? await getServiceUsersPostRaw({ serviceId: req.client.id, userIds })
+    : { services: [] };
 
   let responseBody;
 
