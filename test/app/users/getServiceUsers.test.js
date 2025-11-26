@@ -369,6 +369,7 @@ describe("listUsersWithFilters", () => {
 
     await listUsers(mockReq, mockRes);
 
+    // Page 2 is greater than totalNumberOfPages (1) so should return 400
     expect(getFilteredServiceUsersRaw).toHaveBeenCalledWith({
       dateFrom: new Date("2023-01-01T00:00:00.000Z"),
       dateTo: new Date("2023-01-05T00:00:00.000Z"),
@@ -377,12 +378,10 @@ describe("listUsersWithFilters", () => {
       serviceId: "client123",
       userStatus: "0",
     });
-    expect(getUsersRaw).toHaveBeenCalledWith({
-      by: { userIds: ["user1", "user2", "user3"] },
-    });
-    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
-    // Have to do a negative test because code implicitly will set the status to 200 on success
-    expect(mockRes.status).not.toHaveBeenCalledWith(400);
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.send).toHaveBeenCalledWith(
+      "Page number is greater than total number of pages",
+    );
   });
 
   it("should successfully list users when status param is null (fetches all statuses)", async () => {
@@ -521,7 +520,11 @@ describe("listUsersWithFilters", () => {
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).not.toHaveBeenCalled();
-    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+    // totalNumberOfPages is 0 so page(1) > 0 and we return 400
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.send).toHaveBeenCalledWith(
+      "Page number is greater than total number of pages",
+    );
   });
 
   it('should handle valid single "from" date correctly and pass isWarning if set by findDateRange', async () => {
