@@ -28,6 +28,15 @@ const mapRoleData = (roleData) => {
   return roles;
 };
 
+const handleInternalError = (res, err, fallbackMessage) => {
+  console.error(err);
+  const message =
+    err && err.message
+      ? err.message
+      : fallbackMessage || "Internal server error";
+  return res.status(500).send(message);
+};
+
 const listUsers = async (req, res) => {
   const status = extractStatusParam(req);
   const to = extractToParam(req);
@@ -51,34 +60,106 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfUserServices = await getFilteredServiceUsersRaw({
-    serviceId: req.client.id,
-    pageNumber: page,
-    pageSize,
-  });
+  let pageOfUserServices;
+  try {
+    pageOfUserServices = await getFilteredServiceUsersRaw({
+      serviceId: req.client.id,
+      pageNumber: page,
+      pageSize,
+    });
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch service users");
+  }
 
-  const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await getUsersRaw({ by: { userIds: userIds } });
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
+  // Validate requested page is within the available range
+  if (
+    typeof page === "number" &&
+    Number.isFinite(page) &&
+    typeof pageOfUserServices?.totalNumberOfPages === "number" &&
+    page > pageOfUserServices.totalNumberOfPages
+  ) {
+    return res
+      .status(400)
+      .send("Page number is greater than total number of pages");
+  }
 
-  const responseBody = prepareUserResponse(
-    pageOfUserServices,
-    users,
-    userDataWithRoles,
-  );
+  const userIds = Array.isArray(pageOfUserServices?.users)
+    ? pageOfUserServices.users.map((u) => u.id).filter(Boolean)
+    : [];
 
-  return res.send(responseBody);
+  const fetchUsersAndRoles = async (ids) => {
+    if (!ids || ids.length === 0) {
+      return { users: [], userDataWithRoles: { services: [] } };
+    }
+    const users = await getUsersRaw({ by: { userIds: ids } });
+    const userDataWithRoles = await getServiceUsersPostRaw({
+      serviceId: req.client.id,
+      userIds: ids,
+    });
+    return { users, userDataWithRoles };
+  };
+
+  try {
+    const { users, userDataWithRoles } = await fetchUsersAndRoles(userIds);
+
+    const responseBody = prepareUserResponse(
+      pageOfUserServices,
+      users,
+      userDataWithRoles,
+    );
+
+    return res.send(responseBody);
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch user data");
+  }
+};
+
+const validateFilterParams = (status, fromDate, toDate, duration) => {
+  if (status !== undefined && status !== null) {
+    if (status !== "0" && status !== "1") {
+      return "Status is not valid. Should be either 0 or 1.";
+    }
+  }
+
+  if (fromDate && toDate) {
+    if (isFutureDate(fromDate) && isFutureDate(toDate)) {
+      return "Date range should not be in the future";
+    }
+
+    if (fromDate.getTime() > toDate.getTime()) {
+      return "From date greater than to date";
+    }
+
+    const time_difference = toDate.getTime() - fromDate.getTime();
+    const days_difference = Math.abs(time_difference) / (1000 * 60 * 60 * 24);
+    if (days_difference > duration) {
+      return `Only ${duration} days are allowed between dates`;
+    }
+  } else if (fromDate || toDate) {
+    const selectedDate = fromDate ?? toDate;
+    if (selectedDate && isFutureDate(selectedDate)) {
+      return "Date range should not be in the future";
+    }
+  }
+
+  return null;
+};
+
+const parseDateParam = (dateString) => {
+  if (!dateString) {
+    return undefined;
+  }
+  const parsed = Date.parse(dateString);
+  if (isNaN(parsed)) {
+    return null;
+  }
+  return new Date(parsed);
 };
 
 const listUsersWithFilters = async (req, res) => {
   let page;
   let pageSize;
   let status;
-  let to;
-  let from;
   let fromDate;
   let toDate;
   const duration = 90;
@@ -87,54 +168,27 @@ const listUsersWithFilters = async (req, res) => {
     page = extractPageParam(req);
     pageSize = extractPageSizeParam(req);
     status = extractStatusParam(req);
-    to = extractToParam(req);
-    from = extractFromParam(req);
+    const to = extractToParam(req);
+    const from = extractFromParam(req);
 
-    if (status !== undefined && status !== null) {
-      if (status !== "0" && status !== "1") {
-        return res
-          .status(400)
-          .send("Status is not valid. Should be either 0 or 1.");
-      }
+    toDate = parseDateParam(to);
+    if (to && toDate === null) {
+      return res.status(400).send("To date is not a valid date.");
     }
 
-    if (to) {
-      const parsedTo = Date.parse(to);
-      if (isNaN(parsedTo)) {
-        return res.status(400).send("To date is not a valid date.");
-      }
-      toDate = new Date(parsedTo);
+    fromDate = parseDateParam(from);
+    if (from && fromDate === null) {
+      return res.status(400).send("From date is not a valid date.");
     }
 
-    if (from) {
-      const parsedFrom = Date.parse(from);
-      if (isNaN(parsedFrom)) {
-        return res.status(400).send("From date is not a valid date.");
-      }
-      fromDate = new Date(parsedFrom);
-    }
-
-    if (fromDate && toDate) {
-      if (isFutureDate(fromDate) && isFutureDate(toDate)) {
-        return res.status(400).send("Date range should not be in the future");
-      }
-
-      if (fromDate.getTime() > toDate.getTime()) {
-        return res.status(400).send("From date greater than to date");
-      }
-
-      const time_difference = toDate.getTime() - fromDate.getTime();
-      const days_difference = Math.abs(time_difference) / (1000 * 60 * 60 * 24);
-      if (days_difference > duration) {
-        return res
-          .status(400)
-          .send(`Only ${duration} days are allowed between dates`);
-      }
-    } else if (fromDate || toDate) {
-      const selectedDate = fromDate ?? toDate;
-      if (selectedDate && isFutureDate(selectedDate)) {
-        return res.status(400).send("Date range should not be in the future");
-      }
+    const validationError = validateFilterParams(
+      status,
+      fromDate,
+      toDate,
+      duration,
+    );
+    if (validationError) {
+      return res.status(400).send(validationError);
     }
   } catch (e) {
     return res.status(400).send(e.message);
@@ -152,44 +206,67 @@ const listUsersWithFilters = async (req, res) => {
   const dateFromUTC = fromDate ? new Date(fromDate.toISOString()) : undefined;
   const dateToUTC = toDate ? new Date(toDate.toISOString()) : undefined;
 
-  const pageOfUserServices = await getFilteredServiceUsersRaw({
-    serviceId: req.client.id,
-    userStatus: status,
-    dateFrom: dateFromUTC,
-    dateTo: dateToUTC,
-    pageNumber: page,
-    pageSize,
-  });
-
-  const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = userIds.length
-    ? await getUsersRaw({ by: { userIds } })
-    : undefined;
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
-
-  let responseBody;
-
-  if (!users) {
-    responseBody = {
-      users: [],
-      numberOfRecords: 0,
-      page: 0,
-      numberOfPages: 0,
-    };
-  } else {
-    responseBody = prepareUserResponse(
-      pageOfUserServices,
-      users,
-      userDataWithRoles,
-    );
+  let pageOfUserServices;
+  try {
+    pageOfUserServices = await getFilteredServiceUsersRaw({
+      serviceId: req.client.id,
+      userStatus: status,
+      dateFrom: dateFromUTC,
+      dateTo: dateToUTC,
+      pageNumber: page,
+      pageSize,
+    });
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch service users");
   }
 
-  addDateRangeValue(responseBody, dateFromUTC, dateToUTC);
-  addWarningValue(responseBody, duration, isWarning);
-  return res.send(responseBody);
+  // Validate requested page is within the available range
+  if (
+    typeof page === "number" &&
+    Number.isFinite(page) &&
+    typeof pageOfUserServices?.totalNumberOfPages === "number" &&
+    page > pageOfUserServices.totalNumberOfPages
+  ) {
+    return res
+      .status(400)
+      .send("Page number is greater than total number of pages");
+  }
+
+  const userIds = Array.isArray(pageOfUserServices?.users)
+    ? pageOfUserServices.users.map((u) => u.id).filter(Boolean)
+    : [];
+
+  const fetchUsersAndRoles = async (ids) => {
+    if (!ids || ids.length === 0) {
+      return { users: [], userDataWithRoles: { services: [] } };
+    }
+    const users = await getUsersRaw({ by: { userIds: ids } });
+    const userDataWithRoles = await getServiceUsersPostRaw({
+      serviceId: req.client.id,
+      userIds: ids,
+    });
+    return { users, userDataWithRoles };
+  };
+
+  try {
+    const { users, userDataWithRoles } = await fetchUsersAndRoles(userIds);
+
+    const responseBody =
+      users && users.length > 0
+        ? prepareUserResponse(pageOfUserServices, users, userDataWithRoles)
+        : {
+            users: [],
+            numberOfRecords: 0,
+            page: 0,
+            numberOfPages: 0,
+          };
+
+    addDateRangeValue(responseBody, dateFromUTC, dateToUTC);
+    addWarningValue(responseBody, duration, isWarning);
+    return res.send(responseBody);
+  } catch (err) {
+    return handleInternalError(res, err, "Failed to fetch user data");
+  }
 };
 
 const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
