@@ -30,7 +30,7 @@
   "dependencies": {
     "agentkeepalive": "^4.6.0",
     "applicationinsights": "^2.9.8",
-    "body-parser": "^1.20.3",
+    "body-parser": "^1.20.4",
     "dotenv": "^16.6.1",
     "email-validator": "^2.0.4",
     "express": "^4.21.2",
@@ -38,7 +38,7 @@
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "login.dfe.api-client": "1.0.58",
+    "login.dfe.api-client": "^1.0.58",
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
     "login.dfe.audit.transporter": "^4.0.3",
@@ -65,8 +65,8 @@
     "jest-junit": "^16.0.0",
     "lint-staged": "^15.5.2",
     "node-mocks-http": "^1.17.0",
-    "nodemon": "^3.1.10",
-    "prettier": "^3.6.2",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.7.3",
     "supertest": "^7.1.4"
   }
 }
