@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 jest.mock("login.dfe.api-client/users", () => ({
   getUsersRaw: jest.fn(),
 }));
