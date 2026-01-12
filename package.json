@@ -41,7 +41,6 @@
     "login.dfe.api-client": "^1.0.58",
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
-    "login.dfe.audit.transporter": "^4.0.3",
     "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.dao": "^5.0.6",
     "login.dfe.express-error-handling": "^3.0.5",
