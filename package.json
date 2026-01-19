@@ -36,12 +36,11 @@
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
     "helmet": "^7.2.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "lodash": "^4.17.21",
     "login.dfe.api-client": "^1.0.58",
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
-    "login.dfe.audit.transporter": "^4.0.3",
     "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.dao": "^5.0.6",
     "login.dfe.express-error-handling": "^3.0.5",
@@ -54,8 +53,8 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "eslint": "^9.39.1",
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
     "eslint-formatter-junit": "^8.40.0",
     "eslint-plugin-jest": "^28.14.0",
     "globals": "^15.14.0",
@@ -66,7 +65,7 @@
     "lint-staged": "^15.5.2",
     "node-mocks-http": "^1.17.0",
     "nodemon": "^3.1.11",
-    "prettier": "^3.7.3",
-    "supertest": "^7.1.4"
+    "prettier": "^3.7.4",
+    "supertest": "^7.2.2"
   }
 }
