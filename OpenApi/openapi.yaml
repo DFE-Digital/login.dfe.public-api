@@ -1,0 +1,746 @@
+openapi: 3.0.1
+servers:
+  [
+    {
+      "url": "https://s141d01-signin-papi.azurewebsites.net",
+      "description": "DEV server",
+    },
+    {
+      "url": "https://s141d03-signin-papi.azurewebsites.net",
+      "description": "TRAN server",
+    },
+    {
+      "url": "https://s141t01-signin-papi.azurewebsites.net",
+      "description": "TEST server",
+    },
+    {
+      "url": "https://s141t02-signin-papi.azurewebsites.net",
+      "description": "PREPROD server",
+    },
+    {
+      "url": "https://s141p01-signin-papi.azurewebsites.net",
+      "description": "PROD server",
+    },
+  ]
+info:
+  title: DfE Login Public API
+  version: v1
+paths:
+  /organisations/{ukprn}/users:
+    get:
+      tags:
+        - Organisations
+      summary: Get the organisations users.
+      parameters:
+        - name: ukprn
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+        "400":
+          description:
+            Request is invalid. Additional details will be provided in the
+            response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: JWT is missing or not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
+          description: Application lacks permission to retrieve users for this organisation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: The service id in the uri does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description:
+            An error occurred on the server. Please ensure that secrets like
+            secrets, API keys, or tokens are correctly configured.) If the issue
+            still persists, please contact the support team for assistance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /services/{cid}/roles:
+    get:
+      tags:
+        - Services
+      summary: Get the roles associated with your service, or one of your child
+        services.
+      description:
+        "Note: If User does not have the specified Service or is not in the
+        Organisation stated, it will return status code **404 (Not Found)**."
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicesGetRolesForClientResponse"
+        "403":
+          description:
+            The specified client ID is not your service, or a child of your
+            service.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No service can be found with the specified client ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /services/{sid}/organisations/{oid}/users/{uid}:
+    get:
+      tags:
+        - Services
+      summary: Get a user's access to a service for an organisation.
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: oid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicesGetRolesAndIdentifiersResponse"
+        "404":
+          description: User does not have the specified Service or is not in the
+            Organisation stated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /services:
+    post:
+      tags:
+        - Services
+      summary: Create child applications.
+      requestBody:
+        description: Details of the application.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicesApplicationRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+        "202":
+          description: Accepted
+  /services/{sid}/invitations:
+    post:
+      tags:
+        - Services
+      summary: As a service on-boarded to DfE Sign-in, invite users to the service.
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicesInvitationRequest"
+        required: true
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description:
+            Request is invalid. Additional details will be provided in the
+            response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: JWT is missing or not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: The service id in the uri does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description:
+            An error occurred on the server. Please ensure that secrets like
+            secrets, API keys, or tokens are correctly configured.) If the issue
+            still persists, please contact the support team for assistance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get a list of users.
+      parameters:
+        - name: page
+          in: query
+          description: Optional page number.
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          description: Optional page size.
+          schema:
+            type: integer
+            format: int32
+            default: 25
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersGetPagedUsersResponse"
+  /users/approvers:
+    get:
+      tags:
+        - Users
+      summary: Get a list of approvers.
+      description:
+        Get a list of approvers for organisations that are within your
+        services scope (based on role policy conditions).
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 25
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersGetPagedUsersResponse"
+        "400":
+          description:
+            Request is invalid. Additional details are provided in the response
+            body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: JWT is missing or not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
+          description: Application does not have permission to get approvers for
+            organisations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description:
+            An error occurred on the server. Please ensure that secrets like
+            secrets, API keys, or tokens are correctly configured. If the issue
+            still persists, please contact the support team for assistance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /users/{uid}/organisations:
+    get:
+      tags:
+        - Users
+      summary: Get the organisations associated with a user.
+      parameters:
+        - name: uid
+          in: query
+          description: The DfE Sign-in identifier for the user.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersGetOrganisationsResponse"
+  /users/{uid}/organisationservices:
+    get:
+      tags:
+        - Users
+      summary: Get organisations and services for user.
+      parameters:
+        - name: uid
+          in: path
+          description: The DfE Sign-in identifier for the user.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersGetOrganisationServicesResponse"
+components:
+  schemas:
+    Identifier:
+      type: object
+      properties:
+        key:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        category:
+          $ref: "#/components/schemas/OrganisationCategory"
+        type:
+          type: string
+          nullable: true
+        urn:
+          type: string
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+        ukprn:
+          type: string
+          nullable: true
+        establishmentNumber:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/OrganisationStatus"
+        closedOn:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        phaseOfEducation:
+          type: string
+          nullable: true
+        statutoryLowAge:
+          type: integer
+          format: int32
+          nullable: true
+        statutoryHighAge:
+          type: integer
+          format: int32
+          nullable: true
+        telephone:
+          type: string
+          nullable: true
+        regionCode:
+          type: string
+          nullable: true
+        legacyId:
+          type: string
+          nullable: true
+        companyRegistrationNumber:
+          type: string
+          nullable: true
+        providerProfileID:
+          type: string
+          nullable: true
+        upin:
+          type: string
+          nullable: true
+        pimsProviderType:
+          type: string
+          nullable: true
+        pimsStatus:
+          type: string
+          nullable: true
+        districtAdministrativeName:
+          type: string
+          nullable: true
+        openedOn:
+          type: string
+          format: date-time
+          nullable: true
+        sourceSystem:
+          type: string
+          nullable: true
+        providerTypeName:
+          type: string
+          nullable: true
+        giasProviderType:
+          type: string
+          nullable: true
+        pimsProviderTypeCode:
+          type: string
+          nullable: true
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/Service"
+          nullable: true
+        orgRoleId:
+          type: integer
+          format: int32
+          nullable: true
+        orgRoleName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    OrganisationCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    OrganisationStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: {}
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        numericId:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+      additionalProperties: false
+    Service:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+          nullable: true
+      additionalProperties: false
+    ServicesApplicationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        clientId:
+          type: string
+          nullable: true
+        client:
+          type: string
+          nullable: true
+        redirectUris:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ServicesGetRolesAndIdentifiersResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        serviceId:
+          type: string
+          format: uuid
+        organisationId:
+          type: string
+          format: uuid
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+          nullable: true
+        identifiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
+          nullable: true
+      additionalProperties: false
+    ServicesGetRolesForClientResponse:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+          nullable: true
+      additionalProperties: false
+    ServicesInvitationRequest:
+      required:
+        - email
+        - family_name
+        - given_name
+        - sourceId
+      type: object
+      properties:
+        sourceId:
+          type: string
+          description:
+            The identifier of the user in your system. Will be included in back
+            channel response.
+          nullable: true
+        given_name:
+          type: string
+          description: The users given name.
+          nullable: true
+        family_name:
+          type: string
+          description: The user family name.
+          nullable: true
+        email:
+          type: string
+          description:
+            The email address of the user. This is also a unique identifier of
+            a user in DfE Sign-in.
+          nullable: true
+        organisation:
+          type: string
+          description: The DfE Sign-in identifier that the user should be associated to.
+          nullable: true
+        callback:
+          type: string
+          description:
+            The URL that the back channel response should be sent to. See
+            details of back channel response below
+          nullable: true
+        userRedirect:
+          type: string
+          description:
+            The URL that a user, if going through the onboarding, should be
+            returned to upon completion. If omitted, the default redirect for
+            your client will be used..
+          nullable: true
+        inviteSubjectOverride:
+          type: string
+          description: Overrides the subject of the invitation email.
+          nullable: true
+        inviteBodyOverride:
+          type: string
+          description: Overrides the content of the invitation email.
+          nullable: true
+      additionalProperties: false
+    User:
+      type: object
+      properties:
+        approvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        organisation:
+          $ref: "#/components/schemas/Organisation"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+          nullable: true
+        roleName:
+          type: string
+          nullable: true
+        roleId:
+          type: integer
+          format: int32
+        userId:
+          type: string
+          nullable: true
+        userStatus:
+          type: integer
+          format: int32
+        email:
+          type: string
+          nullable: true
+        familyName:
+          type: string
+          nullable: true
+        givenName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UsersGetOrganisationServicesResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          nullable: true
+        userStatus:
+          type: integer
+          format: int32
+        email:
+          type: string
+          nullable: true
+        familyName:
+          type: string
+          nullable: true
+        givenName:
+          type: string
+          nullable: true
+        organisations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organisation"
+          nullable: true
+      additionalProperties: false
+    UsersGetOrganisationsResponse:
+      type: object
+      properties:
+        organisations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organisation"
+          nullable: true
+      additionalProperties: false
+    UsersGetPagedUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+          nullable: true
+        numberOfRecords:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        numberOfPages:
+          type: integer
+          format: int32
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: http
+      description: "Enter JWT as: Bearer {token}"
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - Bearer: []
