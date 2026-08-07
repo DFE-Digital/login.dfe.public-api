@@ -58,7 +58,9 @@ const listUsersWithOutFilters = async (req, res) => {
   });
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await getUsersRaw({ by: { userIds: userIds } });
+  const users = userIds.length
+    ? await getUsersRaw({ by: { userIds } })
+    : undefined;
   const userDataWithRoles = await getServiceUsersPostRaw({
     serviceId: req.client.id,
     userIds,
