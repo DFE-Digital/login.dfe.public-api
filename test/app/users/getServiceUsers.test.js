@@ -520,6 +520,7 @@ describe("listUsersWithFilters", () => {
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).not.toHaveBeenCalled();
+    expect(getServiceUsersPostRaw).not.toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
@@ -790,10 +791,7 @@ describe("listUsersWithoutFilters", () => {
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).not.toHaveBeenCalled();
-    expect(getServiceUsersPostRaw).toHaveBeenCalledWith({
-      serviceId: mockReq.client.id,
-      userIds: [],
-    });
+    expect(getServiceUsersPostRaw).not.toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 });
