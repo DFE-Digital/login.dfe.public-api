@@ -124,6 +124,13 @@ const config = {
       }
     }
   },
+  services:{
+    host:process.env.SERVICES_ENDPOINT,
+    port: process.env.LOCAL_PORT_SERVICES || 443
+  },
+  help:{
+    url: "process.env.HELP_ENDPOINT"
+  },
   encryption: {
     Aes256GcmV1Key: process.env.ENCRYPT_AES256GCM_KEY,
   }
