@@ -10,7 +10,6 @@ const {
 const { NotificationClient } = require("login.dfe.jobs-client");
 const { getOrganisation } = require("login.dfe.api-client/organisations");
 const { services } = require("login.dfe.dao");
-const { validate } = require("email-validator");
 const { v4: uuid } = require("uuid");
 const config = require("../../infrastructure/config");
 

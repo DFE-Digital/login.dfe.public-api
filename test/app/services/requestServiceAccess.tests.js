@@ -40,7 +40,6 @@ const {
 
 const { getUserServiceRequestsRaw } = require("login.dfe.api-client/users");
 const { services } = require("login.dfe.dao");
-const { NotificationClient } = require("login.dfe.jobs-client");
 
 describe("requestServiceAccess", () => {
   beforeEach(() => {
