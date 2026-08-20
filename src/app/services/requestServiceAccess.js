@@ -1,7 +1,4 @@
-const logger = require("../../infrastructure/logger");
-const { getServiceRaw } = require("login.dfe.api-client/services");
 const {
-  getUserOrganisationsRaw,
   getUserServiceRequestsRaw,
   getUser,
 } = require("login.dfe.api-client/users");
