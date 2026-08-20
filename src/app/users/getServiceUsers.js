@@ -58,11 +58,12 @@ const listUsersWithOutFilters = async (req, res) => {
   });
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
-  const users = await getUsersRaw({ by: { userIds: userIds } });
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
+  const users = userIds.length
+    ? await getUsersRaw({ by: { userIds } })
+    : undefined;
+  const userDataWithRoles = userIds.length
+    ? await getServiceUsersPostRaw({ serviceId: req.client.id, userIds })
+    : undefined;
 
   const responseBody = prepareUserResponse(
     pageOfUserServices,
@@ -165,10 +166,9 @@ const listUsersWithFilters = async (req, res) => {
   const users = userIds.length
     ? await getUsersRaw({ by: { userIds } })
     : undefined;
-  const userDataWithRoles = await getServiceUsersPostRaw({
-    serviceId: req.client.id,
-    userIds,
-  });
+  const userDataWithRoles = userIds.length
+    ? await getServiceUsersPostRaw({ serviceId: req.client.id, userIds })
+    : undefined;
 
   let responseBody;
 
