@@ -147,7 +147,7 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: "User has to be an active.",
+      error: "User has to be active.",
     });
   });
 

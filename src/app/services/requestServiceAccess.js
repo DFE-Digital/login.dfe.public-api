@@ -65,7 +65,7 @@ const validateRequest = async ({
     return {
       valid: false,
       status: 400,
-      error: "User has to be an active.",
+      error: "User has to be active.",
     };
   }
 
