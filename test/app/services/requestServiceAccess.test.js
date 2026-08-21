@@ -290,6 +290,8 @@ describe("requestServiceAccess", () => {
     getService.mockResolvedValue({
       id: "service-123",
       name: "Test Service",
+      parentId: null,
+      relyingParty: { client_id: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -307,6 +309,10 @@ describe("requestServiceAccess", () => {
         organisation: "organisation-123",
         roleId: "role-123",
         userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
       },
     };
 
@@ -327,7 +333,53 @@ describe("requestServiceAccess", () => {
     });
   });
 
-  it("creates a service request and sends a notification for a valid request", async () => {
+  it("returns 403 when the caller is not the service or an authorized parent", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: "some-other-parent-id",
+      relyingParty: { client_id: "service-owner-client-id" },
+    });
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+      client: {
+        id: "unrelated-caller-service-id",
+        relyingParty: { client_id: "unrelated-caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Not authorized to request access for this service.",
+    });
+  });
+
+  it("allows a parent service to request access on behalf of a child service", async () => {
     getUser.mockResolvedValue({
       id: "user-123",
       status: 1,
@@ -344,6 +396,8 @@ describe("requestServiceAccess", () => {
     getService.mockResolvedValue({
       id: "service-123",
       name: "Test Service",
+      parentId: "parent-service-id",
+      relyingParty: { client_id: "service-owner-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -365,6 +419,69 @@ describe("requestServiceAccess", () => {
         organisation: "organisation-123",
         roleId: "role-123",
         userId: "user-123",
+      },
+      client: {
+        id: "parent-service-id",
+        relyingParty: { client_id: "parent-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(202);
+    expect(services.putUserServiceRequest).toHaveBeenCalled();
+  });
+
+  it("creates a service request and sends a notification for a valid request", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { client_id: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      {
+        id: "role-123",
+        name: "Test Role",
+      },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
       },
     };
 
@@ -409,6 +526,8 @@ describe("requestServiceAccess", () => {
     getService.mockResolvedValue({
       id: "service-123",
       name: "Test Service",
+      parentId: null,
+      relyingParty: { client_id: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -435,6 +554,10 @@ describe("requestServiceAccess", () => {
         organisation: "organisation-123",
         roleId: "role-123",
         userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
       },
     };
 
@@ -469,6 +592,8 @@ describe("requestServiceAccess", () => {
     getService.mockResolvedValue({
       id: "service-123",
       name: "Test Service",
+      parentId: null,
+      relyingParty: { client_id: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -497,6 +622,10 @@ describe("requestServiceAccess", () => {
         organisation: "organisation-123",
         roleId: "role-123",
         userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
       },
     };
 

@@ -43,6 +43,7 @@ const validateRequest = async ({
   organisationId,
   userId,
   roleId,
+  client,
 }) => {
   if (!serviceId || !organisationId || !userId || !roleId) {
     return {
@@ -120,6 +121,17 @@ const validateRequest = async ({
     };
   }
 
+  if (
+    service.relyingParty.client_id !== client.relyingParty.client_id &&
+    service.parentId !== client.id
+  ) {
+    return {
+      valid: false,
+      status: 403,
+      error: "Not authorized to request access for this service.",
+    };
+  }
+
   const roles = await getServiceRolesRaw({ serviceId });
   const role = roles.find((r) => r?.id === roleId);
 
@@ -149,12 +161,14 @@ const requestServiceAccess = async (req, res) => {
 
   const { sid: serviceId } = req.params;
   const { organisation: organisationId, roleId, userId } = req.body;
+  const { client } = req;
 
   const validation = await validateRequest({
     serviceId,
     organisationId,
     userId,
     roleId,
+    client,
   });
 
   if (!validation.valid) {
