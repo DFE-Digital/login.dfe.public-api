@@ -1,5 +1,6 @@
 const {
   getUserServiceRequestsRaw,
+  getUserOrganisationsRaw,
   getUser,
 } = require("login.dfe.api-client/users");
 const {
@@ -66,6 +67,19 @@ const validateRequest = async ({
       valid: false,
       status: 400,
       error: "User has to be active.",
+    };
+  }
+
+  const userOrganisations = await getUserOrganisationsRaw({ userId });
+  const belongsToOrganisation = userOrganisations.some(
+    (userOrganisation) => userOrganisation.organisation?.id === organisationId,
+  );
+
+  if (!belongsToOrganisation) {
+    return {
+      valid: false,
+      status: 400,
+      error: "User does not belong to organisation.",
     };
   }
 
@@ -159,7 +173,8 @@ const requestServiceAccess = async (req, res) => {
     (item) =>
       item.userId === req.body.userId &&
       item.organisationId === req.body.organisation &&
-      item.serviceId === req.params.sid, //?? Maybe add role too && state of request must be declined
+      item.serviceId === req.params.sid &&
+      item.status === 0,
   );
 
   if (matchingRequest) {
@@ -199,7 +214,7 @@ const requestServiceAccess = async (req, res) => {
     helpUrl,
   );
 
-  return res.status(202);
+  return res.status(202).send();
 };
 
 module.exports = requestServiceAccess;

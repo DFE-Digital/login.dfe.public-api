@@ -38,7 +38,10 @@ const {
   getService,
 } = require("login.dfe.api-client/services");
 
-const { getUserServiceRequestsRaw } = require("login.dfe.api-client/users");
+const {
+  getUserServiceRequestsRaw,
+  getUserOrganisationsRaw,
+} = require("login.dfe.api-client/users");
 const { services } = require("login.dfe.dao");
 
 describe("requestServiceAccess", () => {
@@ -46,6 +49,9 @@ describe("requestServiceAccess", () => {
     jest.clearAllMocks();
 
     getServiceDetailsByOrganisatonId.mockResolvedValue({});
+    getUserOrganisationsRaw.mockResolvedValue([
+      { organisation: { id: "organisation-123" } },
+    ]);
 
     config.notifications.connectionString = "test-connection-string";
   });
@@ -148,6 +154,44 @@ describe("requestServiceAccess", () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       error: "User has to be active.",
+    });
+  });
+
+  it("returns 400 when user does not belong to organisation", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getUserOrganisationsRaw.mockResolvedValue([
+      { organisation: { id: "another-organisation-456" } },
+    ]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(getUserOrganisationsRaw).toHaveBeenCalledWith({
+      userId: "user-123",
+    });
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "User does not belong to organisation.",
     });
   });
 
@@ -343,6 +387,9 @@ describe("requestServiceAccess", () => {
         request_type: "service",
       }),
     );
+
+    expect(res.status).toHaveBeenCalledWith(202);
+    expect(res.send).toHaveBeenCalled();
   });
 
   it("returns 409 when an existing service request is already in progress", async () => {
@@ -376,6 +423,7 @@ describe("requestServiceAccess", () => {
         userId: "user-123",
         organisationId: "organisation-123",
         serviceId: "service-123",
+        status: 0,
       },
     ]);
 
@@ -402,6 +450,66 @@ describe("requestServiceAccess", () => {
     expect(res.send).toHaveBeenCalledWith(
       "An existing request is already in progress",
     );
+  });
+
+  it("creates a new request when a prior request for the same service was declined", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      {
+        id: "role-123",
+        name: "Test Role",
+      },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([
+      {
+        userId: "user-123",
+        organisationId: "organisation-123",
+        serviceId: "service-123",
+        status: -1,
+      },
+    ]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(202);
+    expect(services.putUserServiceRequest).toHaveBeenCalled();
   });
 
   it("returns 400 when service does not belong to organisation", async () => {
