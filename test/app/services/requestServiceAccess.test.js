@@ -509,6 +509,69 @@ describe("requestServiceAccess", () => {
     expect(res.send).toHaveBeenCalled();
   });
 
+  it("matches GUIDs case-insensitively (organisation, service, role and client ids returned uppercase by the DB)", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getUserOrganisationsRaw.mockResolvedValue([
+      { organisation: { id: "ORGANISATION-123" } },
+    ]);
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "SERVICE-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      {
+        id: "ROLE-123",
+        name: "Test Role",
+      },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(202);
+    expect(services.putUserServiceRequest).toHaveBeenCalled();
+  });
+
   it("returns 409 when an existing service request is already in progress", async () => {
     getUser.mockResolvedValue({
       id: "user-123",

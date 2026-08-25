@@ -14,6 +14,11 @@ const { services } = require("login.dfe.dao");
 const { v4: uuid } = require("uuid");
 const config = require("../../infrastructure/config");
 
+const equalsIgnoreCase = (a, b) =>
+  typeof a === "string" &&
+  typeof b === "string" &&
+  a.toLowerCase() === b.toLowerCase();
+
 const notificationClient = new NotificationClient({
   connectionString: config.notifications.connectionString,
 });
@@ -72,8 +77,8 @@ const validateRequest = async ({
   }
 
   const userOrganisations = await getUserOrganisationsRaw({ userId });
-  const belongsToOrganisation = userOrganisations.some(
-    (userOrganisation) => userOrganisation.organisation?.id === organisationId,
+  const belongsToOrganisation = userOrganisations.some((userOrganisation) =>
+    equalsIgnoreCase(userOrganisation.organisation?.id, organisationId),
   );
 
   if (!belongsToOrganisation) {
@@ -123,7 +128,7 @@ const validateRequest = async ({
 
   if (
     service.relyingParty.clientId !== client.relyingParty.client_id &&
-    service.parentId !== client.id
+    !equalsIgnoreCase(service.parentId, client.id)
   ) {
     return {
       valid: false,
@@ -133,7 +138,7 @@ const validateRequest = async ({
   }
 
   const roles = await getServiceRolesRaw({ serviceId });
-  const role = roles.find((r) => r?.id === roleId);
+  const role = roles.find((r) => equalsIgnoreCase(r?.id, roleId));
 
   if (!role) {
     return {
@@ -185,9 +190,9 @@ const requestServiceAccess = async (req, res) => {
 
   const matchingRequest = userServiceRequests.find(
     (item) =>
-      item.userId === req.body.userId &&
-      item.organisationId === req.body.organisation &&
-      item.serviceId === req.params.sid &&
+      equalsIgnoreCase(item.userId, req.body.userId) &&
+      equalsIgnoreCase(item.organisationId, req.body.organisation) &&
+      equalsIgnoreCase(item.serviceId, req.params.sid) &&
       item.status === 0,
   );
 
