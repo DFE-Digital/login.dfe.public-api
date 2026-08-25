@@ -4,6 +4,7 @@ const {
 } = require("login.dfe.api-client/services");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const { getOrganisationRaw } = require("login.dfe.api-client/organisations");
+const { equalsIgnoreCase } = require("../utils");
 
 const getUsersByRoles = async (req, res) => {
   const { correlationId, clientCorrelationId } = req;
@@ -82,7 +83,9 @@ const getUsersByRoles = async (req, res) => {
             );
           }
           const newUsers = usersDetails.map((user) => {
-            const role = userIdNRoles.find((ids) => ids.id === user.sub);
+            const role = userIdNRoles.find((ids) =>
+              equalsIgnoreCase(ids.id, user.sub),
+            );
             return {
               email: user.email,
               firstName: user.given_name,

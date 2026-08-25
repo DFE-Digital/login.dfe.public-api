@@ -70,6 +70,15 @@ describe("when getting users organisations", () => {
     expect(res.send).toHaveBeenCalledTimes(1);
   });
 
+  it("should return 404 if the api returns null instead of an empty array", async () => {
+    getUserOrganisationsRaw.mockReset().mockReturnValue(null);
+    await getUserOrganisationsV2(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status.mock.calls[0][0]).toBe(404);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
   it("should remove hidden organisations from the returned list", async () => {
     getUserOrganisationsRaw.mockReset().mockReturnValue([
       {

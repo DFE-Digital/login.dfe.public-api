@@ -523,6 +523,29 @@ describe("listUsersWithFilters", () => {
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
+  it("should return an empty page instead of throwing when getFilteredServiceUsersRaw returns null", async () => {
+    mockReq.query = {
+      from: "2023-01-01T00:00:00.000Z",
+      to: "2023-01-05T00:00:00.000Z",
+    };
+
+    getFilteredServiceUsersRaw.mockResolvedValue(null);
+
+    const expectedResponseBody = {
+      users: [],
+      numberOfRecords: 0,
+      page: 0,
+      numberOfPages: 0,
+      dateRange:
+        "Users between Sun, 01 Jan 2023 00:00:00 GMT and Thu, 05 Jan 2023 00:00:00 GMT",
+    };
+
+    await listUsers(mockReq, mockRes);
+
+    expect(getUsersRaw).not.toHaveBeenCalled();
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
+  });
+
   it('should handle valid single "from" date correctly and pass isWarning if set by findDateRange', async () => {
     mockReq.query = {
       from: "2023-03-05T00:00:00.000Z",
@@ -763,5 +786,87 @@ describe("listUsersWithoutFilters", () => {
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
     // Have to do a negative test because code implicitly will set the status to 200 on success
     expect(mockRes.status).not.toHaveBeenCalledWith(400);
+  });
+
+  it("should return an empty page instead of throwing when getFilteredServiceUsersRaw returns null", async () => {
+    mockReq.query = {
+      page: 1,
+      pageSize: 25,
+    };
+
+    getFilteredServiceUsersRaw.mockResolvedValue(null);
+
+    await listUsers(mockReq, mockRes);
+
+    expect(mockRes.send).toHaveBeenCalledWith({
+      users: [],
+      numberOfRecords: 0,
+      page: 0,
+      numberOfPages: 0,
+    });
+  });
+
+  it("should match users to service records case-insensitively", async () => {
+    mockReq.query = {
+      page: 1,
+      pageSize: 25,
+    };
+
+    getFilteredServiceUsersRaw.mockResolvedValue({
+      users: [
+        {
+          id: "USER1",
+          createdAt: "2023-01-01T00:00:00.000Z",
+          updatedAt: "2023-01-02T00:00:00.000Z",
+          organisation: { id: "org1", name: "Org It" },
+          role: { name: "Tester", id: "role1" },
+        },
+      ],
+      totalNumberOfRecords: 1,
+      page: 1,
+      totalNumberOfPages: 1,
+    });
+
+    getUsersRaw.mockResolvedValue([
+      {
+        sub: "user1",
+        email: "it@example.com",
+        family_name: "Testerson",
+        given_name: "It",
+        status: "Active",
+      },
+    ]);
+
+    getServiceUsersPostRaw.mockResolvedValue({
+      services: [
+        {
+          userId: "user1",
+          organisationId: "ORG1",
+          roles: [
+            {
+              id: "role1",
+              name: "Tester",
+              code: "TEST",
+              numericId: "1",
+              status: { id: 1 },
+            },
+          ],
+        },
+      ],
+    });
+
+    await listUsers(mockReq, mockRes);
+
+    expect(mockRes.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        users: [
+          expect.objectContaining({
+            email: "it@example.com",
+            roleName: "Tester",
+            roles: [expect.objectContaining({ id: "role1", code: "TEST" })],
+          }),
+        ],
+      }),
+    );
   });
 });

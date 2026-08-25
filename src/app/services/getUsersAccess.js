@@ -16,6 +16,9 @@ const getUsersAccess = async (req, res) => {
     );
 
     const service = await getServiceRaw({ by: { serviceId: sid } });
+    if (!service) {
+      return res.status(404).send();
+    }
 
     const access = await getUserServiceRaw({
       userId: uid,

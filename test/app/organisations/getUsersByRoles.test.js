@@ -196,6 +196,30 @@ describe("when getting organisations users with roles by ukprn", () => {
     });
   });
 
+  it("should match users to their roles case-insensitively", async () => {
+    getUsersRaw.mockReset().mockReturnValue([
+      {
+        sub: "3ac5a26c-4de4-45e9-914e-2d45ac98f298",
+        given_name: "User",
+        family_name: "One",
+        email: "user.one@unit.tests",
+      },
+    ]);
+
+    await getUsersByRoles(req, res);
+
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      ukprn: "10029085",
+      users: [
+        {
+          email: "user.one@unit.tests",
+          roles: ["USER"],
+        },
+      ],
+    });
+  });
+
   it("should return some results when everything is set up and no query keys are provided", async () => {
     const clonedRequest = JSON.parse(JSON.stringify(requestPayload));
     delete clonedRequest.query.roles;

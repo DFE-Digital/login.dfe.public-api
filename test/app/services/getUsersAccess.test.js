@@ -111,6 +111,17 @@ describe("when getting users access to service", () => {
     });
   });
 
+  it("then it should return 404 if service does not exist", async () => {
+    getServiceRaw.mockReturnValue(null);
+
+    await getUsersAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(getUserServiceRaw).not.toHaveBeenCalled();
+  });
+
   it("then it should return 404 if user has no access", async () => {
     getUserServiceRaw.mockReturnValue(undefined);
 

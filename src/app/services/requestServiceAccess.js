@@ -13,11 +13,7 @@ const { getOrganisation } = require("login.dfe.api-client/organisations");
 const { services } = require("login.dfe.dao");
 const { v4: uuid } = require("uuid");
 const config = require("../../infrastructure/config");
-
-const equalsIgnoreCase = (a, b) =>
-  typeof a === "string" &&
-  typeof b === "string" &&
-  a.toLowerCase() === b.toLowerCase();
+const { equalsIgnoreCase } = require("../utils");
 
 const notificationClient = new NotificationClient({
   connectionString: config.notifications.connectionString,
