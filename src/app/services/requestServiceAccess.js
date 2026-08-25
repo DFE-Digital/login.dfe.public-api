@@ -184,9 +184,8 @@ const requestServiceAccess = async (req, res) => {
 
   const { user, role, organisation, service } = validation;
 
-  var userServiceRequests = await getUserServiceRequestsRaw({
-    userId: req.body.userId,
-  });
+  const userServiceRequests =
+    (await getUserServiceRequestsRaw({ userId: req.body.userId })) || [];
 
   const matchingRequest = userServiceRequests.find(
     (item) =>
