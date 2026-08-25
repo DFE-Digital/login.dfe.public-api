@@ -122,7 +122,7 @@ const validateRequest = async ({
   }
 
   if (
-    service.relyingParty.client_id !== client.relyingParty.client_id &&
+    service.relyingParty.clientId !== client.relyingParty.client_id &&
     service.parentId !== client.id
   ) {
     return {

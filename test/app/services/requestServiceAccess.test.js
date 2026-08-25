@@ -291,7 +291,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: null,
-      relyingParty: { client_id: "caller-client-id" },
+      relyingParty: { clientId: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -348,7 +348,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: "some-other-parent-id",
-      relyingParty: { client_id: "service-owner-client-id" },
+      relyingParty: { clientId: "service-owner-client-id" },
     });
 
     const req = {
@@ -397,7 +397,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: "parent-service-id",
-      relyingParty: { client_id: "service-owner-client-id" },
+      relyingParty: { clientId: "service-owner-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -456,7 +456,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: null,
-      relyingParty: { client_id: "caller-client-id" },
+      relyingParty: { clientId: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -527,7 +527,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: null,
-      relyingParty: { client_id: "caller-client-id" },
+      relyingParty: { clientId: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
@@ -593,7 +593,7 @@ describe("requestServiceAccess", () => {
       id: "service-123",
       name: "Test Service",
       parentId: null,
-      relyingParty: { client_id: "caller-client-id" },
+      relyingParty: { clientId: "caller-client-id" },
     });
 
     getServiceRolesRaw.mockResolvedValue([
