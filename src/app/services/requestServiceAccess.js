@@ -43,14 +43,21 @@ const validateRequest = async ({
   serviceId,
   organisationId,
   userId,
-  roleId,
+  roleIds,
   client,
 }) => {
-  if (!serviceId || !organisationId || !userId || !roleId) {
+  if (
+    !serviceId ||
+    !organisationId ||
+    !userId ||
+    !Array.isArray(roleIds) ||
+    roleIds.length === 0
+  ) {
     return {
       valid: false,
       status: 400,
-      error: "serviceId, organisation, userId and roleId are required.",
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
     };
   }
 
@@ -133,21 +140,29 @@ const validateRequest = async ({
     };
   }
 
-  const roles = await getServiceRolesRaw({ serviceId });
-  const role = roles.find((r) => equalsIgnoreCase(r?.id, roleId));
+  const uniqueRoleIds = roleIds.filter(
+    (id, index) =>
+      roleIds.findIndex((other) => equalsIgnoreCase(other, id)) === index,
+  );
 
-  if (!role) {
+  const allServiceRoles = await getServiceRolesRaw({ serviceId });
+  const roles = uniqueRoleIds.map((id) =>
+    allServiceRoles.find((r) => equalsIgnoreCase(r?.id, id)),
+  );
+  const invalidRoleIds = uniqueRoleIds.filter((id, index) => !roles[index]);
+
+  if (invalidRoleIds.length > 0) {
     return {
       valid: false,
       status: 400,
-      error: "Invalid role for service.",
+      error: `Invalid role for service: ${invalidRoleIds.join(", ")}`,
     };
   }
 
   return {
     valid: true,
     user,
-    role,
+    roles,
     organisation,
     service,
   };
@@ -161,14 +176,14 @@ const requestServiceAccess = async (req, res) => {
   const baseUrl = `https://${config.services.host}:${config.services.port}`;
 
   const { sid: serviceId } = req.params;
-  const { organisation: organisationId, roleId, userId } = req.body;
+  const { organisation: organisationId, roleIds, userId } = req.body;
   const { client } = req;
 
   const validation = await validateRequest({
     serviceId,
     organisationId,
     userId,
-    roleId,
+    roleIds,
     client,
   });
 
@@ -178,7 +193,7 @@ const requestServiceAccess = async (req, res) => {
     });
   }
 
-  const { user, role, organisation, service } = validation;
+  const { user, roles, organisation, service } = validation;
 
   const userServiceRequests =
     (await getUserServiceRequestsRaw({ userId: req.body.userId })) || [];
@@ -196,13 +211,14 @@ const requestServiceAccess = async (req, res) => {
   }
 
   const serviceRequestId = uuid();
+  const roleIdsForUrl = roles.map((role) => role.id);
 
   const approveUrl = `${baseUrl}/request-service/${organisationId}/users/${userId}/services/${serviceId}/roles/${encodeURIComponent(
-    JSON.stringify([role.id]),
+    JSON.stringify(roleIdsForUrl),
   )}/approve?reqId=${serviceRequestId}`;
 
   const rejectUrl = `${baseUrl}/request-service/${organisationId}/users/${userId}/services/${serviceId}/roles/${encodeURIComponent(
-    JSON.stringify([role.id]),
+    JSON.stringify(roleIdsForUrl),
   )}/reject?reqId=${serviceRequestId}`;
 
   const helpUrl = `${config.help.url}/requests/can-end-user-request-service`;
@@ -211,7 +227,7 @@ const requestServiceAccess = async (req, res) => {
     serviceRequestId,
     userId,
     serviceId,
-    role.id,
+    roleIdsForUrl,
     organisationId,
     "service",
   );
@@ -222,7 +238,7 @@ const requestServiceAccess = async (req, res) => {
     organisationId,
     organisation.name,
     service.name,
-    [role.name],
+    roles.map((role) => role.name),
     rejectUrl,
     approveUrl,
     helpUrl,

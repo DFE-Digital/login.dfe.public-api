@@ -67,6 +67,7 @@ describe("requestServiceAccess", () => {
 
     config.notifications.connectionString = "test-connection-string";
   });
+
   it("returns 400 when userId is missing from post request body", async () => {
     const req = {
       params: {
@@ -74,7 +75,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
       },
     };
 
@@ -87,11 +88,12 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: "serviceId, organisation, userId and roleId are required.",
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
     });
   });
 
-  it("returns 400 when roleId is missing from post request body", async () => {
+  it("returns 400 when roleIds is missing from post request body", async () => {
     const req = {
       params: {
         sid: "service-123",
@@ -111,7 +113,60 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: "serviceId, organisation, userId and roleId are required.",
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
+    });
+  });
+
+  it("returns 400 when roleIds is an empty array", async () => {
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: [],
+        userId: "123",
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
+    });
+  });
+
+  it("returns 400 when roleIds is not an array", async () => {
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: "role-123",
+        userId: "123",
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
     });
   });
 
@@ -122,7 +177,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         userId: "123",
-        roleId: "1233",
+        roleIds: ["role-123"],
       },
     };
 
@@ -135,7 +190,8 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: "serviceId, organisation, userId and roleId are required.",
+      error:
+        "serviceId, organisation, userId and roleIds (a non-empty array) are required.",
     });
   });
 
@@ -151,7 +207,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
@@ -185,7 +241,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
@@ -221,7 +277,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
@@ -262,7 +318,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "a-completely-random-guid",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
@@ -300,7 +356,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
@@ -355,7 +411,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -377,7 +433,60 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: "Invalid role for service.",
+      error: "Invalid role for service: role-123",
+    });
+  });
+
+  it("returns 400 listing only the invalid role ids when some, but not all, requested roles are valid", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      {
+        id: "role-123",
+        name: "Valid Role",
+      },
+    ]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-123", "not-a-real-role"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid role for service: not-a-real-role",
     });
   });
 
@@ -405,7 +514,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -465,7 +574,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -524,7 +633,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -553,8 +662,158 @@ describe("requestServiceAccess", () => {
       }),
     );
 
+    expect(sendServiceRequestToApprovers).toHaveBeenCalledWith(
+      "John Smith",
+      "john.smith@example.com",
+      "organisation-123",
+      "Test Organisation",
+      "Test Service",
+      ["Test Role"],
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+    );
+
     expect(res.status).toHaveBeenCalledWith(202);
     expect(res.send).toHaveBeenCalled();
+  });
+
+  it("supports requesting multiple roles in a single request", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      { id: "role-1", name: "Role One" },
+      { id: "role-2", name: "Role Two" },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-1", "role-2"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(services.putUserServiceRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role_ids: "role-1,role-2",
+      }),
+    );
+
+    const [, , , , , requestedSubServices, rejectUrl, approveUrl] =
+      sendServiceRequestToApprovers.mock.calls[0];
+
+    expect(requestedSubServices).toEqual(["Role One", "Role Two"]);
+
+    const rolesFromApproveUrl = JSON.parse(
+      decodeURIComponent(approveUrl.match(/roles\/([^/]+)\//)[1]),
+    );
+    const rolesFromRejectUrl = JSON.parse(
+      decodeURIComponent(rejectUrl.match(/roles\/([^/]+)\//)[1]),
+    );
+
+    expect(rolesFromApproveUrl).toEqual(["role-1", "role-2"]);
+    expect(rolesFromRejectUrl).toEqual(["role-1", "role-2"]);
+
+    expect(res.status).toHaveBeenCalledWith(202);
+  });
+
+  it("de-duplicates roleIds supplied with different casing", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([{ id: "role-1", name: "Role One" }]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-1", "ROLE-1"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(services.putUserServiceRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role_ids: "role-1",
+      }),
+    );
+
+    const [, , , , , requestedSubServices] =
+      sendServiceRequestToApprovers.mock.calls[0];
+    expect(requestedSubServices).toEqual(["Role One"]);
   });
 
   it("encodes the role id as a JSON array in the approve/reject urls, matching what login.dfe.services expects", async () => {
@@ -595,7 +854,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -666,7 +925,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -729,7 +988,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -793,7 +1052,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -861,7 +1120,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
       client: {
@@ -896,7 +1155,7 @@ describe("requestServiceAccess", () => {
       },
       body: {
         organisation: "organisation-123",
-        roleId: "role-123",
+        roleIds: ["role-123"],
         userId: "user-123",
       },
     };
