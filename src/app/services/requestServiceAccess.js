@@ -72,6 +72,18 @@ const validateRequest = async ({
     };
   }
 
+  const organisation = await getOrganisation({
+    by: { organisationId: organisationId },
+  });
+
+  if (!organisation) {
+    return {
+      valid: false,
+      status: 404,
+      error: "Organisation not found",
+    };
+  }
+
   const userOrganisations = await getUserOrganisationsRaw({ userId });
   const belongsToOrganisation = userOrganisations.some((userOrganisation) =>
     equalsIgnoreCase(userOrganisation.organisation?.id, organisationId),
@@ -95,18 +107,6 @@ const validateRequest = async ({
       valid: false,
       status: 400,
       error: "Service does not belong to organisation",
-    };
-  }
-
-  const organisation = await getOrganisation({
-    by: { organisationId: organisationId },
-  });
-
-  if (!organisation) {
-    return {
-      valid: false,
-      status: 404,
-      error: "Organisation not found",
     };
   }
 
@@ -198,11 +198,11 @@ const requestServiceAccess = async (req, res) => {
   const serviceRequestId = uuid();
 
   const approveUrl = `${baseUrl}/request-service/${organisationId}/users/${userId}/services/${serviceId}/roles/${encodeURIComponent(
-    JSON.stringify(role.id),
+    JSON.stringify([role.id]),
   )}/approve?reqId=${serviceRequestId}`;
 
   const rejectUrl = `${baseUrl}/request-service/${organisationId}/users/${userId}/services/${serviceId}/roles/${encodeURIComponent(
-    JSON.stringify(role.id),
+    JSON.stringify([role.id]),
   )}/reject?reqId=${serviceRequestId}`;
 
   const helpUrl = `${config.help.url}/requests/can-end-user-request-service`;

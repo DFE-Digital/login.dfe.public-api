@@ -30,6 +30,14 @@ jest.mock("login.dfe.api-client/users", () => ({
 const requestServiceAccess = require("../../../src/app/services/requestServiceAccess");
 const config = require("../../../src/infrastructure/config");
 
+const { NotificationClient } = require("login.dfe.jobs-client");
+// requestServiceAccess.js instantiates NotificationClient once at module
+// load, so capture that single instance's mock here rather than inside
+// beforeEach (jest.clearAllMocks() there resets call history, not the
+// reference).
+const { sendServiceRequestToApprovers } =
+  NotificationClient.mock.results[0].value;
+
 const { getUser } = require("login.dfe.api-client/users");
 const { getOrganisation } = require("login.dfe.api-client/organisations");
 const {
@@ -52,6 +60,10 @@ describe("requestServiceAccess", () => {
     getUserOrganisationsRaw.mockResolvedValue([
       { organisation: { id: "organisation-123" } },
     ]);
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
 
     config.notifications.connectionString = "test-connection-string";
   });
@@ -231,6 +243,42 @@ describe("requestServiceAccess", () => {
     expect(res.json).toHaveBeenCalledWith({
       error: "Organisation not found",
     });
+  });
+
+  it("returns 404 for a nonexistent organisation rather than 400, even though the user does not belong to it either", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getOrganisation.mockResolvedValue(null);
+    // The user genuinely has no organisations at all, so if the membership
+    // check ran first it would also produce a (misleading) 400 here.
+    getUserOrganisationsRaw.mockResolvedValue([]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "a-completely-random-guid",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Organisation not found",
+    });
+    expect(getUserOrganisationsRaw).not.toHaveBeenCalled();
   });
 
   it("returns 404 when service does not exist", async () => {
@@ -507,6 +555,77 @@ describe("requestServiceAccess", () => {
 
     expect(res.status).toHaveBeenCalledWith(202);
     expect(res.send).toHaveBeenCalled();
+  });
+
+  it("encodes the role id as a JSON array in the approve/reject urls, matching what login.dfe.services expects", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      {
+        id: "role-123",
+        name: "Test Role",
+      },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+
+    services.putUserServiceRequest.mockResolvedValue({});
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleId: "role-123",
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    const [, , , , , , rejectUrl, approveUrl] =
+      sendServiceRequestToApprovers.mock.calls[0];
+
+    const rolesFromApproveUrl = JSON.parse(
+      decodeURIComponent(approveUrl.match(/roles\/([^/]+)\//)[1]),
+    );
+    const rolesFromRejectUrl = JSON.parse(
+      decodeURIComponent(rejectUrl.match(/roles\/([^/]+)\//)[1]),
+    );
+
+    expect(Array.isArray(rolesFromApproveUrl)).toBe(true);
+    expect(rolesFromApproveUrl).toEqual(["role-123"]);
+    expect(Array.isArray(rolesFromRejectUrl)).toBe(true);
+    expect(rolesFromRejectUrl).toEqual(["role-123"]);
   });
 
   it("creates a service request when the user has no prior service requests (Access API returns null, not an empty array)", async () => {
