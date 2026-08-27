@@ -19,7 +19,12 @@ const notificationClient = new NotificationClient({
   connectionString: config.notifications.connectionString,
 });
 
-const policyEngine = new PolicyEngine(config);
+// login.dfe.policy-engine pins its own login.dfe.api-client dependency,
+// which lands as a separate nested copy from the one this repo uses
+// directly (major version mismatch) and so has its own independent,
+// unconfigured connection registry. registerApiClient makes the engine
+// call setupApi() on that copy itself, using this same config.
+const policyEngine = new PolicyEngine(config, { registerApiClient: true });
 
 const createServiceRequest = async (
   reqId,
