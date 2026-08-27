@@ -172,6 +172,24 @@ const validateRequest = async ({
     };
   }
 
+  const roleSelectionIds = roles.map((role) => role.id);
+  const constraintViolations = await policyEngine.validate(
+    userId,
+    organisationId,
+    service.id,
+    roleSelectionIds,
+  );
+
+  if (constraintViolations.length > 0) {
+    return {
+      valid: false,
+      status: 400,
+      error: constraintViolations
+        .map((violation) => violation.message)
+        .join(" "),
+    };
+  }
+
   return {
     valid: true,
     user,

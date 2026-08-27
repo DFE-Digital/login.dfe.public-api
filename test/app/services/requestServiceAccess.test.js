@@ -23,6 +23,7 @@ jest.mock("login.dfe.jobs-client", () => ({
 jest.mock("login.dfe.policy-engine", () =>
   jest.fn().mockImplementation(() => ({
     getPolicyApplicationResultsForUser: jest.fn(),
+    validate: jest.fn(),
   })),
 );
 
@@ -43,7 +44,7 @@ const PolicyEngine = require("login.dfe.policy-engine");
 // reference).
 const { sendServiceRequestToApprovers } =
   NotificationClient.mock.results[0].value;
-const { getPolicyApplicationResultsForUser } =
+const { getPolicyApplicationResultsForUser, validate: policyEngineValidate } =
   PolicyEngine.mock.results[0].value;
 
 const { getUser } = require("login.dfe.api-client/users");
@@ -67,6 +68,7 @@ describe("requestServiceAccess", () => {
       (userId, organisationId, serviceIds) =>
         serviceIds.map((id) => ({ id, serviceAvailableToUser: true })),
     );
+    policyEngineValidate.mockResolvedValue([]);
     getUserOrganisationsRaw.mockResolvedValue([
       { organisation: { id: "organisation-123" } },
     ]);
@@ -763,6 +765,125 @@ describe("requestServiceAccess", () => {
     expect(rolesFromRejectUrl).toEqual(["role-1", "role-2"]);
 
     expect(res.status).toHaveBeenCalledWith(202);
+  });
+
+  it("returns 400 when the requested roles violate the service's minimum-roles constraint", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      { id: "role-1", name: "Role One" },
+      { id: "role-2", name: "Role Two" },
+    ]);
+
+    policyEngineValidate.mockResolvedValue([
+      {
+        constraint: "MinimumConstraint",
+        message: "At least 2 roles must be selected",
+        appliesTo: ["role-1"],
+      },
+    ]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-1"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(policyEngineValidate).toHaveBeenCalledWith(
+      "user-123",
+      "organisation-123",
+      "service-123",
+      ["role-1"],
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "At least 2 roles must be selected",
+    });
+    expect(services.putUserServiceRequest).not.toHaveBeenCalled();
+  });
+
+  it("creates the request when the selected roles satisfy the service's minimum-roles constraint", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@example.com",
+    });
+
+    getOrganisation.mockResolvedValue({
+      id: "organisation-123",
+      name: "Test Organisation",
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getServiceRolesRaw.mockResolvedValue([
+      { id: "role-1", name: "Role One" },
+      { id: "role-2", name: "Role Two" },
+    ]);
+
+    getUserServiceRequestsRaw.mockResolvedValue([]);
+    services.putUserServiceRequest.mockResolvedValue({});
+    policyEngineValidate.mockResolvedValue([]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-1", "role-2"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(202);
+    expect(services.putUserServiceRequest).toHaveBeenCalled();
   });
 
   it("de-duplicates roleIds supplied with different casing", async () => {
