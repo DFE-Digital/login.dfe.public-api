@@ -520,6 +520,7 @@ describe("listUsersWithFilters", () => {
 
     expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
     expect(getUsersRaw).not.toHaveBeenCalled();
+    expect(getServiceUsersPostRaw).not.toHaveBeenCalled();
     expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 
@@ -868,5 +869,34 @@ describe("listUsersWithoutFilters", () => {
         ],
       }),
     );
+  });
+
+  it("should not call getUsersRaw when the page has no users (empty userIds)", async () => {
+    mockReq.query = {
+      page: 2,
+      pageSize: 25,
+    };
+
+    const pageOfUserServicesEmpty = {
+      users: [],
+      totalNumberOfRecords: 0,
+      page: 2,
+      totalNumberOfPages: 1,
+    };
+    getFilteredServiceUsersRaw.mockResolvedValue(pageOfUserServicesEmpty);
+
+    const expectedResponseBody = {
+      users: [],
+      numberOfRecords: 0,
+      page: 2,
+      numberOfPages: 1,
+    };
+
+    await listUsers(mockReq, mockRes);
+
+    expect(getFilteredServiceUsersRaw).toHaveBeenCalled();
+    expect(getUsersRaw).not.toHaveBeenCalled();
+    expect(getServiceUsersPostRaw).not.toHaveBeenCalled();
+    expect(mockRes.send).toHaveBeenCalledWith(expectedResponseBody);
   });
 });
