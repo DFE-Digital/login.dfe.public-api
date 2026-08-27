@@ -4,7 +4,6 @@ const {
   getUser,
 } = require("login.dfe.api-client/users");
 const {
-  getServiceDetailsByOrganisatonId,
   getServiceRolesRaw,
   getService,
 } = require("login.dfe.api-client/services");
@@ -12,12 +11,15 @@ const { NotificationClient } = require("login.dfe.jobs-client");
 const { getOrganisation } = require("login.dfe.api-client/organisations");
 const { services } = require("login.dfe.dao");
 const { v4: uuid } = require("uuid");
+const PolicyEngine = require("login.dfe.policy-engine");
 const config = require("../../infrastructure/config");
 const { equalsIgnoreCase } = require("../utils");
 
 const notificationClient = new NotificationClient({
   connectionString: config.notifications.connectionString,
 });
+
+const policyEngine = new PolicyEngine(config);
 
 const createServiceRequest = async (
   reqId,
@@ -104,19 +106,6 @@ const validateRequest = async ({
     };
   }
 
-  const serviceByOrganisation = await getServiceDetailsByOrganisatonId({
-    serviceId: serviceId,
-    organisationId: organisationId,
-  });
-
-  if (!serviceByOrganisation) {
-    return {
-      valid: false,
-      status: 400,
-      error: "Service does not belong to organisation",
-    };
-  }
-
   const service = await getService({
     by: { serviceId: serviceId },
   });
@@ -126,6 +115,25 @@ const validateRequest = async ({
       valid: false,
       status: 404,
       error: "Service not found",
+    };
+  }
+
+  const policyResults = await policyEngine.getPolicyApplicationResultsForUser(
+    userId,
+    organisationId,
+    [service.id],
+  );
+  const serviceAvailableToOrganisation = policyResults.some(
+    (result) =>
+      equalsIgnoreCase(result.id, service.id) &&
+      result.serviceAvailableToUser === true,
+  );
+
+  if (!serviceAvailableToOrganisation) {
+    return {
+      valid: false,
+      status: 400,
+      error: "Service does not belong to organisation",
     };
   }
 

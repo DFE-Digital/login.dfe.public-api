@@ -10,7 +10,6 @@ jest.mock("login.dfe.api-client/organisations", () => ({
 
 jest.mock("login.dfe.api-client/services", () => ({
   getServiceRaw: jest.fn(),
-  getServiceDetailsByOrganisatonId: jest.fn(),
   getServiceRolesRaw: jest.fn(),
   getService: jest.fn(),
 }));
@@ -20,6 +19,12 @@ jest.mock("login.dfe.jobs-client", () => ({
     sendServiceRequestToApprovers: jest.fn(),
   })),
 }));
+
+jest.mock("login.dfe.policy-engine", () =>
+  jest.fn().mockImplementation(() => ({
+    getPolicyApplicationResultsForUser: jest.fn(),
+  })),
+);
 
 jest.mock("login.dfe.api-client/users", () => ({
   getUserServiceRequestsRaw: jest.fn(),
@@ -31,17 +36,19 @@ const requestServiceAccess = require("../../../src/app/services/requestServiceAc
 const config = require("../../../src/infrastructure/config");
 
 const { NotificationClient } = require("login.dfe.jobs-client");
-// requestServiceAccess.js instantiates NotificationClient once at module
-// load, so capture that single instance's mock here rather than inside
-// beforeEach (jest.clearAllMocks() there resets call history, not the
+const PolicyEngine = require("login.dfe.policy-engine");
+// requestServiceAccess.js instantiates NotificationClient/PolicyEngine once
+// at module load, so capture those single instances' mocks here rather than
+// inside beforeEach (jest.clearAllMocks() there resets call history, not the
 // reference).
 const { sendServiceRequestToApprovers } =
   NotificationClient.mock.results[0].value;
+const { getPolicyApplicationResultsForUser } =
+  PolicyEngine.mock.results[0].value;
 
 const { getUser } = require("login.dfe.api-client/users");
 const { getOrganisation } = require("login.dfe.api-client/organisations");
 const {
-  getServiceDetailsByOrganisatonId,
   getServiceRolesRaw,
   getService,
 } = require("login.dfe.api-client/services");
@@ -56,7 +63,10 @@ describe("requestServiceAccess", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    getServiceDetailsByOrganisatonId.mockResolvedValue({});
+    getPolicyApplicationResultsForUser.mockImplementation(
+      (userId, organisationId, serviceIds) =>
+        serviceIds.map((id) => ({ id, serviceAvailableToUser: true })),
+    );
     getUserOrganisationsRaw.mockResolvedValue([
       { organisation: { id: "organisation-123" } },
     ]);
@@ -1141,13 +1151,22 @@ describe("requestServiceAccess", () => {
     expect(services.putUserServiceRequest).toHaveBeenCalled();
   });
 
-  it("returns 400 when service does not belong to organisation", async () => {
+  it("returns 400 when the service is not available to the organisation (policy engine)", async () => {
     getUser.mockResolvedValue({
       id: "user-123",
       status: 1,
     });
 
-    getServiceDetailsByOrganisatonId.mockResolvedValue(null);
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getPolicyApplicationResultsForUser.mockResolvedValue([
+      { id: "service-123", serviceAvailableToUser: false },
+    ]);
 
     const req = {
       params: {
@@ -1158,6 +1177,10 @@ describe("requestServiceAccess", () => {
         roleIds: ["role-123"],
         userId: "user-123",
       },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
     };
 
     const res = {
@@ -1167,10 +1190,54 @@ describe("requestServiceAccess", () => {
 
     await requestServiceAccess(req, res);
 
-    expect(getServiceDetailsByOrganisatonId).toHaveBeenCalledWith({
-      serviceId: "service-123",
-      organisationId: "organisation-123",
+    expect(getPolicyApplicationResultsForUser).toHaveBeenCalledWith(
+      "user-123",
+      "organisation-123",
+      ["service-123"],
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Service does not belong to organisation",
     });
+  });
+
+  it("returns 400 when the policy engine returns no result at all for the service", async () => {
+    getUser.mockResolvedValue({
+      id: "user-123",
+      status: 1,
+    });
+
+    getService.mockResolvedValue({
+      id: "service-123",
+      name: "Test Service",
+      parentId: null,
+      relyingParty: { clientId: "caller-client-id" },
+    });
+
+    getPolicyApplicationResultsForUser.mockResolvedValue([]);
+
+    const req = {
+      params: {
+        sid: "service-123",
+      },
+      body: {
+        organisation: "organisation-123",
+        roleIds: ["role-123"],
+        userId: "user-123",
+      },
+      client: {
+        id: "caller-service-id",
+        relyingParty: { client_id: "caller-client-id" },
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await requestServiceAccess(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
