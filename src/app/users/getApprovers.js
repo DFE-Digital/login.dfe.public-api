@@ -1,4 +1,8 @@
-const { extractPageParam, extractPageSizeParam } = require("../utils");
+const {
+  extractPageParam,
+  extractPageSizeParam,
+  equalsIgnoreCase,
+} = require("../utils");
 const {
   getFilteredOrganisationUsersRaw,
 } = require("login.dfe.api-client/organisations");
@@ -26,16 +30,18 @@ const listApprovers = async (req, res) => {
   const policiesForService = await getServicePoliciesRaw({
     serviceId: req.client.id,
   });
-  const pageOfApprovers = await getFilteredOrganisationUsersRaw({
+  const pageOfApprovers = (await getFilteredOrganisationUsersRaw({
     page,
     pageSize,
     role: 10000,
     policies: policiesForService,
-  });
+  })) || { users: [], totalNumberOfRecords: 0, page: 0, totalNumberOfPages: 0 };
   const userIds = pageOfApprovers.users.map((user) => user.userId);
   const releventUsers = await getUsersRaw({ by: { userIds: userIds } });
   const mappedRecords = pageOfApprovers.users.map((userOrg) => {
-    const user = releventUsers.find((u) => u.sub === userOrg.userId);
+    const user = releventUsers.find((u) =>
+      equalsIgnoreCase(u.sub, userOrg.userId),
+    );
     let mappedUserOrg = {
       organisation: userOrg.organisation,
       roleId: userOrg.role && userOrg.role.id ? userOrg.role.id : undefined,

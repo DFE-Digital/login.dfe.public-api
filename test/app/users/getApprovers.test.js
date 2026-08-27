@@ -282,4 +282,52 @@ describe("when getting approver organisations", () => {
       numberOfPages: 2,
     });
   });
+
+  it("then it should return an empty page instead of throwing when getFilteredOrganisationUsersRaw returns null", async () => {
+    getFilteredOrganisationUsersRaw.mockReturnValue(null);
+
+    await getApprovers(req, res);
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send.mock.calls[0][0]).toMatchObject({
+      users: [],
+      numberOfRecords: 0,
+      page: 0,
+      numberOfPages: 0,
+    });
+  });
+
+  it("then it should match approvers to user records case-insensitively", async () => {
+    getFilteredOrganisationUsersRaw.mockReturnValue({
+      users: [
+        {
+          userId: "USERID",
+          organisation: { id: "orgId", name: "organisation name" },
+          role: { id: 10000, name: "Approver" },
+        },
+      ],
+      page: 1,
+      totalNumberOfPages: 1,
+      totalNumberOfRecords: 1,
+    });
+    getUsersRaw.mockReturnValue([
+      {
+        sub: "userid",
+        given_name: "User",
+        family_name: "One",
+        email: "user.one@unit.tests",
+      },
+    ]);
+
+    await getApprovers(req, res);
+
+    expect(res.send.mock.calls[0][0]).toMatchObject({
+      users: [
+        {
+          userId: "USERID",
+          email: "user.one@unit.tests",
+        },
+      ],
+    });
+  });
 });

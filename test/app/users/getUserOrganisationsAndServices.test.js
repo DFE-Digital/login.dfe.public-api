@@ -314,6 +314,47 @@ describe("when getting users organisations and services", () => {
     });
   });
 
+  it("then it should return organisations with no services if getUserServicesRaw returns undefined", async () => {
+    getUserServicesRaw.mockReset().mockReturnValue(undefined);
+
+    await getUsersOrganisationsAndServices(req, res);
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send.mock.calls[0][0]).toMatchObject({
+      userId: "6BEA40AE-947D-4767-9A97-C52FCED78B33",
+      organisations: [
+        {
+          id: "3DE9D503-6609-4239-BA55-14F8EBD69F56",
+          services: [],
+        },
+      ],
+    });
+  });
+
+  it("then it should match roles case-insensitively", async () => {
+    getServiceRolesRaw.mockReset().mockReturnValue([
+      {
+        id: "0b8625a7-43cb-433c-9991-00331879251b",
+        name: "School Experience - Service Configuration",
+        code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+        numericId: "21871",
+        status: { id: 1 },
+      },
+    ]);
+
+    await getUsersOrganisationsAndServices(req, res);
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(
+      res.send.mock.calls[0][0].organisations[0].services[0].roles,
+    ).toEqual([
+      {
+        code: "EF32DA2F-92C3-4E7E-A9D4-2E588F6F9A74_serviceconfig",
+        name: "School Experience - Service Configuration",
+      },
+    ]);
+  });
+
   it("should filter out hidden organisations", async () => {
     getFilteredServiceUsersRaw.mockReset().mockReturnValue({
       users: [

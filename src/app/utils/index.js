@@ -1,5 +1,6 @@
 const requestCorrelation = require("./requestCorrelation");
 const auth = require("./auth");
+const equalsIgnoreCase = require("./equalsIgnoreCase");
 const {
   extractPageParam,
   extractPageSizeParam,
@@ -13,6 +14,7 @@ const {
 module.exports = {
   requestCorrelation,
   auth,
+  equalsIgnoreCase,
   extractPageParam,
   extractPageSizeParam,
   extractIntParam,

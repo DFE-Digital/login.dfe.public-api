@@ -111,6 +111,23 @@ describe("When getting the roles for a service", () => {
     );
   });
 
+  it("then it should return the roles if the requester is the parent, matched case-insensitively", async () => {
+    getServiceRaw.mockReturnValue({
+      id: "service-1",
+      parentId: "PARENT-1",
+      relyingParty: {
+        client_id: "svc-clientId",
+      },
+    });
+
+    await getServiceRoles(req, res);
+
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json.mock.calls[0][0].length).toEqual(
+      getServiceRolesRaw().length,
+    );
+  });
+
   it("then it should return the roles if the requester is the requested service", async () => {
     req.client.relyingParty.client_id = "svc-clientId";
     await getServiceRoles(req, res);

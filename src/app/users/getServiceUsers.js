@@ -4,6 +4,7 @@ const {
   extractStatusParam,
   extractFromParam,
   extractToParam,
+  equalsIgnoreCase,
 } = require("../utils");
 const { getUsersRaw } = require("login.dfe.api-client/users");
 const {
@@ -51,11 +52,11 @@ const listUsersWithOutFilters = async (req, res) => {
     return res.status(400).send(e.message);
   }
 
-  const pageOfUserServices = await getFilteredServiceUsersRaw({
+  const pageOfUserServices = (await getFilteredServiceUsersRaw({
     serviceId: req.client.id,
     pageNumber: page,
     pageSize,
-  });
+  })) || { users: [], totalNumberOfRecords: 0, page: 0, totalNumberOfPages: 0 };
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
   const users = userIds.length
@@ -153,14 +154,14 @@ const listUsersWithFilters = async (req, res) => {
   const dateFromUTC = fromDate ? new Date(fromDate.toISOString()) : undefined;
   const dateToUTC = toDate ? new Date(toDate.toISOString()) : undefined;
 
-  const pageOfUserServices = await getFilteredServiceUsersRaw({
+  const pageOfUserServices = (await getFilteredServiceUsersRaw({
     serviceId: req.client.id,
     userStatus: status,
     dateFrom: dateFromUTC,
     dateTo: dateToUTC,
     pageNumber: page,
     pageSize,
-  });
+  })) || { users: [], totalNumberOfRecords: 0, page: 0, totalNumberOfPages: 0 };
 
   const userIds = pageOfUserServices.users.map((user) => user.id);
   const users = userIds.length
@@ -194,12 +195,12 @@ const listUsersWithFilters = async (req, res) => {
 
 const prepareUserResponse = (pageOfUserServices, users, userDataWithRoles) => {
   const mappedRecords = pageOfUserServices.users.map((userService) => {
-    const user = users.find((u) => u.sub === userService.id);
+    const user = users.find((u) => equalsIgnoreCase(u.sub, userService.id));
     const serviceRoles = mapRoleData(
       userDataWithRoles.services.find(
         (role) =>
-          role.userId === userService.id &&
-          role.organisationId === userService.organisation.id,
+          equalsIgnoreCase(role.userId, userService.id) &&
+          equalsIgnoreCase(role.organisationId, userService.organisation.id),
       ),
     );
     let mappedUserService = {

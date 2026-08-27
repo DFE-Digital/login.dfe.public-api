@@ -3,6 +3,7 @@ const {
   getServiceRaw,
   getServiceRolesRaw,
 } = require("login.dfe.api-client/services");
+const { equalsIgnoreCase } = require("../utils");
 
 const getServiceRoles = async (req, res) => {
   const { correlationId, clientCorrelationId, client } = req;
@@ -28,7 +29,7 @@ const getServiceRoles = async (req, res) => {
 
   if (
     service.relyingParty.client_id !== clientId &&
-    service.parentId !== clientServiceId
+    !equalsIgnoreCase(service.parentId, clientServiceId)
   ) {
     return res.status(403).send();
   }
