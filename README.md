@@ -302,6 +302,64 @@ or the following if no roles were found:
 []
 ```
 
+## Request user access to service
+
+If a user signs in to your service but does not yet have access to it (for example, they land on an error or "no access" page), you can use this API to raise a pending access request on their behalf, on the same organisation the user is already part of. This is the same request that a user would otherwise have to raise themselves via the DfE Sign-in "Request access to a service" journey — approvers for the organisation are notified in exactly the same way, and use the same approve/reject pages.
+
+The request looks like:
+
+```
+POST https://environment-url/services/{service-id}/access-requests
+Authorization: bearer {jwt-token}
+
+{
+    "userId": "dfe-signin-user-id",
+    "organisation": "organisation-id",
+    "roleIds": ["role-id-1", "role-id-2"]
+}
+```
+
+The variable data items are:
+
+| Name         | Location | Required | Description                                                                                                                                                     |
+| ------------ | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| service-id   | URL      | Y        | The DfE Sign-in identifier for the service the user is requesting access to                                                                                     |
+| jwt-token    | Header   | Y        | The JWT token for authorization should be signed using your API secret, which will be provided to you                                                           |
+| userId       | Body     | Y        | The DfE Sign-in identifier of the user requesting access. The user must already exist in DfE Sign-in and be active                                              |
+| organisation | Body     | Y        | The DfE Sign-in identifier of the organisation the user is requesting access through. The user must already be a member of this organisation                    |
+| roleIds      | Body     | Y        | A non-empty array of DfE Sign-in role identifiers being requested for the service. Some services require more than one role to be selected together — see notes |
+
+Possible response codes are:
+
+| HTTP Status Code | Reason                                                                                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 202              | Your request has been accepted. A pending access request has been created and the organisation's approvers have been notified                                                                       |
+| 400              | Your request is invalid. The response body's `error` field explains why — see "Reasons for a 400 response" below                                                                                    |
+| 401              | Your JWT is missing or not valid                                                                                                                                                                    |
+| 403              | Your client is not authorized to request access to the specified service. You must be the service itself, or its registered parent service                                                          |
+| 404              | The user, organisation, or service in the request could not be found                                                                                                                                |
+| 409              | The user already has a pending request for this service within this organisation. Wait for an approver to action it before requesting again                                                         |
+| 500              | An error occurred on the server. Please ensure that secrets like secrets, API keys, or tokens are correctly configured. If the issue still persists, please contact the support team for assistance |
+
+### Reasons for a 400 response
+
+The `error` field in the response body will contain one of the following:
+
+- `serviceId, organisation, userId and roleIds (a non-empty array) are required.` — one or more required fields is missing, or `roleIds` was not provided as a non-empty array
+- `User has to be active.` — the user exists but is not currently active
+- `User does not belong to organisation.` — the user is not a member of the given organisation
+- `Service does not belong to organisation` — the service is not available to this organisation
+- `Invalid role for service: {role-id}` — one or more of the supplied `roleIds` do not exist for this service (the invalid id(s) are named)
+- A role-selection constraint message, e.g. `At least 2 roles must be selected` — the service requires a specific number (or combination) of roles to be requested together, and the supplied `roleIds` don't satisfy that. This mirrors the same rule enforced in the "Add services to my account" journey when a user selects roles themselves
+
+### Finding a role's identifier
+
+`roleIds` expects the role's DfE Sign-in identifier (`id`), not its `code`. The [Get roles for service](#get-roles-for-service) endpoint above is the closest existing way to discover the roles configured for your service, but its response currently only includes `name`, `code` and `status` — not the `id` this endpoint needs. Until that's addressed, contact the DfE Sign-in team to confirm the role identifiers for your service.
+
+### Approver notifications
+
+Approvers are only notified if the organisation has at least one active user assigned the Approver role. If nobody is configured as an approver for the organisation, the request is still created (you'll still get a `202`), but no notification email is sent — there is currently no way to detect this case from the API response.
+
 ## Get organisations for user including Provider Profile organisation attributes
 
 You can use this API to get the organisations associated with a user
