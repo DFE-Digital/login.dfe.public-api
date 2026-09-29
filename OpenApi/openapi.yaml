@@ -30,17 +30,56 @@ paths:
     get:
       tags:
         - Organisations
-      summary: Get the organisations users.
+      summary: Get the users of your service at the organisation(s) with a UKPRN or UPIN.
+      description: >-
+        The value is looked up as a UKPRN first. It is only looked up as a UPIN if no organisation
+        has that UKPRN; if a value is the UKPRN of one organisation and the UPIN of another, the
+        UKPRN organisation is always used. If organisations are found by UKPRN but none of their
+        users have your service, 404 is returned and the UPIN lookup is not tried.
+
+        Users are collected from every organisation that matches (more than one organisation can
+        share a UKPRN or UPIN). Only users with access to the calling service (the `iss` of the
+        token) are returned. A user with access at more than one matching organisation is returned
+        once (matched by email) with their role codes combined; the response does not identify
+        which organisation a user or role belongs to.
+
+        `firstName`, `lastName` and `userStatus` describe the user's DfE Sign-in account;
+        deactivated accounts (`userStatus` 0) are included.
       parameters:
         - name: ukprn
-          in: query
+          in: path
+          description: UKPRN or UPIN of the organisation. UKPRN is checked first.
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
+        - name: roles
+          in: query
+          description: >-
+            Comma-separated role codes. Returns users with at least one of these roles at an
+            organisation (their other roles at that organisation are still returned). Applied per
+            organisation before duplicate users are merged.
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Return only the user with this email address (case-insensitive).
+          required: false
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: Return only the user with this DfE Sign-in identifier.
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganisationUsersResponse"
         "400":
           description:
             Request is invalid. Additional details will be provided in the
@@ -56,17 +95,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
         "403":
-          description: Application lacks permission to retrieve users for this organisation.
+          description: >-
+            The token was not accepted (for example unknown issuer, invalid signature or invalid
+            audience). The body contains a `message`.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
         "404":
-          description: The service id in the uri does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetails"
+          description: >-
+            No organisation has this value as a UKPRN or UPIN, or no users with access to your
+            service match (including after filters). The body is empty.
         "500":
           description:
             An error occurred on the server. Please ensure that secrets like
@@ -221,7 +260,18 @@ paths:
     get:
       tags:
         - Users
-      summary: Get a list of users.
+      summary: Get a list of users of your service.
+      description: >-
+        Without `status`, `from` or `to`, all users of the calling service are returned (paged).
+
+        If any of `status`, `from` or `to` is provided, results are limited to at most 90 days:
+        `from` and `to` more than 90 days apart is rejected with 400; `from` only sets `to` to 90
+        days after `from`; `to` only sets `from` to 90 days before `to`; `status` only returns the
+        last 90 days. When the API sets a date for you, a `warning` is returned. `dateRange`
+        shows the range actually applied.
+
+        Dates are UTC. A date without a time means 00:00:00 at the start of that day, so `to` does
+        not include changes made during that day.
       parameters:
         - name: page
           in: query
@@ -237,6 +287,29 @@ paths:
             type: integer
             format: int32
             default: 25
+        - name: status
+          in: query
+          description: >-
+            User account status, `1` (active) or `0` (deactivated). Providing it applies the
+            90-day date range rules even if no dates are given.
+          required: false
+          schema:
+            type: string
+            enum: ["0", "1"]
+        - name: from
+          in: query
+          description: Start date (YYYY-MM-DD, UTC). At most 90 days before `to`.
+          required: false
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: >-
+            End date (YYYY-MM-DD, UTC). Treated as 00:00:00 at the start of the day. At most 90
+            days after `from`.
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: OK
@@ -244,14 +317,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsersGetPagedUsersResponse"
+        "400":
+          description: >-
+            Invalid filter. The body is plain text, one of: `Status is not valid. Should be either
+            0 or 1.`, `From date is not a valid date.`, `To date is not a valid date.`, `From date
+            greater than to date`, `Only 90 days are allowed between dates`, `Date range should not
+            be in the future`.
+          content:
+            text/plain:
+              schema:
+                type: string
   /users/approvers:
     get:
       tags:
         - Users
       summary: Get a list of approvers.
-      description:
+      description: >-
         Get a list of approvers for organisations that are within your
         services scope (based on role policy conditions).
+
+        Only available to services with the service setting `canViewApproverReport` set to `true`
+        (managed by the DfE Sign-in team). Other services receive 403 with an empty body.
       parameters:
         - name: page
           in: query
@@ -287,12 +373,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
         "403":
-          description: Application does not have permission to get approvers for
-            organisations.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetails"
+          description: >-
+            Empty body: the service does not have the `canViewApproverReport` setting set to `true`.
+            JSON body with a `message`: the token was not accepted (for example unknown issuer or
+            invalid signature).
         "500":
           description:
             An error occurred on the server. Please ensure that secrets like
@@ -307,9 +391,12 @@ paths:
       tags:
         - Users
       summary: Get the organisations associated with a user.
+      description: >-
+        Returns an array of organisations (not wrapped in an object). Organisations with status id
+        0 are not returned.
       parameters:
         - name: uid
-          in: query
+          in: path
           description: The DfE Sign-in identifier for the user.
           required: true
           schema:
@@ -321,7 +408,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UsersGetOrganisationsResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Organisation"
+        "404":
+          description: The user has no organisations. The body is empty.
   /users/{uid}/organisationservices:
     get:
       tags:
@@ -463,7 +554,19 @@ components:
           type: string
           format: date-time
           nullable: true
-      additionalProperties: false
+      description: >-
+        Organisations are returned as held by DfE Sign-in and currently contain further attributes
+        not listed here (for example LegalName, GIASStatus, PIMSStatusName, IsOnAPAR,
+        SourceSystem, DistrictAdministrative_code, status.tagColor, and on GET /users the link
+        attributes user_id, organisation_id, user_status, user_createdAt and user_updatedAt).
+        Attributes for internal DfE Sign-in use should not be relied upon and may be removed in a
+        future version.
+
+        Note: on GET /users the organisation is returned in a different, flat shape with
+        different attribute names (for example `Category` as a code instead of a `category`
+        object, `Status` as a number instead of a `status` object, and `UKPRN` / `URN` / `UPIN`
+        in upper case). See the "Service Users without filters" example in the README.
+      additionalProperties: true
     OrganisationCategory:
       type: object
       properties:
@@ -709,14 +812,42 @@ components:
             $ref: "#/components/schemas/Organisation"
           nullable: true
       additionalProperties: false
-    UsersGetOrganisationsResponse:
+    OrganisationUser:
       type: object
       properties:
-        organisations:
+        email:
+          type: string
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        userStatus:
+          type: integer
+          format: int32
+          description: DfE Sign-in account status (1 active, 0 deactivated).
+        roles:
+          type: array
+          description: >-
+            Role codes for the calling service, combined across all matching organisations.
+          items:
+            type: string
+      additionalProperties: false
+    OrganisationUsersResponse:
+      type: object
+      description: >-
+        Contains `ukprn` if the value matched by UKPRN, or `upin` if it matched by UPIN (only one
+        is present).
+      properties:
+        ukprn:
+          type: string
+        upin:
+          type: string
+        users:
           type: array
           items:
-            $ref: "#/components/schemas/Organisation"
-          nullable: true
+            $ref: "#/components/schemas/OrganisationUser"
       additionalProperties: false
     UsersGetPagedUsersResponse:
       type: object
@@ -735,6 +866,15 @@ components:
         numberOfPages:
           type: integer
           format: int32
+        warning:
+          type: string
+          description: >-
+            GET /users with filters only. `Only 90 days of data can be fetched` when the API set
+            `from` and/or `to` for you.
+        dateRange:
+          type: string
+          description: >-
+            GET /users with filters only. Human readable description of the date range applied.
       additionalProperties: false
   securitySchemes:
     Bearer:
