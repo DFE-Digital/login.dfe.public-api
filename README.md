@@ -617,9 +617,7 @@ _Response Example_
 Notes on the response:
 
 - `roleId` and `roleName` are omitted when the user has no organisation role.
-- The `organisation` object is returned as held by DfE Sign-in and currently contains more attributes than shown above
-  (for example `LegalName`, `IsOnAPAR`, `GIASStatus`, `MasterProviderStatusCode`, `localAuthorityId`, `localAuthorityCode`,
-  `localAuthorityName`, `DistrictAdministrativeCode`, `masteringCode`, `DistrictAdministrative_code`).
+- The `organisation` object is returned as held by DfE Sign-in and may contain additional attributes.
 - The `organisation` object currently also includes attributes describing the user's link to the organisation:
   `user_id`, `organisation_id`, `user_status`, `user_createdAt` and `user_updatedAt`. These duplicate `userId` and
   `organisation.id` or are for internal DfE Sign-in use. Do not rely on them, or on internal attributes such as
@@ -687,6 +685,7 @@ Validation errors return **400 (Bad Request)** with a plain text (not JSON) body
 | `From date greater than to date`              | `from` is after `to`                                    |
 | `Only 90 days are allowed between dates`      | `from` and `to` are more than 90 days apart             |
 | `Date range should not be in the future`      | both dates are in the future, or the only date provided is in the future |
+| `<value> is not a valid value for <name>. Expected a number` | `page` or `pageSize` is not a number     |
 
 ### Response
 

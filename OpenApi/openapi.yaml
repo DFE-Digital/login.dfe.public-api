@@ -319,10 +319,11 @@ paths:
                 $ref: "#/components/schemas/UsersGetPagedUsersResponse"
         "400":
           description: >-
-            Invalid filter. The body is plain text, one of: `Status is not valid. Should be either
-            0 or 1.`, `From date is not a valid date.`, `To date is not a valid date.`, `From date
-            greater than to date`, `Only 90 days are allowed between dates`, `Date range should not
-            be in the future`.
+            Invalid query parameter. Date/status filter errors return a plain-text body containing
+            one of: `Status is not valid. Should be either 0 or 1.`, `From date is not a valid
+            date.`, `To date is not a valid date.`, `From date greater than to date`, `Only 90 days
+            are allowed between dates`, or `Date range should not be in the future`. Invalid `page`
+            or `pageSize` values return `<value> is not a valid value for <name>. Expected a number`.
           content:
             text/plain:
               schema:
@@ -410,7 +411,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Organisation"
+                  $ref: "#/components/schemas/UserOrganisation"
         "404":
           description: The user has no organisations. The body is empty.
   /users/{uid}/organisationservices:
@@ -566,6 +567,174 @@ components:
         different attribute names (for example `Category` as a code instead of a `category`
         object, `Status` as a number instead of a `status` object, and `UKPRN` / `URN` / `UPIN`
         in upper case). See the "Service Users without filters" example in the README.
+      additionalProperties: true
+    UserOrganisation:
+      type: object
+      description: >-
+        An organisation as returned by GET /users/{uid}/organisations. The organisation is returned
+        as held by DfE Sign-in, so `type`, `phaseOfEducation` and `region` are objects and some
+        attribute names are not camel case. Values that are not known are null. Attributes such as
+        `SourceSystem`, `legacyId`, `status.tagColor` and `DistrictAdministrative_code` are for
+        internal DfE Sign-in use and should not be relied upon; they may be removed in a future
+        version.
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        LegalName:
+          type: string
+          nullable: true
+        category:
+          $ref: "#/components/schemas/OrganisationCategory"
+        type:
+          $ref: "#/components/schemas/UserOrganisationCodeName"
+        urn:
+          type: string
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+        ukprn:
+          type: string
+          nullable: true
+        upin:
+          type: string
+          nullable: true
+        establishmentNumber:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/UserOrganisationStatus"
+        closedOn:
+          type: string
+          format: date-time
+          nullable: true
+        OpenedOn:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        telephone:
+          type: string
+          nullable: true
+        phaseOfEducation:
+          $ref: "#/components/schemas/UserOrganisationCodeName"
+        statutoryLowAge:
+          type: integer
+          format: int32
+          nullable: true
+        statutoryHighAge:
+          type: integer
+          format: int32
+          nullable: true
+        region:
+          $ref: "#/components/schemas/UserOrganisationCodeName"
+        localAuthority:
+          $ref: "#/components/schemas/UserOrganisationLocalAuthority"
+        DistrictAdministrativeCode:
+          type: string
+          nullable: true
+        DistrictAdministrativeName:
+          type: string
+          nullable: true
+        DistrictAdministrative_code:
+          type: string
+          nullable: true
+        legacyId:
+          type: string
+          nullable: true
+        companyRegistrationNumber:
+          type: string
+          nullable: true
+        SourceSystem:
+          type: string
+          nullable: true
+        providerTypeName:
+          type: string
+          nullable: true
+        ProviderTypeCode:
+          type: integer
+          format: int32
+          nullable: true
+        GIASProviderType:
+          type: string
+          nullable: true
+        GIASStatus:
+          type: integer
+          format: int32
+          nullable: true
+        GIASStatusName:
+          type: string
+          nullable: true
+        PIMSProviderType:
+          type: string
+          nullable: true
+        PIMSProviderTypeCode:
+          type: integer
+          format: int32
+          nullable: true
+        pimsStatus:
+          type: integer
+          format: int32
+          nullable: true
+        PIMSStatusName:
+          type: string
+          nullable: true
+        MasterProviderStatusCode:
+          type: integer
+          format: int32
+          nullable: true
+        MasterProviderStatusName:
+          type: string
+          nullable: true
+        IsOnAPAR:
+          type: string
+          nullable: true
+      additionalProperties: true
+    UserOrganisationCodeName:
+      type: object
+      nullable: true
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserOrganisationStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          nullable: true
+        tagColor:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserOrganisationLocalAuthority:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
       additionalProperties: true
     OrganisationCategory:
       type: object
