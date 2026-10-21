@@ -325,7 +325,7 @@ paths:
             are allowed between dates`, or `Date range should not be in the future`. Invalid `page`
             or `pageSize` values return `<value> is not a valid value for <name>. Expected a number`.
           content:
-            text/plain:
+            text/html:
               schema:
                 type: string
   /users/approvers:
