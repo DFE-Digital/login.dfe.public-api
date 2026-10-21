@@ -378,6 +378,15 @@ paths:
             Empty body: the service does not have the `canViewApproverReport` setting set to `true`.
             JSON body with a `message`: the token was not accepted (for example unknown issuer or
             invalid signature).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
         "500":
           description:
             An error occurred on the server. Please ensure that secrets like
