@@ -1,6 +1,6 @@
 # DfE Login Public API
 
-**DfE Login Public API** provides secure, RESTful endpoints for external consumers and relying parties to integrate with the DfE Sign-in platform. It enables access to user, organisation, and service data, supporting operations such as invitations, access management, and announcements. This service is part of the wider **login.dfe** project.
+**DfE Login Public API** provides secure, RESTful endpoints for external consumers and relying parties to integrate with the DfE Sign-in platform. It enables access to user, organisation, and service data, supporting operations such as invitations, access management, and announcements. This service is part of the wider **login.dfe** project
 
 ## Getting Started
 
